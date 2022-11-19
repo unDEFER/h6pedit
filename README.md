@@ -1,7 +1,6 @@
-# hexpict
+# h6pedit
 
-hexpict is tools for converting PNG images to H6P-format of
-hexagonal graphic and backward.
+h6pedit is tools to edit H6P-files of hexagonal graphic.
 
 ## Story of the project (@Story)
 
@@ -27,4 +26,5 @@ E.g. circle with 1.5 hexpixels radius and line with a 15 degree slope:
 
 ![Circle and line](details/pictures/example.png)
 
-This project is not yet an editor, but a converter. To be continued.
+This project is very simple editor, but examples you can see
+[here](http://unde.su/h6p/).
