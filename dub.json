@@ -1,0 +1,15 @@
+{
+	"authors": [
+		"unDEFER"
+	],
+	"copyright": "Copyright © 2022, unDEFER",
+	"description": "Editor of H6P format of hexagonal graphic",
+	"license": "GPL-3",
+	"name": "h6pedit",
+    "sourcePaths": ["src"],
+	"dependencies": {
+		"imaged": "~>1.0.2",
+        "derelict-sdl2":"~>2.0.0",
+        "derelict-util":"~>2.0.4"
+	}
+}
