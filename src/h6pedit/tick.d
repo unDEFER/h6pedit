@@ -60,12 +60,15 @@ void process_debug_key(SDL_Event event)
     if (event.key.keysym.scancode == SDL_SCANCODE_D)
     {
         Pixel *p = picture.image.pixel(select.x, select.y);
-        ushort form = p.forms[edited_form].form;
-        ubyte rotation = p.forms[edited_form].rotation;
+        if (edited_form < p.forms.length)
+        {
+            ushort form = p.forms[edited_form].form;
+            ubyte rotation = p.forms[edited_form].rotation;
 
-        writefln("%sx%s form %s rotation %s", select.x, select.y, form, rotation);
-        if (form > 19*4)
-            writefln("form %s", picture.image.forms[form-19*4]);
+            writefln("%sx%s form %s rotation %s", select.x, select.y, form, rotation);
+            if (form > 19*4)
+                writefln("form %s", picture.image.forms[form-19*4]);
+        }
     }
 }
 
