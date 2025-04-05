@@ -77,8 +77,8 @@ class Reference
 
                 int pixw = scales[.scale];
                 float scaleup = 1.0f*pixw/sizeRw;
-                int offx = max(0, select.x - screen.w/2/pixw);
-                int offy = max(0, select.y - screen.h/2/(pixw*7/8));
+                int offx = picture.offx;
+                int offy = picture.offy;
                 SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, select.x, select.y);
 
                 texture = SDL_CreateTextureFromSurface(renderer, im);
