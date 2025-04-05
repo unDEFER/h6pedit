@@ -481,8 +481,6 @@ void draw_screen()
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, null);
 
-    draw_picture();
-
     double refScale = 1.0;
     int vx = 0;
     int vy = 0;
@@ -492,6 +490,8 @@ void draw_screen()
         reference.draw();
         reference.draw_cursor();
     }
+
+    draw_picture();
 
     draw_palette();
 

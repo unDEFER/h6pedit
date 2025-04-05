@@ -38,7 +38,7 @@ class Reference
         int rw, rh;
 
         int oldx = -1, oldy = -1;
-        ubyte oldpixwnum;
+        int oldpixwnum;
 
         SDL_Surface *image;
 
@@ -71,15 +71,15 @@ class Reference
 
         void draw()
         {
-            if (select.x != oldx || select.y != oldy || pixwnum != oldpixwnum)
+            if (select.x != oldx || select.y != oldy || scales[.scale] != oldpixwnum)
             {
                 if (texture) SDL_DestroyTexture(texture);
 
-                int pixw = pixwar[pixwnum];
+                int pixw = scales[.scale];
                 float scaleup = 1.0f*pixw/sizeRw;
-                int offx = max(0, select.x - screen.w/4/pixw);
+                int offx = max(0, select.x - screen.w/2/pixw);
                 int offy = max(0, select.y - screen.h/2/(pixw*7/8));
-                SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w/2, screen.h, select.x, select.y);
+                SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, select.x, select.y);
 
                 texture = SDL_CreateTextureFromSurface(renderer, im);
 
@@ -87,19 +87,19 @@ class Reference
 
                 oldx = select.x;
                 oldy = select.y;
-                oldpixwnum = pixwnum;
+                oldpixwnum = scales[.scale];
             }
 
             SDL_Rect src_rect, dst_rect;
 
             src_rect.x = 0;
             src_rect.y = 0;
-            src_rect.w = screen.w/2;
+            src_rect.w = screen.w;
             src_rect.h = screen.h;
 
-            dst_rect.x = screen.w/2;
+            dst_rect.x = 0;
             dst_rect.y = 0;
-            dst_rect.w = screen.w/2;
+            dst_rect.w = screen.w;
             dst_rect.h = screen.h;
 
             SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
