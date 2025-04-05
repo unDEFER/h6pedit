@@ -7,9 +7,17 @@
 	"license": "GPL-3",
 	"name": "h6pedit",
     "sourcePaths": ["src"],
-	"dependencies": {
-		"imaged": "~>1.0.2",
-        "derelict-sdl2":"~>2.0.0",
-        "derelict-util":"~>2.0.4"
-	}
+    "dependencies": {
+        "bindbc-sdl": "~>1.4.0"
+    },
+    "subConfigurations": {
+        "bindbc-sdl": "static"
+    },
+    "versions": [
+        "SDL_2016", "SDL_Image_200"
+    ],
+    "libs": [
+        "SDL2", "SDL2_image"
+    ]
+
 }

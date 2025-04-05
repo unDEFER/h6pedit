@@ -16,8 +16,7 @@ module h6pedit.main_loop;
 import h6pedit.global_state;
 import h6pedit.tick;
 import h6pedit.draw;
-import derelict.sdl2.sdl;
-import derelict.sdl2.image;
+import bindbc.sdl;
 
 import std.stdio;
 

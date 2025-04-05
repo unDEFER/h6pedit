@@ -21,6 +21,8 @@ import std.array;
 import std.conv;
 import std.file;
 
+import hexpict.color;
+import h6pedit.tiles;
 import h6pedit.global_state;
 import h6pedit.main_loop;
 
@@ -57,6 +59,8 @@ int main(string[] args)
     int pw = 10;
     nw = nh = -1;
     bool options;
+
+    load_tiles();
 
     for (int i = 1; i < args.length; i++)
     {

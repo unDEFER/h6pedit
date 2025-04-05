@@ -14,17 +14,19 @@
 module h6pedit.tick;
 
 import h6pedit.global_state;
-import hexpict.common;
+import h6pedit.rendered_h6p;
 import hexpict.h6p;
 import hexpict.hyperpixel;
-
-import derelict.sdl2.sdl;
+import hexpict.color;
+import hexpict.colors;
 
 import std.datetime;
 import std.algorithm;
 import std.stdio;
 import std.math;
-import imaged;
+import std.container: DList;
+import std.bitmanip;
+import bindbc.sdl;
 
 // @Tick
 void make_tick()
@@ -52,10 +54,25 @@ void process_event(SDL_Event event)
     }
 }
 
+// @Debug
+void process_debug_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_D)
+    {
+        Pixel *p = picture.image.pixel(select.x, select.y);
+        ushort form = p.forms[edited_form].form;
+        ubyte rotation = p.forms[edited_form].rotation;
+
+        writefln("%sx%s form %s rotation %s", select.x, select.y, form, rotation);
+        if (form > 19*4)
+            writefln("form %s", picture.image.forms[form-19*4]);
+    }
+}
+
 // @Finish
 void process_exit_key(SDL_Event event)
 {
-    if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+    if (lctrl && event.key.keysym.scancode == SDL_SCANCODE_Z)
     {
         finish = true;
     }
@@ -64,12 +81,12 @@ void process_exit_key(SDL_Event event)
 // @ColorPicker
 void process_color_picker_key(SDL_Event event)
 {
-    if (event.key.keysym.scancode == SDL_SCANCODE_C)
+    if (!lctrl && event.key.keysym.scancode == SDL_SCANCODE_C)
     {
         if (mode == Mode.ColorPicker)
         {
             mode = Mode.Edit;
-            change_color = Pixel.init;
+            change_color = 0;
             palette_reinit();
         }
         else
@@ -77,6 +94,13 @@ void process_color_picker_key(SDL_Event event)
             mode = Mode.ColorPicker;
             mask_hint.changed = true;
             picture.changed = true;
+
+            bool err;
+            ubyte[4] pc;
+            Color color = pictures[pict].image.cpalette[0][color];
+            color_to_u8(&color, &SRGB_SPACE, pc, &err, ErrCorrection.ORDINARY);
+
+            color_gray = min(pc[0], pc[1], pc[2]);
         }
     }
 }
@@ -100,6 +124,7 @@ void process_choose_pict_keys(SDL_Event event)
                 if (select.y >= picture.image.height)
                     select.y = picture.image.height-1;
 
+                picture.scale = scales[scale];
                 picture.changed = true;
                 selection.changed = true;
             }
@@ -112,18 +137,21 @@ void process_change_view_keys(SDL_Event event)
 {
     if (event.key.keysym.scancode == SDL_SCANCODE_W)
     {
-        scale++;
-        if (scale >= scales.length) scale = cast(int) (scales.length-1);
+        if (scale < scales.length-1) scale++;
         picture.scale = scales[scale];
         picture.changed = true;
+
+        picture.offx = select.x - screen.w/picture.scale/4;
+        picture.offy = cast(int) (select.y - screen.h/(picture.scale*7.0/8.0)/2);
+        if (picture.offx < 0) picture.offx = 0;
+        if (picture.offy < 0) picture.offy = 0;
 
         selection_reinit();
         selection.changed = true;
     }
     if (event.key.keysym.scancode == SDL_SCANCODE_S)
     {
-        scale--;
-        if (scale < 0) scale = 0;
+        if (scale > 0) scale--;
         picture.scale = scales[scale];
         picture.changed = true;
 
@@ -131,25 +159,25 @@ void process_change_view_keys(SDL_Event event)
         selection.changed = true;
     }
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+    if (event.key.keysym.scancode == SDL_SCANCODE_UP)
     {
         picture.offy--;
         if (picture.offy < 0) picture.offy = 0;
         picture.changed = true;
     }
-    if (event.key.keysym.scancode == SDL_SCANCODE_A)
+    if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
     {
         picture.offy++;
         picture.changed = true;
     }
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_O)
+    if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
     {
         picture.offx--;
         if (picture.offx < 0) picture.offx = 0;
         picture.changed = true;
     }
-    if (event.key.keysym.scancode == SDL_SCANCODE_P)
+    if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
     {
         picture.offx++;
         picture.changed = true;
@@ -161,7 +189,123 @@ void process_lens_key(SDL_Event event)
 {
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
     {
-        reference.lens = !reference.lens;
+        reference.lens = (reference.lens+1)%3;
+        reference.pixwnum = cast(ubyte) ((reference.pixwnum+1)%reference.pixwar.length);
+    }
+}
+
+// @Pen
+void process_down_pen_mouse(SDL_Event event)
+{
+    if (mouse_left_down || mouse_right_down)
+    {
+        int x = event.motion.x;
+        int y = event.motion.y;
+
+        int hx;
+        int hy;
+
+        int pvertex = vertex;
+        int phx = select.x;
+        int phy = select.y;
+
+        vertex = picture.pixelcoord2hex(x, y, hx, hy);
+
+        select.x = hx;
+        select.y = hy;
+
+        Pixel *p = picture.image.pixel(select.x, select.y);
+
+        //if (lshift || change_color.channels[3] == 0.0 ||
+          //      color_dist(&change_color, &p.color, ErrCorrection.ORDINARY) < 7.0)
+        /+
+        {
+            change_color = p.color;
+
+            bool yes = false;
+            if (phx == hx && phy == hy)
+            {
+                form_dots ~= cast(ubyte) pvertex;
+                form_dots = cast(ubyte) vertex;
+                yes = true;
+            }
+            else
+            {
+                // @H6PNeighbours
+                int[][] neigh = new int[][](6, 2);
+                neighbours(phx, phy, neigh);
+
+                foreach (i, n; neigh)
+                {
+                    if (n[0] == hx && n[1] == hy)
+                    {
+                        dir2 = cast(byte) vertex;
+                        switch (i)
+                        {
+                            case 0:
+                            case 3:
+                                dir1 = cast(byte) (16-pvertex)%12;
+                                break;
+                            case 1:
+                            case 4:
+                                dir1 = cast(byte) (20-pvertex)%12;
+                                break;
+                            case 2:
+                            case 5:
+                                dir1 = cast(byte) (12-pvertex)%12;
+                                break;
+                            default:
+                                assert(0, "Unreachable statement");
+                        }
+                        yes = true;
+                    }
+                }
+            }
+
+            if (yes)
+            {
+                int size = dir2 - dir1;
+                if (size < 0) size += 12;
+                bool invert = (size > 6);
+
+                if (dir2 > 6 && dir2 - dir1 > 6)
+                    dir1 += 12;
+
+                if (dir1 > 6 && dir1 - dir2 > 6)
+                    dir2 += 12;
+
+                if (dir2 < dir1 && dir1 - dir2 != 6)
+                    swap(dir1, dir2);
+
+                size = dir2 - dir1;
+                if (size < 0) size += 12;
+                //writefln("%s. size %s", mask_i, size);
+
+                if (size >= 2 && size <= 6 && (size > 2 || dir1%2 == 1))
+                {
+                    ubyte m = cast(ubyte) (size > 2 ? (size-3)*12 + dir1 : 48 + dir1/2);
+                    // FIXME MODIFY p.form
+                }
+
+                int[][] neigh = new int[][](6, 2);
+                neighbours(hx, hy, neigh);
+            }
+
+            // @CurrentColor
+            /*
+            uint ncolor = palette[mouse_right_down ? color2 : color];
+            ubyte a = cast(ubyte) ((ncolor >> 24) & 0xFF);
+            ubyte r = cast(ubyte) ((ncolor >> 16) & 0xFF);
+            ubyte g = cast(ubyte) ((ncolor >> 8) & 0xFF);
+            ubyte b = cast(ubyte) (ncolor & 0xFF);
+            */
+
+            //Color c = Color([r/255.0, g/255.0, b/255.0, a/255.0], false, &SRGB_SPACE);
+            //p.color = c;
+
+            picture.changed = true;
+        }
+        +/
     }
 }
 
@@ -172,22 +316,13 @@ void process_down_pen_key(SDL_Event event)
     {
         pen_down = true;
 
-        if (lshift || change_color == Pixel.init ||
-                change_color == picture.image[select.x, select.y])
-        {
-            change_color = picture.image[select.x, select.y];
-            // @CurrentColor
-            uint ncolor = palette[color];
-            ubyte a = cast(ubyte) ((ncolor >> 24) & 0xFF);
-            ubyte r = cast(ubyte) ((ncolor >> 16) & 0xFF);
-            ubyte g = cast(ubyte) ((ncolor >> 8) & 0xFF);
-            ubyte b = cast(ubyte) (ncolor & 0xFF);
+        Pixel *p = picture.image.pixel(select.x, select.y);
 
-            Pixel p = Pixel(r, g, b, 255);
-            picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 0] = r;
-            picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 1] = g;
-            picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 2] = b;
-            picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 3] = a;
+        if (lshift || change_color == p.color)
+        {
+            change_color = p.color;
+            // @CurrentColor
+            p.color = color;
 
             picture.changed = true;
         }
@@ -203,15 +338,135 @@ void process_up_pen_key(SDL_Event event)
     }
 }
 
-// @Invert
-void process_invert_key(SDL_Event event)
+// @Fill
+void process_fill_key(SDL_Event event)
 {
-    if (event.key.keysym.scancode == SDL_SCANCODE_I)
+    if (lctrl && event.key.keysym.scancode == SDL_SCANCODE_F)
     {
-        ubyte i = cast(ubyte) picture.mask[select.x, select.y].b;
-        picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 2] = cast(ubyte) (i ^ 0x08);
+        struct Point
+        {
+            int x, y;
+        }
+        auto s = DList!Point(Point(select.x, select.y));
+
+        // @CurrentColor
+        ushort c = color;
+
+        while (!s.empty())
+        {
+            DList!Point sn;
+            foreach (point; s)
+            {
+                int[][] neigh = new int[][](6, 2);
+                neighbours(point.x, point.y, neigh);
+                foreach (n; neigh)
+                {
+                    if (n[0] < 0 || n[0] >= picture.image.width) continue;
+                    if (n[1] < 0 || n[1] >= picture.image.height) continue;
+
+                    Pixel *p2 = picture.image.pixel(n[0], n[1]);
+                    if ( c != p2.color )
+                    {
+                        p2.color = c;
+                        sn.insertBack(Point(n[0], n[1]));
+                    }
+                }
+            }
+            s = sn;
+        }
+
+        picture.changed = true;
+    }
+}
+
+// @Erase
+void process_down_erase_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_E)
+    {
+        Pixel *p = picture.image.pixel(select.x, select.y);
+        p.forms.length = 0;
+
+        picture.changed = true;
+
+        erase_down = true;
+    }
+}
+
+// @Erase
+void process_up_erase_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_E)
+    {
+        erase_down = false;
+    }
+}
+
+// @Rect
+void process_down_rect_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_R)
+    {
+        rect_down = true;
+    }
+}
+
+// @Rect
+void process_up_rect_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_R)
+    {
+        rect_down = false;
+    }
+}
+
+// @Buffer
+void process_copy_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_O)
+    {
+        buffer = new RenderedH6P(select.w, select.h, 0, 0, picture.image.space);
+
+        foreach (dy; 0..select.h)
+        {
+            foreach (dx; 0..select.w)
+            {
+                Pixel *p = picture.image.pixel(select.x+dx, select.y+dy);
+                Pixel *bp = buffer.image.pixel(dx, dy);
+                *bp = *p;
+            }
+        }
+    }
+}
+
+// @Buffer
+void process_insert_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_P)
+    {
+        foreach (dy; 0.. buffer.image.height)
+        {
+            foreach (dx; 0..buffer.image.width)
+            {
+                Pixel *p = buffer.image.pixel(dx, dy);
+                Pixel *pp = picture.image.pixel(select.x+dx, select.y+dy);
+                *pp = *p;
+            }
+        }
+
         picture.changed = true;
         selection.changed = true;
+
+        paste_down = true;
+    }
+}
+
+// @Buffer
+void process_up_insert_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_P)
+    {
+        paste_down = false;
     }
 }
 
@@ -222,24 +477,78 @@ void process_mask_mode_key(SDL_Event event)
     {
         if (mode == Mode.Edit)
         {
-            mode = Mode.MaskStep1;
-            mask_of = 1;
-            mask_i = 0;
+            mode = Mode.SimpleFormEdit;
+            edited_form = 0;
+            form_dots.length = 0;
+            mask_hint.changed = true;
+        }
+        else if (mode == Mode.SimpleFormEdit)
+        {
+            mode = Mode.ExtendedFormEdit;
+            mask2_hint.changed = true;
+
+            form_dots.length = 0;
+            Pixel *p = picture.image.pixel(select.x, select.y);
+            if (p.forms.length > edited_form)
+            {
+                ushort form = p.forms[edited_form].form;
+                ubyte rotate = p.forms[edited_form].rotation;
+                if (form > 19*4)
+                {
+                    foreach (d; picture.image.forms[form - 19*4].dots)
+                    {
+                        if (d == 0) break;
+                        form_dots ~= cast(ubyte)(d-1);
+                    }
+                }
+                else
+                {
+                    form_dots.length = 2;
+                    form_dots[0] = cast(ubyte)((form-1)/19);
+                    form_dots[1] = cast(ubyte)((form-1)%19 + 5);
+                }
+
+                ubyte off, r;
+                foreach(ref dir; form_dots)
+                {
+                    if (dir < 24)
+                    {
+                        off = 0;
+                        r = 4;
+                    }
+                    else if (dir < 42)
+                    {
+                        off = 24;
+                        r = 3;
+                    }
+                    else if (dir < 54)
+                    {
+                        off = 42;
+                        r = 2;
+                    }
+                    else if (dir < 60)
+                    {
+                        off = 54;
+                        r = 1;
+                    }
+                    else continue;
+
+                    dir = cast(ubyte) (off + (dir-off + rotate*r)%(6*r));
+                }
+            }
+        }
+        else if (mode == Mode.ExtendedFormEdit)
+        {
+            mode = Mode.SimpleFormEdit;
             mask_hint.changed = true;
         }
     }
-}
 
-// @ExtraColor
-void process_edit_extra_color_key(SDL_Event event)
-{
-    if (event.key.keysym.scancode == SDL_SCANCODE_V)
+    if (event.key.keysym.scancode == SDL_SCANCODE_C)
     {
-        if (mode == Mode.Edit)
+        if (mode == Mode.ExtendedFormEdit)
         {
-            mode = Mode.ExtraColor;
-            picture.changed = true;
-            mask_hint.changed = true;
+            form_dots.length = 0;
         }
     }
 }
@@ -250,54 +559,55 @@ void process_cancel_key(SDL_Event event)
     if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
     {
         mode = Mode.Edit;
+        form_dots.length = 0;
     }
 }
 
 // @Save
 void process_save_key(SDL_Event event)
 {
-    if (event.key.keysym.scancode == SDL_SCANCODE_X)
+    if (lctrl && event.key.keysym.scancode == SDL_SCANCODE_X)
     {
-        write_h6p(picture.image, picture.mask, filename);
+        h6p_write(picture.image, filename);
     }
 }
 
 // @ColorPicker
 void process_color_picker_navigation_keys(SDL_Event event)
 {
-    // @Neighbours
-    Point[6] neigh = neighbours(colors_select.x, colors_select.y);
+    // @H6PNeighbours
+    int[][] neigh = new int[][](6, 2);
+    neighbours(colors_select.x, colors_select.y, neigh);
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
-
-    // @CurrentColor
-    auto c = palette[color];
-    ubyte r = cast(ubyte) ((c >> 16) & 0xFF);
-    ubyte g = cast(ubyte) ((c >> 8) & 0xFF);
-    ubyte b = cast(ubyte) (c & 0xFF);
-    ubyte a = cast(ubyte) ((c >> 24) & 0xFF);
 
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
         {
             enum div = 4;
-            if (neigh[i].x >= 0 && neigh[i].x < 512/div &&
-                    neigh[i].y >= 0 && neigh[i].y < 512/div)
+            if (neigh[i][0] >= 0 && neigh[i][0] < 512/div &&
+                    neigh[i][1] >= 0 && neigh[i][1] < 512/div)
             {
-                colors_select.x = neigh[i].x;
-                colors_select.y = neigh[i].y;
+                colors_select.x = neigh[i][0];
+                colors_select.y = neigh[i][1];
 
-                Pixel p = color_picker.image[colors_select.x, colors_select.y];
-
-                uint ncolor = ((p.r & 0xFF) << 16) |
-                    ((p.g & 0xFF) << 8) |
-                    (p.b & 0xFF) |
-                    ((p.a & 0xFF) << 24);
+                Pixel *p = color_picker.image.pixel(colors_select.x, colors_select.y);
 
                 // @CurrentColor
-                palette[color] = ncolor;
+                picture.image.cpalette[0][color] = color_picker.image.cpalette[0][p.color];
+
+                Color *cc = &picture.image.cpalette[0][color];
+                color_convert(cc, picture.image.space, ErrCorrection.ORDINARY);
+                foreach(ic, ch; cc.channels)
+                {
+                    ushort ch16 = cast(ushort) round(min(ch * 65535.0f, 65535.0f));
+                    ubyte[2] be16_ch = nativeToBigEndian(ch16);
+                    picture.image.palette[0][color*8 + ic*2..color*8 + ic*2 + 2] = be16_ch;
+                }
+
                 palette_reinit();
                 mask_hint.changed = true;
+                picture.changed = true;
             }
         }
     }
@@ -306,36 +616,33 @@ void process_color_picker_navigation_keys(SDL_Event event)
 // @ColorPicker
 void process_color_picker_value_keys(SDL_Event event)
 {
-    if (event.key.keysym.scancode == SDL_SCANCODE_V || event.key.keysym.scancode == SDL_SCANCODE_M)
+    if (!lctrl && (event.key.keysym.scancode == SDL_SCANCODE_V || event.key.keysym.scancode == SDL_SCANCODE_M))
     {
-        Pixel p = color_picker.image[colors_select.x, colors_select.y];
+        Pixel *p = color_picker.image.pixel(colors_select.x, colors_select.y);
 
-        short mc = min(p.r, p.g, p.b);
+        ubyte[4] col;
+        bool err;
+        color_to_u8(&color_picker.image.cpalette[0][p.color], &SRGB_SPACE, col, &err, ErrCorrection.ORDINARY);
+
+        short mc = color_gray;
 
         short nc;
         if (event.key.keysym.scancode == SDL_SCANCODE_M)
         {
-            nc = cast(short) (mc + 4);
-            if (nc > 252) nc = 252;
+            nc = cast(short) (mc + 7);
+            if (nc > 255) nc = 255;
         }
         else
         {
-            nc = cast(short) (mc - 4);
+            nc = cast(short) (mc - 7);
             if (nc < 0) nc = 0;
         }
 
-        if (p.r == mc) p.r = nc;
-        if (p.g == mc) p.g = nc;
-        if (p.b == mc) p.b = nc;
+        color_gray = cast(byte) nc;
 
-        uint ncolor = ((p.r & 0xFF) << 16) |
-            ((p.g & 0xFF) << 8) |
-            (p.b & 0xFF) |
-            ((p.a & 0xFF) << 24);
-
-        // @CurrentColor
-        palette[color] = ncolor;
         palette_reinit();
+
+        p = color_picker.image.pixel(colors_select.x, colors_select.y);
         mask_hint.changed = true;
         color_picker.changed = true;
     }
@@ -344,54 +651,88 @@ void process_color_picker_value_keys(SDL_Event event)
 // @Selection
 void process_navigation_keys(SDL_Event event)
 {
-    // @Neighbours
-    Point[6] neigh = neighbours(select.x, select.y);
+    // @H6PNeighbours
+    int[][] neigh = new int[][](6, 2);
+    if (rect_down)
+    {
+        neighbours(select.x + select.w - 1, select.y + select.h - 1, neigh);
+    }
+    else
+    {
+        neighbours(select.x, select.y, neigh);
+    }
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
         {
-            select.x = neigh[i].x;
-            select.y = neigh[i].y;
+            if (rect_down)
+            {
+                select.w = neigh[i][0] - select.x + 1;
+                select.h = neigh[i][1] - select.y + 1;
+                if (select.h % 2 == 0) select.w++;
+                if (select.w < 1) select.w = 1;
+                if (select.h < 1) select.h = 1;
+            }
+            else
+            {
+                select.x = neigh[i][0];
+                select.y = neigh[i][1];
 
-            if (select.x < 0) select.x = 0;
-            if (select.y < 0) select.y = 0;
-            if (select.x >= picture.image.width) select.x = picture.image.width-1;
-            if (select.y >= picture.image.height) select.y = picture.image.height-1;
+                if (select.x < 0) select.x = 0;
+                if (select.y < 0) select.y = 0;
+                if (select.x >= picture.image.width) select.x = picture.image.width-1;
+                if (select.y >= picture.image.height) select.y = picture.image.height-1;
+            }
 
             selection.changed = true;
+            if (rect_down)
+            {
+                selection_reinit();
+            }
 
-            if (pen_down)
+            Pixel *p = picture.image.pixel(select.x, select.y);
+
+            if (pen_down && !rect_down)
             {
                 // @ChangeColor
-                if (lshift || change_color == Pixel.init ||
-                        change_color == picture.image[select.x, select.y])
+                if (lshift || change_color == p.color)
                 {
-                    change_color = picture.image[select.x, select.y];
-
-                    // @CurrentColor
-                    uint ncolor = palette[color];
-                    ubyte a = cast(ubyte) ((ncolor >> 24) & 0xFF);
-                    ubyte r = cast(ubyte) ((ncolor >> 16) & 0xFF);
-                    ubyte g = cast(ubyte) ((ncolor >> 8) & 0xFF);
-                    ubyte b = cast(ubyte) (ncolor & 0xFF);
-
-                    Pixel p = Pixel(r, g, b, 255);
-                    picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 0] = r;
-                    picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 1] = g;
-                    picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 2] = b;
-                    picture.image.pixels[(picture.image.width*select.y + select.x)*4 + 3] = a;
+                    change_color = p.color;
+                    p.color = color;
 
                     picture.changed = true;
                 }
+            }
+
+            if (erase_down && !rect_down)
+            {
+                p.forms.length = 0;
+                picture.changed = true;
+            }
+
+            if (paste_down)
+            {
+                foreach (dy; 0.. buffer.image.height)
+                {
+                    foreach (dx; 0..buffer.image.width)
+                    {
+                        Pixel *pix = buffer.image.pixel(dx, dy);
+                        Pixel *ip = picture.image.pixel(select.x+dx, select.y+dy);
+                        *ip = *pix;
+                    }
+                }
+
+                picture.changed = true;
+                selection.changed = true;
             }
         }
     }
 }
 
-// @EditMask
-void process_mask_editor_keys(SDL_Event event, ref bool dirs_ready)
+// @EditMask24
+void process_mask_editor_keys24(SDL_Event event)
 {
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
@@ -410,17 +751,28 @@ void process_mask_editor_keys(SDL_Event event, ref bool dirs_ready)
                 if (i == 0 && pressed_dir == 5)
                     pressed_dir -= 6;
 
-                if (mode == Mode.MaskStep1)
-                {
-                    dir1 = (i+pressed_dir + 11)%12;
-                    mode = Mode.MaskStep2;
-                    mask_hint.changed = true;
-                }
-                else
-                {
-                    dir2 = (i+pressed_dir + 11)%12;
-                    dirs_ready = true;
-                }
+                form_dots ~= (2*(i+pressed_dir) + 22)%24;
+                mask_hint.changed = true;
+
+                pressed_dir = -1;
+            }
+        }
+    }
+
+    int[4] keys2 = [SDL_SCANCODE_I, SDL_SCANCODE_M, SDL_SCANCODE_V, SDL_SCANCODE_T];
+    byte[4] knum = [2, 3, 5, 6];
+    if (pressed_dir != -1)
+    {
+        foreach (i, k; keys2)
+        {
+            if (event.key.keysym.scancode == k)
+            {
+                byte kn = knum[i];
+                byte d = (kn > pressed_dir ? 1 : -1);
+                if (kn == 6 && pressed_dir < 2) d = -1;
+
+                form_dots ~= cast(ubyte)((4*pressed_dir + d + 22)%24);
+                mask_hint.changed = true;
 
                 pressed_dir = -1;
             }
@@ -428,8 +780,48 @@ void process_mask_editor_keys(SDL_Event event, ref bool dirs_ready)
     }
 }
 
-// @EditMask
-void process_mask_editor_up_keys(SDL_Event event, ref bool dirs_ready)
+void process_mask2_editor_keys(SDL_Event event)
+{
+    // @H6PNeighbours
+    int[][] neigh = new int[][](6, 2);
+    //neighbours(select.x, select.y, neigh);
+    int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
+    byte[6] dx = [0, 1, 1, 0, 0, 0];
+    byte[6] dy = [-2, -1, 1, 2, 1, -1];
+
+    foreach (i, k; keys)
+    {
+        if (event.key.keysym.scancode == k)
+        {
+            ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+            doty += dy[i];
+            if (doty >= dot_by_line.length)
+                doty = cast(ubyte) (dot_by_line.length-1);
+            else
+            {
+                dotx_ += dx[i];
+                if ( abs(dy[i]) == 1 && doty % 2 == 1 )
+                {
+                    dotx_--;
+                }
+                dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+            }
+
+            if (dotx >= dot_by_line[doty].length)
+                dotx = cast(ubyte) (dot_by_line[doty].length-1);
+        }
+    }
+
+    if (event.key.keysym.scancode == SDL_SCANCODE_H)
+    {
+        form_dots ~= dot_by_line[doty][dotx];
+    }
+
+    mask2_hint.changed = true;
+}
+
+// @EditMask24
+void process_mask_editor_up_keys24(SDL_Event event)
 {
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
@@ -441,35 +833,8 @@ void process_mask_editor_up_keys(SDL_Event event, ref bool dirs_ready)
             {
                 pressed_dir = -1;
 
-                if (mode == Mode.MaskStep1)
-                {
-                    dir1 = (i*2 + 11)%12;
-                    mode = Mode.MaskStep2;
-                }
-                else
-                {
-                    dir2 = (i*2 + 11)%12;
-                    dirs_ready = true;
-                }
+                form_dots ~= (i*4 + 22)%24;
             }
-        }
-    }
-}
-
-// @ExtraColor
-void process_mask_color_chooser_keys(SDL_Event event)
-{
-    int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
-
-    foreach (i, k; keys)
-    {
-        if (event.key.keysym.scancode == k)
-        {
-            picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 2] = cast(ubyte) i;
-            writefln("b=%s", picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 2]);
-            mode = Mode.Edit;
-            picture.changed = true;
-            selection.changed = true;
         }
     }
 }
@@ -479,17 +844,11 @@ void process_take_color_key(SDL_Event event)
 {
     if (event.key.keysym.scancode == SDL_SCANCODE_T)
     {
-        Pixel p = picture.image[select.x, select.y];
+        Pixel *p = picture.image.pixel(select.x, select.y);
 
-        uint ncolor = ((p.r & 0xFF) << 16) |
-            ((p.g & 0xFF) << 8) |
-            (p.b & 0xFF) |
-            ((p.a & 0xFF) << 24);
-
-        // @CurrentColor
-        palette[color] = ncolor;
+        color = p.color;
         palette_reinit();
-        change_color = Pixel.init;
+        change_color = 0;
         color_picker.changed = true;
     }
 }
@@ -504,22 +863,43 @@ void process_choose_color_keys(SDL_Event event)
     {
         if (event.key.keysym.scancode == k)
         {
-            color = cast(byte) i;
+            if (lshift)
+            {
+                color2 = cast(ushort) (palette_offset + i);
+            }
+            else
+            {
+                color = cast(ushort) (palette_offset + i);
+            }
             color_picker.changed = true;
+
+            if (picture.image.cpalette[0].length < max(color, color2)+1)
+            {
+                Color nc = Color([0.0f, 0.0f, 0.0f, 0.0f], false, picture.image.space);
+                size_t from = picture.image.cpalette[0].length;
+                picture.image.cpalette[0].length = max(color, color2)+1;
+                picture.image.palette[0].length = picture.image.cpalette[0].length*8;
+
+                foreach (ref col; picture.image.cpalette[0][from..$])
+                {
+                    col = nc;
+                }
+            }
         }
     }
 }
 
-// @EditMask
-void process_choose_number_of_areas_keys(SDL_Event event)
+// @EditMask24
+void process_choose_edited_form(SDL_Event event)
 {
-    int[4] pkeys = [SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4];
+    int[7] pkeys = [SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4,
+                    SDL_SCANCODE_5, SDL_SCANCODE_6, SDL_SCANCODE_7];
 
     foreach (i, k; pkeys)
     {
         if (event.key.keysym.scancode == k)
         {
-            mask_of = cast(ubyte) (i+1);
+            edited_form = cast(ubyte) i;
         }
     }
 }
@@ -545,16 +925,18 @@ void process_draw_line(SDL_Event event)
             double dy = y2-y1;
 
             // @CurrentColor
+            /*
             uint ncolor = palette[color];
             ubyte a = cast(ubyte) ((ncolor >> 24) & 0xFF);
             ubyte r = cast(ubyte) ((ncolor >> 16) & 0xFF);
             ubyte g = cast(ubyte) ((ncolor >> 8) & 0xFF);
             ubyte b = cast(ubyte) (ncolor & 0xFF);
+            */
 
             double x, y;
 
             double angle = atan2(dy*sqrt(3.0)/2.0, dx) * 180.0 / PI;
-            writefln("angle = %s", angle);
+            //writefln("angle = %s", angle);
             bool swapped;
             if (angle > 45 && angle < 135 || angle < -45 && angle > -135)
             {
@@ -571,7 +953,7 @@ void process_draw_line(SDL_Event event)
                 for (y = y1; y <= y2; y += 0.5)
                 {
                     x = x1 + (y-y1)*dx/dy;
-                    writefln("%sx%s", x, y);
+                    //writefln("%sx%s", x, y);
 
                     int iy = cast(int) round(y);
                     int ix = cast(int) round(x);
@@ -582,6 +964,7 @@ void process_draw_line(SDL_Event event)
                         ix = cast(int) round(px);
                     }
 
+                    /*
                     double fpx = px - trunc(px);
                     if ((abs(angle - 90.0) < 1.0 || abs(angle + 90.0) < 1.0) && fpx > 0.4 && fpx < 0.6)
                     {
@@ -631,6 +1014,7 @@ void process_draw_line(SDL_Event event)
                             }
                         }
                     }
+                    */
                 }
             }
             else
@@ -659,6 +1043,7 @@ void process_draw_line(SDL_Event event)
                         ix = cast(int) round(px);
                     }
 
+                    /*
                     double fpx = px - trunc(px);
                     {
                         picture.image.pixels[(picture.image.width*iy + ix)*4 + 0] = r;
@@ -680,6 +1065,7 @@ void process_draw_line(SDL_Event event)
                             }
                         }
                     }
+                    */
                 }
             }
 
@@ -693,71 +1079,145 @@ void process_draw_line(SDL_Event event)
     }
 }
 
-// @EditMask
-void change_form()
+// @EditMask24
+void change_form24()
 {
-    if (dir2 > 6 && dir2 - dir1 > 6)
-        dir1 += 12;
+    Pixel *p = picture.image.pixel(select.x, select.y);
 
-    if (dir1 > 6 && dir1 - dir2 > 6)
-        dir2 += 12;
-
-    if (dir2 < dir1 && dir1 - dir2 != 6)
-        swap(dir1, dir2);
-
-    int size = dir2 - dir1;
-    if (size < 0) size += 12;
-    writefln("%s. size %s", mask_i, size);
-
-    if (size >= 2 && size <= 6)
+    ubyte[] dform = form_dots.dup();
+    //writefln("dform = %s", dform);
+    ubyte rotate = 0;
+    if (dform[0] >= 4 && dform[0] < 60)
     {
-        ushort m = cast(ushort) (size > 2 ? (size-3)*12 + dir1 : 48 + dir1/2);
+        ubyte f = dform[0];
+        ubyte off, r;
 
-        masks[mask_i] = m;
-        mask_i++;
-
-        ushort g;
-        if (mask_i == 1 && m < 48)
+        if (f < 24)
         {
-            g = cast(ushort) (m + 1);
+            off = 0;
+            r = 4;
         }
-        else
+        else if (f < 42)
         {
-            ulong form;
-            foreach (i, n; masks[0..mask_i])
-            {
-                writefln("%s %s", i, n);
-                form |= (1UL << n);
-            }
-
-            // @H6PMask
-            foreach (ushort i, f; forms)
-            {
-                if (f == form)
-                    g = i;
-            }
+            off = 24;
+            r = 3;
         }
-        writefln("form %s", g);
+        else if (f < 54)
+        {
+            off = 42;
+            r = 2;
+        }
+        else if (f < 60)
+        {
+            off = 54;
+            r = 1;
+        }
 
-        picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 1] = (g >> 8) & 0x03;
-        picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 0] = g & 0xFF;
+        f -= off;
+        rotate = cast(ubyte) (f/r);
+        dform[0] = cast(ubyte) (off + f%r);
+
+        ubyte inc;
+        foreach(ref dir; dform[1..$])
+        {
+            if (dir < 24)
+            {
+                off = 0;
+                r = 4;
+            }
+            else if (dir < 42)
+            {
+                off = 24;
+                r = 3;
+            }
+            else if (dir < 54)
+            {
+                off = 42;
+                r = 2;
+            }
+            else if (dir < 60)
+            {
+                off = 54;
+                r = 1;
+            }
+            else continue;
+
+            dir = cast(ubyte) (off + (dir-off + (6-rotate)*r)%(6*r));
+        }
+    }
+
+    if (dform.length == 2 && dform[1] >= 5 && dform[0] < 24 && dform[1] < 24)
+    {
+        if (p.forms.length < edited_form + 1) p.forms.length = edited_form + 1;
+        if (p.forms[edited_form].form >= 19*4)
+        {
+            ushort form = p.forms[edited_form].form;
+            picture.image.forms[form - 19*4].used--;
+        }
+        p.forms[edited_form].extra_color = color;
+        p.forms[edited_form].form = cast(ushort) (1 + dform[0]*19 + (dform[1] - 5));
+        p.forms[edited_form].rotation = rotate;
+        //writefln("dform = %s, form = %s, rotate = %s", dform, p.forms[edited_form].form, rotate);
+
         picture.changed = true;
-
-        if (mask_i < mask_of)
-        {
-            mode = Mode.MaskStep1;
-        }
-        else
-        {
-            mode = Mode.Edit;
-        }
+        selection.changed = true;
     }
     else
     {
-        picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 1] = 0;
-        picture.mask.pixels[(picture.image.width*select.y + select.x)*4 + 0] = 0;
+        ubyte[12] f12;
+        foreach(i, f; dform)
+        {
+            f12[i] = cast(ubyte)(f+1);
+        }
+
+        if (p.forms.length < edited_form + 1)
+        {
+            p.forms.length = edited_form + 1;
+            ushort form = p.forms[edited_form].form = picture.image.get_form_num(f12);
+            picture.image.forms[form - 19*4].used++;
+        }
+        else
+        {
+            ushort form = p.forms[edited_form].form;
+            if (form < 19*4)
+            {
+                form = p.forms[edited_form].form = picture.image.get_form_num(f12);
+                picture.image.forms[form - 19*4].used++;
+            }
+            else if (picture.image.forms[form - 19*4].used == 1)
+            {
+                picture.image.formsmap.remove(picture.image.forms[form - 19*4].dots);
+                picture.image.formsmap[f12] = cast(ushort)(form - 19*4);
+                picture.image.forms[form - 19*4].dots = f12;
+                picture.image.forms[form - 19*4].hp = (BitArray*[6]).init;
+            }
+            else
+            {
+                picture.image.forms[form - 19*4].used--;
+                form = p.forms[edited_form].form = picture.image.get_form_num(f12);
+                picture.image.forms[form - 19*4].used++;
+            }
+        }
+
+        p.forms[edited_form].extra_color = color;
+        p.forms[edited_form].rotation = rotate;
+        //writefln("dform = %s, form = %s, rotate = %s", dform, p.forms[edited_form].form, rotate);
+
         picture.changed = true;
-        mode = Mode.Edit;
+        selection.changed = true;
+    }
+
+    {
+        /*
+        Pixel p = get_pixel(picture.image, select.x, select.y);
+        if (mask_of == 1)
+            p.form = p.form & 0xFFFF00;
+        else
+            p.form = p.form & 0xFF00FF;
+        set_pixel(picture.image, select.x, select.y, &p, ErrCorrection.ORDINARY);
+        picture.changed = true;
+        mode = Mode.MaskStep1;
+        */
     }
 
     mask_hint.changed = true;
@@ -766,7 +1226,7 @@ void change_form()
 void make_screenshot() {
     SDL_Surface *screenshot;
     screenshot = SDL_CreateRGBSurface(SDL_SWSURFACE,
-            screen.w+32*6,
+            screen.w,
             screen.h,
             32, 0x00FF0000, 0X0000FF00, 0X000000FF, 0XFF000000);
     SDL_RenderReadPixels(renderer, null, SDL_PIXELFORMAT_ARGB8888,
@@ -785,8 +1245,6 @@ void process_events()
     /* Grab all the events off the queue. */
     while( SDL_PollEvent( &event ) )
     {
-        bool dirs_ready;
-
         if (event.type == SDL_KEYDOWN)
         {
             /* @GrabWindow
@@ -796,6 +1254,7 @@ void process_events()
                 SDL_SetWindowGrab(window, SDL_FALSE);
             } */
 
+            process_debug_key(event);
             process_exit_key(event);
             process_cancel_key(event);
             process_save_key(event);
@@ -804,29 +1263,32 @@ void process_events()
 
             process_change_view_keys(event);
 
-            process_invert_key(event);
+            process_copy_key(event);
+            process_insert_key(event);
             process_mask_mode_key(event);
-            process_edit_extra_color_key(event);
 
             process_lens_key(event);
-
-            process_color_picker_key(event);
-            process_take_color_key(event);
 
             final switch(mode)
             {
                 case Mode.Edit:
+                    process_color_picker_key(event);
+                    process_take_color_key(event);
+                    process_fill_key(event);
+
                     process_navigation_keys(event);
                     process_choose_color_keys(event);
                     process_down_pen_key(event);
+                    process_down_erase_key(event);
+                    process_down_rect_key(event);
                     break;
-                case Mode.MaskStep1:
-                case Mode.MaskStep2:
-                    process_mask_editor_keys(event, dirs_ready);
-                    process_choose_number_of_areas_keys(event);
+                case Mode.SimpleFormEdit:
+                    process_mask_editor_keys24(event);
+                    process_choose_edited_form(event);
                     break;
-                case Mode.ExtraColor:
-                    process_mask_color_chooser_keys(event);
+                case Mode.ExtendedFormEdit:
+                    process_mask2_editor_keys(event);
+                    process_choose_edited_form(event);
                     break;
                 case Mode.ColorPicker:
                     process_color_picker_navigation_keys(event);
@@ -845,22 +1307,78 @@ void process_events()
                 lshift = true;
                 start_select = select;
             }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_RSHIFT)
+            {
+                rshift = true;
+            }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_LCTRL)
+            {
+                lctrl = true;
+            }
         }
         else if (event.type == SDL_KEYUP)
         {
             process_up_pen_key(event);
+            process_up_erase_key(event);
+            process_up_rect_key(event);
+            process_up_insert_key(event);
 
-            if (mode == Mode.MaskStep1 || mode == Mode.MaskStep2)
+            if (mode == Mode.SimpleFormEdit)
             {
-                process_mask_editor_up_keys(event, dirs_ready);
+                process_mask_editor_up_keys24(event);
             }
 
-            process_draw_line(event);
-        }
+            //process_draw_line(event);
 
-        if (dirs_ready)
+            if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT)
+            {
+                lshift = false;
+            }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_RSHIFT)
+            {
+                rshift = false;
+            }
+
+            if (event.key.keysym.scancode == SDL_SCANCODE_LCTRL)
+            {
+                lctrl = false;
+            }
+        }
+        /+else if (event.type == SDL_MOUSEMOTION)
         {
-            change_form();
+            process_down_pen_mouse(event);
+        }
+        else if (event.type == SDL_MOUSEBUTTONDOWN)
+        {
+            if (event.button.button == SDL_BUTTON_LEFT)
+            {
+                mouse_left_down = true;
+                process_down_pen_mouse(event);
+            }
+            else if (event.button.button == SDL_BUTTON_RIGHT)
+            {
+                mouse_right_down = true;
+                process_down_pen_mouse(event);
+            }
+        }
+        else if (event.type == SDL_MOUSEBUTTONUP)
+        {
+            if (event.button.button == SDL_BUTTON_LEFT)
+            {
+                mouse_left_down = false;
+            }
+            else if (event.button.button == SDL_BUTTON_RIGHT)
+            {
+                mouse_right_down = false;
+            }
+        }+/
+
+        if (form_dots.length >= 2)
+        {
+            change_form24();
         }
 
         process_event(event);

@@ -13,20 +13,23 @@
 
 module h6pedit.draw;
 
-import hexpict.common;
 import hexpict.hex2pixel;
 import hexpict.h6p;
+import hexpict.color;
+import hexpict.colors;
+import hexpict.hyperpixel;
 import h6pedit.global_state;
 import h6pedit.print;
-import derelict.sdl2.sdl;
 import std.stdio;
 import std.math;
 import std.algorithm;
-import imaged;
+import std.format;
+import bindbc.sdl;
 
 // @PictureView
 void update_view()
 {
+    if (picture.changed) tile_preview.changed = true;
     picture.update(renderer);
 }
 
@@ -36,7 +39,6 @@ void update_selection()
     if (mode == Mode.ColorPicker)
     {
         selection.image = color_picker.image;
-        selection.mask = color_picker.mask;
         selection.scale = 4;
         selection.offx = colors_select.x;
         selection.offy = colors_select.y;
@@ -44,7 +46,6 @@ void update_selection()
     else
     {
         selection.image = picture.image;
-        selection.mask = picture.mask;
         selection.scale = picture.scale;
         selection.offx = select.x;
         selection.offy = select.y;
@@ -58,18 +59,35 @@ void update_colors()
 {
     if (mode == Mode.ColorPicker && color_picker.changed)
     {
-        //colors_imgdata[0..$] = 127;
-        color_picker.image.pixels[0..$] = 127;
+        bool err;
+        ubyte[4] pc;
+        Color color = pictures[pict].image.cpalette[0][color];
+        color_to_u8(&color, &SRGB_SPACE, pc, &err, ErrCorrection.ORDINARY);
 
-        uint color = palette[color];
-        ubyte pa = cast(ubyte) ((color >> 24) & 0xFF);
-        ubyte pr = cast(ubyte) ((color >> 16) & 0xFF);
-        ubyte pg = cast(ubyte) ((color >> 8) & 0xFF);
-        ubyte pb = cast(ubyte) (color & 0xFF);
+        if (color_picker.image.cpalette[0].length < 16384)
+        {
+            color_picker.image.cpalette[0].length = 16384;
+        }
 
-        ubyte start_gray = min(pr, pg, pb);
+        foreach (y; 0..128)
+        {
+            foreach (x; 0..128)
+            {
+                Pixel *p = color_picker.image.pixel(x, y);
+                p.color = 0;
+            }
+        }
+
+        ubyte pa = pc[3];
+        ubyte pr = pc[0];
+        ubyte pg = pc[1];
+        ubyte pb = pc[2];
+
+        ubyte start_gray = color_gray;
         
         enum div = 4;
+
+        ushort numpixels = 0;
 
         int cx = 256/div;
         int cy = 256/div;
@@ -103,10 +121,14 @@ void update_colors()
                         colors_select.y = cy-dy;
                     }
 
-                    color_picker.image.pixels[((cy-dy)*512/div + cx+dx)*4 + 0] = cast(ubyte) r;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx+dx)*4 + 1] = cast(ubyte) g;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx+dx)*4 + 2] = cast(ubyte) b;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx+dx)*4 + 3] = 255;
+                    Color c = Color([r/255.0, g/255.0, b/255.0, 1.0], false, &SRGB_SPACE);
+
+                    int x = cx+dx;
+                    int y = cy-dy;
+                    ushort ncolor = cast(ushort)(y*128 + x);
+                    color_picker.image.cpalette[0][ncolor] = c;
+                    Pixel *p = color_picker.image.pixel(x, y);
+                    p.color = ncolor;
                 }
 
                 r = ur - dx*div;
@@ -128,10 +150,14 @@ void update_colors()
                         colors_select.y = cy-dy;
                     }
 
-                    color_picker.image.pixels[((cy-dy)*512/div + cx-dx)*4 + 0] = cast(ubyte) r;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx-dx)*4 + 1] = cast(ubyte) g;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx-dx)*4 + 2] = cast(ubyte) b;
-                    color_picker.image.pixels[((cy-dy)*512/div + cx-dx)*4 + 3] = 255;
+                    Color c = Color([r/255.0, g/255.0, b/255.0, 1.0], false, &SRGB_SPACE);
+
+                    int x = cx-dx;
+                    int y = cy-dy;
+                    ushort ncolor = cast(ushort)(y*128 + x);
+                    color_picker.image.cpalette[0][ncolor] = c;
+                    Pixel *p = color_picker.image.pixel(x, y);
+                    p.color = ncolor;
                 }
 
                 r = dr + dx*div;
@@ -146,10 +172,14 @@ void update_colors()
                         colors_select.y = cy+dy;
                     }
 
-                    color_picker.image.pixels[((cy+dy)*512/div + cx+dx)*4 + 0] = cast(ubyte) r;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx+dx)*4 + 1] = cast(ubyte) g;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx+dx)*4 + 2] = cast(ubyte) b;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx+dx)*4 + 3] = 255;
+                    Color c = Color([r/255.0, g/255.0, b/255.0, 1.0], false, &SRGB_SPACE);
+
+                    int x = cx+dx;
+                    int y = cy+dy;
+                    ushort ncolor = cast(ushort)(y*128 + x);
+                    color_picker.image.cpalette[0][ncolor] = c;
+                    Pixel *p = color_picker.image.pixel(x, y);
+                    p.color = ncolor;
                 }
 
                 r = dr - dx*div;
@@ -171,10 +201,14 @@ void update_colors()
                         colors_select.y = cy-dy;
                     }
 
-                    color_picker.image.pixels[((cy+dy)*512/div + cx-dx)*4 + 0] = cast(ubyte) r;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx-dx)*4 + 1] = cast(ubyte) g;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx-dx)*4 + 2] = cast(ubyte) b;
-                    color_picker.image.pixels[((cy+dy)*512/div + cx-dx)*4 + 3] = 255;
+                    Color c = Color([r/255.0, g/255.0, b/255.0, 1.0], false, &SRGB_SPACE);
+
+                    int x = cx-dx;
+                    int y = cy+dy;
+                    ushort ncolor = cast(ushort)(y*128 + x);
+                    color_picker.image.cpalette[0][ncolor] = c;
+                    Pixel *p = color_picker.image.pixel(x, y);
+                    p.color = ncolor;
                 }
             }
         }
@@ -215,6 +249,12 @@ void draw_palette()
             }
 
             SDL_RenderCopy(renderer, t, null, &rect);
+
+            if (color2 == i)
+            {
+                print("2", rect.x/4, cast(int) (rect.y/3.5),
+                        [255, 255, 255]);
+            }
         }
     }
 }
@@ -230,50 +270,121 @@ void update_mask_hint()
 {
     if (mask_hint.changed)
     {
-        mask_hint.image.pixels[0..$] = 0;
-        mask_hint.mask.pixels[0..$] = 0;
+        //mask_hint.image.raster[0..$] = 0;
+        mask_hint.image.cpalette[0].length = 8;
+        mask_hint.image.forms.length = 7;
 
-        Pixel p = picture.image[select.x, select.y];
-        Pixel m = picture.mask[select.x, select.y];
-
-        mask_hint.image.pixels[(4 + 1)*4 + 0] = cast(ubyte) p.r;
-        mask_hint.image.pixels[(4 + 1)*4 + 1] = cast(ubyte) p.g;
-        mask_hint.image.pixels[(4 + 1)*4 + 2] = cast(ubyte) p.b;
-        mask_hint.image.pixels[(4 + 1)*4 + 3] = cast(ubyte) p.a;
-
-        if (mode == Mode.ExtraColor || mask_i > 0)
+        Pixel *px = picture.image.pixel(select.x, select.y);
+        foreach(i, dform; px.forms)
         {
-            mask_hint.mask.pixels[(4 + 1)*4 + 0] = cast(ubyte) m.r;
-            mask_hint.mask.pixels[(4 + 1)*4 + 1] = cast(ubyte) m.g;
-            mask_hint.mask.pixels[(4 + 1)*4 + 2] = cast(ubyte) m.b;
-            mask_hint.mask.pixels[(4 + 1)*4 + 3] = cast(ubyte) m.a;
+            Pixel *pm = mask_hint.image.pixel(cast(uint) (i*2), 0);
+
+            ushort form = dform.form;
+            pm.forms.length = 1;
+            if (form >= 19*4)
+            {
+                mask_hint.image.forms[i] = picture.image.forms[dform.form - 19*4];
+                pm.forms[0].form = cast(ushort)(i+19*4);
+            }
+            else
+            {
+                pm.forms[0].form = form;
+            }
+
+            pm.forms[0].rotation = dform.rotation;
+            pm.forms[0].extra_color = cast(ushort)(i+1);
+            mask_hint.image.cpalette[0][i+1] = picture.image.cpalette[0][dform.extra_color];
         }
 
-        if (mode == Mode.ExtraColor)
+        foreach(i; px.forms.length..7)
         {
-            int x = select.x;
-            int y = select.y;
-
-            // @Neighbours
-            Point[6] neigh = neighbours(x, y);
-            Point[6] mneigh = [Point(1, 0), Point(2, 0), Point(2, 1), Point(2, 2), Point(1, 2), Point(0, 1)];
-
-            foreach (i, n; neigh)
-            {
-                if (n.x < 0 || n.y < 0 || n.x >= picture.image.width || n.y >= picture.image.height) continue;
-                p = picture.image[n.x, n.y];
-
-                int mx = mneigh[i].x;
-                int my = mneigh[i].y;
-
-                mask_hint.image.pixels[(4*my + mx)*4 + 0] = cast(ubyte) p.r;
-                mask_hint.image.pixels[(4*my + mx)*4 + 1] = cast(ubyte) p.g;
-                mask_hint.image.pixels[(4*my + mx)*4 + 2] = cast(ubyte) p.b;
-                mask_hint.image.pixels[(4*my + mx)*4 + 3] = cast(ubyte) p.a;
-            }
+            Pixel *pm = mask_hint.image.pixel(cast(uint) (i*2), 0);
+            pm.forms.length = 0;
         }
 
         mask_hint.update(renderer);
+    }
+}
+
+// @Mask2Hint
+void update_mask2_hint()
+{
+    if (mask2_hint.changed)
+    {
+        struct HPoint
+        {
+            ushort x, y;
+        }
+
+        HPoint[61] hpoints;
+        hpoints[0] = HPoint(6, 0);
+        hpoints[4] = HPoint(12, 4);
+        hpoints[8] = HPoint(12, 12);
+        hpoints[12] = HPoint(6, 16);
+        hpoints[16] = HPoint(0, 12);
+        hpoints[20] = HPoint(0, 4);
+
+        hpoints[60] = HPoint(6, 8);
+
+        foreach(p; 0..6)
+        {
+            int p0 = p*4;
+
+            foreach(i; 1..4)
+            {
+                int p1 = (27 - i*3)*i + p*(4-i);
+
+                ushort xx = cast(ushort)((hpoints[p0].x*(4-i) + hpoints[60].x*i)/4);
+                ushort yy = cast(ushort)((hpoints[p0].y*(4-i) + hpoints[60].y*i)/4);
+
+                hpoints[p1] = HPoint(xx, yy);
+            }
+        }
+        
+        foreach(z; 0..3)
+        {
+            int v = 4 - z;
+            foreach(p; 0..6)
+            {
+                int o = (27 - z*3)*z;
+                int p0 = o + p*v;
+                int p1 = o + ((p+1)*v) % (6*v);
+
+                foreach(i; 1..v)
+                {
+                    ushort yy = cast(ushort)((hpoints[p0].y*(v-i) + hpoints[p1].y*i)/v);
+                    ushort xx = cast(ushort)((hpoints[p0].x*(v-i) + hpoints[p1].x*i)/v + (yy == 4 || yy == 12 ? 1 : 0));
+
+                    hpoints[p0+i] = HPoint(xx, yy);
+                }
+            }
+        }
+
+        mask2_hint.image.cpalette[0].length = 4;
+        mask2_hint.image.forms.length = 7;
+
+        mask2_hint.image.cpalette[0][1] = Color([0.0f, 0.0f, 1.0f, 1.0f], false, &SRGB_SPACE);
+        mask2_hint.image.cpalette[0][2] = Color([1.0f, 1.0f, 0.0f, 1.0f], false, &SRGB_SPACE);
+        mask2_hint.image.cpalette[0][3] = Color([0.5f, 0.5f, 0.5f, 1.0f], false, &SRGB_SPACE);
+
+        foreach(p; hpoints)
+        {
+            Pixel *px = mask2_hint.image.pixel(p.x, p.y);
+            px.color = 1;
+        }
+
+        foreach(d; form_dots)
+        {
+            HPoint *hp = &hpoints[d];
+            Pixel *px = mask2_hint.image.pixel(hp.x, hp.y);
+            px.color = 3;
+        }
+
+        HPoint *hp = &hpoints[ dot_by_line[doty][dotx] ];
+        Pixel *px = mask2_hint.image.pixel(hp.x, hp.y);
+        px.color = 2;
+
+        mask2_hint.update(renderer);
     }
 }
 
@@ -285,13 +396,22 @@ void draw_mask_hint()
 
     mask_hint.draw(renderer);
 
-    if (mask_i < mask_of)
+    /*if (mask_i < 2)
     {
         print_chr(cast(wchar) ('0'+(mask_of - mask_i)),
                 (mask_hint.rect.x + mask_hint.rect.w/2)/4 - 3,
                 cast(int) ((mask_hint.rect.y + mask_hint.rect.h/2)/3.5) - 8,
-                Pixel(255, 127, 0, 255));
-    }
+                [255, 127, 0]);
+    }*/
+}
+
+// @Mask2Hint
+void draw_mask2_hint()
+{
+    mask2_hint.rect.x = (screen.w - mask2_hint.rect.w)/2;
+    mask2_hint.rect.y = screen.h - mask2_hint.rect.h;
+
+    mask2_hint.draw(renderer);
 }
 
 // @Selection
@@ -302,8 +422,8 @@ void draw_cursor()
         if (mode == Mode.ColorPicker)
         {
             SDL_Rect rect;
-            rect.x = colors_select.x * 4 + 2*(colors_select.y%2);
-            rect.y = colors_select.y * 7/2;
+            rect.x = colors_select.x * 8 + 2*(colors_select.y%2);
+            rect.y = colors_select.y * 7;
             rect.w = colors_select.w;
             rect.h = colors_select.h;
 
@@ -311,25 +431,43 @@ void draw_cursor()
         }
         else
         {
-            selection.rect.x = (select.x - picture.offx) * selection.rect.w;
-            if (selection.rect.w == 3)
+            uint scalew = scales[scale];
+            uint scaledown = 1;
+
+            if (scalew == 4 || scalew == 2 || scalew == 1)
             {
-                selection.rect.y = cast(int) (2.5*(select.y - picture.offy));
-            }
-            else if (selection.rect.w == 4)
-            {
-                selection.rect.y = cast(int) (3.5*(select.y - picture.offy));
+                scaledown = 8/scalew;
+                scalew = 8;
             }
             else
             {
-                int hh = cast(int) round(selection.rect.h/4.0);
-                selection.rect.y = (select.y - picture.offy) * (selection.rect.h - hh);
+                scaledown = 2;
+                scalew *= 2;
             }
-            if (select.y%2 == 1) selection.rect.x += selection.rect.w/2;
+
+            int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
+            int hh = cast(int) floor(h/4.0);
+            
+            selection.rect.x = (select.x - picture.offx) * scales[scale];
+            selection.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
+
+            if (select.y%2 == 1) selection.rect.x += scales[scale]/2;
 
             selection.draw(renderer);
         }
     }
+}
+
+// @DrawCoords
+void draw_coords()
+{
+    print(format("%sx%s", select.x, select.y),
+            0, cast(int) ((screen.h - 30)/3.5),
+            [255, 255, 255]);
+
+    print(format("%s", vertex),
+            90, cast(int) ((screen.h - 30)/3.5),
+            [255, 255, 255]);
 }
 
 // @DrawScreen
@@ -339,7 +477,7 @@ void draw_screen()
     update_selection();
     update_colors();
 
-    SDL_SetRenderDrawColor(renderer, 127, 127, 127, 255);
+    SDL_SetRenderDrawColor(renderer, 160, 120, 80, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, null);
 
@@ -361,12 +499,98 @@ void draw_screen()
     {
         draw_color_picker();
     }
-    else if (mode != Mode.Edit)
+    else if (mode == Mode.SimpleFormEdit)
     {
         update_mask_hint();
         draw_mask_hint();
     }
+    else if (mode == Mode.ExtendedFormEdit)
+    {
+        update_mask2_hint();
+        draw_mask2_hint();
+    }
 
+    if (picture.image.width == 10 && picture.image.height == 12)
+    {
+        if (tile_preview.changed)
+        {
+            foreach(ty; 0..4)
+            {
+                foreach(tx; 0..4)
+                {
+                    foreach(y; 0..12)
+                    {
+                        if (ty % 2 && tx == 3) continue;
+                        int dx, dw, mm;
+                        mm = 1;
+
+                        switch (y)
+                        {
+                            case 0:
+                                dx = 4;
+                                dw = 2;
+                                break;
+
+                            case 1:
+                                dx = 2;
+                                dw = 5;
+                                break;
+
+                            case 2:
+                                dx = 1;
+                                dw = 8;
+                                break;
+
+                            case 3:
+                            case 5:
+                            case 7:
+                                dx = 0;
+                                dw = 9;
+                                mm = 0;
+                                break;
+
+                            case 4:
+                            case 6:
+                            case 8:
+                                dx = 0;
+                                dw = 10;
+                                break;
+
+                            case 9:
+                                dx = 0;
+                                dw = 9;
+                                break;
+
+                            case 10:
+                                dx = 2;
+                                dw = 6;
+                                break;
+
+                            case 11:
+                                dx = 3;
+                                dw = 3;
+                                break;
+
+                            default:
+                                assert(0, "Unreachable statement");
+                        }
+
+                        for (int dd = mm; dd < dw; dd++)
+                        {
+                            Pixel *p = picture.image.pixel(dx + dd, y);
+                            Pixel *pt = tile_preview.image.pixel(tx*9 + (ty%2 ? 4 + (y%2) : 0) + dx + dd, ty*9+y);
+                            *pt = *p;
+                        }
+                    }
+                }
+            }
+        }
+
+        tile_preview.update(renderer);
+        tile_preview.draw(renderer);
+    }
+
+    draw_coords();
     draw_cursor();
 
     SDL_RenderPresent(renderer);

@@ -14,13 +14,13 @@
 module h6pedit.print;
 
 import h6pedit.global_state;
-import derelict.sdl2.sdl;
+import hexpict.color;
+import bindbc.sdl;
 import std.stdio;
 import std.algorithm;
-import imaged;
 
 // @Font
-void print_chr(wchar chr, int x, int y, Pixel color = Pixel(255, 255, 255, 255))
+void print_chr(wchar chr, int x, int y, ubyte[3] color = [255, 255, 255])
 {
     uint code = cast(uint) chr;
 
@@ -57,12 +57,12 @@ void print_chr(wchar chr, int x, int y, Pixel color = Pixel(255, 255, 255, 255))
     dstrect.w = srcrect.w;
     dstrect.h = srcrect.h;
 
-    SDL_SetTextureColorMod(font, cast(ubyte) color.r, cast(ubyte) color.g, cast(ubyte) color.b);
+    SDL_SetTextureColorMod(font, color[0], color[1], color[2]);
     //writefln("%s from %s at %s", chr, srcrect, dstrect);
     SDL_RenderCopy(renderer, font, &srcrect, &dstrect);
 }
 
-void print(string text, int x, int y, Pixel color = Pixel(255, 255, 255, 255))
+void print(string text, int x, int y, ubyte[3] color = [255, 255, 255])
 {
     foreach(wchar chr; text)
     {

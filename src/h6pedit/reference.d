@@ -14,8 +14,8 @@
 module h6pedit.reference;
 
 import h6pedit.global_state;
-import derelict.sdl2.sdl;
-import derelict.sdl2.image;
+import hexpict.hexogrid;
+import bindbc.sdl;
 
 import std.string;
 import std.math;
@@ -37,18 +37,25 @@ class Reference
 
         int rw, rh;
 
+        int oldx = -1, oldy = -1;
+        ubyte oldpixwnum;
+
+        SDL_Surface *image;
+
     public:
-        bool lens = true;
+        ubyte lens = 1;
+        int[] pixwar = [8, 16, 32, 64];
+        ubyte pixwnum = 2;
 
         this(string file, int cRx, int cRy, int sRw)
         {
-            auto image = IMG_Load(file.toStringz());
+            image = IMG_Load(file.toStringz());
 
-            if (image)
+            /*if (image)
             {
                 texture = SDL_CreateTextureFromSurface(renderer, image);
                 SDL_FreeSurface(image);
-            }
+            }*/
 
             SDL_QueryTexture(texture, null, null, &rw, &rh);
 
@@ -64,6 +71,40 @@ class Reference
 
         void draw()
         {
+            if (select.x != oldx || select.y != oldy || pixwnum != oldpixwnum)
+            {
+                if (texture) SDL_DestroyTexture(texture);
+
+                int pixw = pixwar[pixwnum];
+                float scaleup = 1.0f*pixw/sizeRw;
+                int offx = max(0, select.x - screen.w/4/pixw);
+                int offy = max(0, select.y - screen.h/2/(pixw*7/8));
+                SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w/2, screen.h, select.x, select.y);
+
+                texture = SDL_CreateTextureFromSurface(renderer, im);
+
+                SDL_FreeSurface(im);
+
+                oldx = select.x;
+                oldy = select.y;
+                oldpixwnum = pixwnum;
+            }
+
+            SDL_Rect src_rect, dst_rect;
+
+            src_rect.x = 0;
+            src_rect.y = 0;
+            src_rect.w = screen.w/2;
+            src_rect.h = screen.h;
+
+            dst_rect.x = screen.w/2;
+            dst_rect.y = 0;
+            dst_rect.w = screen.w/2;
+            dst_rect.h = screen.h;
+
+            SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
+
+            /*
             SDL_Rect src_rect, dst_rect;
 
             src_rect.x = vx;
@@ -77,42 +118,61 @@ class Reference
             dst_rect.h = cast(int) round((rh-vy)*scale);
 
             SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
+            */
+
         }
 
         // @Lens
         void draw_cursor()
         {
+            /*
             int centerPx = centerRx/sizeRw;
             int centerPy = cast(int)(centerRy/sizeRh);
 
             SDL_Rect src_rect, dst_rect;
 
-            if (lens)
+            if (lens == 2)
             {
-                src_rect.x = cast(int) round((select.x - centerPx + 0.5*(select.y%2) - 0.5*(centerPy%2))*sizeRw + centerRx);
-                src_rect.y = cast(int) round((select.y - centerPy - 0.5*(centerPy%2))*sizeRh + centerRy);
-                src_rect.w = sizeRw;
-                src_rect.h = sizeRz;
+                src_rect.x = cast(int) round((select.x - centerPx + 0.5*(select.y%2) - 0.5*(centerPy%2) - 1.5)*sizeRw + centerRx);
+                src_rect.y = cast(int) round((select.y - centerPy - 0.5*(centerPy%2) - 1.5)*sizeRh + centerRy);
+                src_rect.w = 3*sizeRw;
+                src_rect.h = cast(int) (2*sizeRh+sizeRz);
 
                 dst_rect.w = 52;
                 dst_rect.h = 60;
-                dst_rect.x = cast(int) round(screen.w/2 + (src_rect.x - vx)*scale - dst_rect.w/2);
-                dst_rect.y = cast(int) round((src_rect.y - vy)*scale - dst_rect.h/2);
+                dst_rect.x = cast(int) round(screen.w/2 + (src_rect.x - vx)*scale - dst_rect.w/4);
+                dst_rect.y = cast(int) round((src_rect.y - vy)*scale - dst_rect.h/4);
 
                 SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
-                SDL_RenderCopy(renderer, window_texture, null, &dst_rect);
+                SDL_RenderCopy(renderer, window_texture2, null, &dst_rect);
             }
             else
             {
-                src_rect.x = cast(int) round((select.x - centerPx + 0.5*(select.y%2) - 0.5*(centerPy%2))*sizeRw + centerRx);
-                src_rect.y = cast(int) round((select.y - centerPy - 0.5*(centerPy%2))*sizeRh + centerRy);
+                src_rect.x = cast(int) round((select.x - centerPx + 0.5*(select.y%2) - 0.5*(centerPy%2) - 0.5)*sizeRw + centerRx);
+                src_rect.y = cast(int) round((select.y - centerPy - 0.5*(centerPy%2) - 0.5)*sizeRh + centerRy);
+                src_rect.w = sizeRw;
+                src_rect.h = sizeRz;
 
-                dst_rect.w = cast(int) round(sizeRw*scale);
-                dst_rect.h = cast(int) round(sizeRz*scale);
-                dst_rect.x = cast(int) round(screen.w/2 + (src_rect.x - vx)*scale);
-                dst_rect.y = cast(int) round((src_rect.y - vy)*scale);
+                if (lens == 1)
+                {
+                    dst_rect.w = 52;
+                    dst_rect.h = 60;
+                    dst_rect.x = cast(int) round(screen.w/2 + (src_rect.x - vx)*scale - dst_rect.w/4);
+                    dst_rect.y = cast(int) round((src_rect.y - vy)*scale - dst_rect.h/4);
 
-                SDL_RenderCopy(renderer, window_texture, null, &dst_rect);
+                    SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
+                    SDL_RenderCopy(renderer, window_texture, null, &dst_rect);
+                }
+                else
+                {
+                    dst_rect.w = cast(int) round(sizeRw*scale);
+                    dst_rect.h = cast(int) round(sizeRz*scale);
+                    dst_rect.x = cast(int) round(screen.w/2 + (src_rect.x - vx)*scale);
+                    dst_rect.y = cast(int) round((src_rect.y - vy)*scale);
+
+                    SDL_RenderCopy(renderer, window_texture, null, &dst_rect);
+                }
             }
+            */
         }
 }
