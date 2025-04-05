@@ -575,6 +575,18 @@ void process_save_key(SDL_Event event)
     }
 }
 
+// @Space
+void process_space_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_SPACE)
+    {
+        if (reference)
+        {
+            hide_picture = !hide_picture;
+        }
+    }
+}
+
 // @ColorPicker
 void process_color_picker_navigation_keys(SDL_Event event)
 {
@@ -1261,6 +1273,7 @@ void process_events()
             process_exit_key(event);
             process_cancel_key(event);
             process_save_key(event);
+            process_space_key(event);
 
             process_choose_pict_keys(event);
 

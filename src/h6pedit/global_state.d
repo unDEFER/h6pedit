@@ -100,6 +100,7 @@ package
     // @Pictures
     RenderedH6P[] pictures;
     int pict;
+    bool hide_picture;
 
     RenderedH6P picture()
     {

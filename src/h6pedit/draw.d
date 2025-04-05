@@ -491,7 +491,8 @@ void draw_screen()
         reference.draw_cursor();
     }
 
-    draw_picture();
+    if (!hide_picture)
+        draw_picture();
 
     draw_palette();
 
