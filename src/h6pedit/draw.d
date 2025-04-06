@@ -408,8 +408,29 @@ void draw_mask_hint()
 // @Mask2Hint
 void draw_mask2_hint()
 {
-    mask2_hint.rect.x = (screen.w - mask2_hint.rect.w)/2;
-    mask2_hint.rect.y = screen.h - mask2_hint.rect.h;
+    uint scalew = scales[scale];
+    uint scaledown = 1;
+
+    if (scalew == 4 || scalew == 2 || scalew == 1)
+    {
+        scaledown = 8/scalew;
+        scalew = 8;
+    }
+    else
+    {
+        scaledown = 2;
+        scalew *= 2;
+    }
+
+    int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
+    int hh = cast(int) floor(h/4.0);
+
+    mask2_hint.rect.x = (select.x - picture.offx) * scales[scale];
+    mask2_hint.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
+    mask2_hint.rect.w = scalew;
+    mask2_hint.rect.h = h;
+
+    if (select.y%2 == 1) mask2_hint.rect.x += scales[scale]/2;
 
     mask2_hint.draw(renderer);
 }

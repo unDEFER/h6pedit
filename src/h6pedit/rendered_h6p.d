@@ -27,6 +27,7 @@ class RenderedH6P
 {
     int offx, offy;
     int scale = 4;
+    int iw, ih;
     SDL_Rect rect;
 
     bool changed = true;
@@ -68,6 +69,8 @@ class RenderedH6P
     this(int iw, int ih)
     {
         if (iw == 0 || ih == 0) return;
+        this.iw = iw;
+        this.ih = ih;
         rect.w = iw;
         rect.h = ih;
     }
@@ -85,7 +88,7 @@ class RenderedH6P
         //        rendered_data, rect.w, rect.h, inv, tile_mode);
 
         surface = h6p_render(image, scale, inv,
-                offx, offy, rect.w, rect.h);
+                offx, offy, iw, ih);
         assert(surface !is null);
     }
 
