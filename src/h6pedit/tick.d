@@ -902,6 +902,15 @@ void process_choose_color_keys(SDL_Event event)
             }
         }
     }
+
+    if (event.key.keysym.scancode == SDL_SCANCODE_GRAVE)
+    {
+        palette_offset += 12;
+        if (palette_offset > picture.image.cpalette[0].length)
+        {
+            palette_offset = 0;
+        }
+    }
 }
 
 // @EditMask24
