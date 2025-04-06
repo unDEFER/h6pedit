@@ -186,12 +186,13 @@ package
                 1,
                 32, 0x00FF0000, 0X0000FF00, 0X000000FF, 0XFF000000);
 
-        foreach (i; palette_offset..palette_offset+12)
+        foreach (i; 0..12)
         {
             uint ncolor;
-            if (i < image.cpalette[0].length)
+            auto pi = palette_offset + i;
+            if (pi < image.cpalette[0].length)
             {
-                auto p = image.cpalette[0][i];
+                auto p = image.cpalette[0][pi];
                 bool err;
                 ubyte[4] pc;
                 Color color = p;
