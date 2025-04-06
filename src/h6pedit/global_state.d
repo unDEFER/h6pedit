@@ -186,16 +186,21 @@ package
                 1,
                 32, 0x00FF0000, 0X0000FF00, 0X000000FF, 0XFF000000);
 
-        foreach (i, p; image.cpalette[0][palette_offset..min(palette_offset+12, $)])
+        foreach (i; palette_offset..palette_offset+12)
         {
-            bool err;
-            ubyte[4] pc;
-            Color color = p;
-            color_to_u8(&color, &SRGB_SPACE, pc, &err, ErrCorrection.ORDINARY);
-            uint ncolor = ( (pc[0]) << 16 |
-                            (pc[1]) << 8 |
-                            (pc[2]) |
-                            (pc[3]) << 24 );
+            uint ncolor;
+            if (i < image.cpalette[0].length)
+            {
+                auto p = image.cpalette[0][i];
+                bool err;
+                ubyte[4] pc;
+                Color color = p;
+                color_to_u8(&color, &SRGB_SPACE, pc, &err, ErrCorrection.ORDINARY);
+                ncolor = ( (pc[0]) << 16 |
+                                (pc[1]) << 8 |
+                                (pc[2]) |
+                                (pc[3]) << 24 );
+            }
 
             (cast(uint*) surface.pixels)[0] = ncolor;
             if (palette_textures[i]) SDL_DestroyTexture(palette_textures[i]);
