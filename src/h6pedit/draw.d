@@ -427,8 +427,8 @@ void draw_mask2_hint()
 
     mask2_hint.rect.x = (select.x - picture.offx) * scales[scale];
     mask2_hint.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
-    mask2_hint.rect.w = scalew;
-    mask2_hint.rect.h = h;
+    mask2_hint.rect.w = scalew / scaledown;
+    mask2_hint.rect.h = h / scaledown;
 
     if (select.y%2 == 1) mask2_hint.rect.x += scales[scale]/2;
 
