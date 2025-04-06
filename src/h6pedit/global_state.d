@@ -364,9 +364,10 @@ private
 
         int hw = 8;
         int hh = cast(int) round(hw * 2.0 / sqrt(3.0));
+        int hhh = cast(int) floor(hh/4.0);
 
         int iw = w*hw;
-        int ih = h*hh;
+        int ih = h*(hhh-hh) + hhh;
 
         mask2_hint = new RenderedH6P(w, h, iw, ih);
         mask2_hint.scale = hw;
