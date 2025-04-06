@@ -910,6 +910,7 @@ void process_choose_color_keys(SDL_Event event)
         {
             palette_offset = 0;
         }
+        writefln("palette_offset %s", palette_offset);
 
         palette_reinit();
     }
