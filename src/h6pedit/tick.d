@@ -903,7 +903,6 @@ void process_choose_color_keys(SDL_Event event)
         }
     }
 
-    writefln("SCAN %s", event.key.keysym.scancode);
     if (event.key.keysym.scancode == SDL_SCANCODE_GRAVE)
     {
         palette_offset += 12;
@@ -911,6 +910,8 @@ void process_choose_color_keys(SDL_Event event)
         {
             palette_offset = 0;
         }
+
+        palette_reinit();
     }
 }
 
