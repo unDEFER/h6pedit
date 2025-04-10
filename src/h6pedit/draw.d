@@ -367,10 +367,11 @@ void update_mask2_hint()
         mask2_hint.image.cpalette[0][2] = Color([1.0f, 1.0f, 0.0f, 1.0f], false, &SRGB_SPACE);
         mask2_hint.image.cpalette[0][3] = Color([0.5f, 0.5f, 0.5f, 1.0f], false, &SRGB_SPACE);
 
-        foreach(p; hpoints)
+        uint scalew = scales[scale];
+        foreach(i, p; hpoints)
         {
             Pixel *px = mask2_hint.image.pixel(p.x, p.y);
-            px.color = 1;
+            px.color = i<24 && (i%2 == 0 || scalew >= 16) || scalew >= 32 ? 1 : 0;
         }
 
         foreach(d; form_dots)
