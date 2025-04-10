@@ -823,7 +823,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 else
                 {
                     dotx_ += dx[i];
-                    if ( abs(dy[i]) == 1 && doty_ % 2 == 0 )
+                    if ( abs(dy[i]) == 1 && doty_ % 2 == 0 && dx[i] == 0 )
                     {
                         dotx_--;
                     }
