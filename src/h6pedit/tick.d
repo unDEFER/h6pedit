@@ -815,6 +815,7 @@ void process_mask2_editor_keys(SDL_Event event)
             do
             {
                 ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+                ubyte doty_ = doty;
                 if ( !(d >= 4 && d <= 8 || d >= 16 && d <= 20) || abs(dy[i]) == 2 )
                     doty += dy[i];
                 if (doty >= dot_by_line.length)
@@ -822,11 +823,9 @@ void process_mask2_editor_keys(SDL_Event event)
                 else
                 {
                     dotx_ += dx[i];
-                    if ( abs(dy[i]) == 1 && doty % 2 == 1 )
+                    if ( abs(dy[i]) == 1 && doty_ % 2 == 0 )
                     {
-                        writefln("Гав!");
-                        if (dotx_ == 0) dotx_ = 255;
-                        else dotx_--;
+                        dotx_--;
                     }
                     dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
                 }
