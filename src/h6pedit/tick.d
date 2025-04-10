@@ -808,22 +808,31 @@ void process_mask2_editor_keys(SDL_Event event)
     {
         if (event.key.keysym.scancode == k)
         {
-            ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-            doty += dy[i];
-            if (doty >= dot_by_line.length)
-                doty = cast(ubyte) (dot_by_line.length-1);
-            else
-            {
-                dotx_ += dx[i];
-                if ( abs(dy[i]) == 1 && doty % 2 == 1 )
-                {
-                    dotx_--;
-                }
-                dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
-            }
+            ubyte d;
+            uint scalew = scales[scale];
 
-            if (dotx >= dot_by_line[doty].length)
-                dotx = cast(ubyte) (dot_by_line[doty].length-1);
+            do
+            {
+                ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+                doty += dy[i];
+                if (doty >= dot_by_line.length)
+                    doty = cast(ubyte) (dot_by_line.length-1);
+                else
+                {
+                    dotx_ += dx[i];
+                    if ( abs(dy[i]) == 1 && doty % 2 == 1 )
+                    {
+                        dotx_--;
+                    }
+                    dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+                }
+
+                if (dotx >= dot_by_line[doty].length)
+                    dotx = cast(ubyte) (dot_by_line[doty].length-1);
+
+                d = dot_by_line[doty][dotx];
+            }
+            while ( !(d<24 && (d%2 == 0 || scalew >= 32) || scalew >= 64) );
         }
     }
 
