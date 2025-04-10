@@ -824,6 +824,7 @@ void process_mask2_editor_keys(SDL_Event event)
                     dotx_ += dx[i];
                     if ( abs(dy[i]) == 1 && doty % 2 == 1 )
                     {
+                        writefln("Гав!");
                         if (dotx_ == 0) dotx_ = 255;
                         else dotx_--;
                     }
