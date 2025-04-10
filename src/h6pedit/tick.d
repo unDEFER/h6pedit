@@ -821,14 +821,11 @@ void process_mask2_editor_keys(SDL_Event event)
                     doty = cast(ubyte) (doty > 200 ? dot_by_line.length-1 : 0);
                 else
                 {
-                    writefln("dotx_ = %s + dx=%s", dotx_, dx[i]);
                     dotx_ += dx[i];
-                    writefln("dotx_ = %s", dotx_);
                     if ( abs(dy[i]) == 1 && doty % 2 == 1 )
                     {
-                        dotx_--;
+                        dotx_ -= 1;
                     }
-                    writefln("dotx_-- = %s", dotx_);
                     dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
                 }
 
