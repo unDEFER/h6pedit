@@ -614,7 +614,7 @@ void draw_screen()
     }
 
     draw_coords();
-    draw_cursor();
+    if (mode != Mode.ExtendedFormEdit) draw_cursor();
 
     SDL_RenderPresent(renderer);
 }
