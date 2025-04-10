@@ -371,7 +371,7 @@ void update_mask2_hint()
         foreach(i, p; hpoints)
         {
             Pixel *px = mask2_hint.image.pixel(p.x, p.y);
-            px.color = i<24 && (i%2 == 0 || scalew >= 16) || scalew >= 32 ? 1 : 0;
+            px.color = i<24 && (i%2 == 0 || scalew >= 32) || scalew >= 64 ? 1 : 0;
         }
 
         foreach(d; form_dots)
