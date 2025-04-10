@@ -816,7 +816,7 @@ void process_mask2_editor_keys(SDL_Event event)
             {
                 ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
                 ubyte doty_ = doty;
-                if ( !(d >= 4 && d <= 8 || d >= 16 && d <= 20) || abs(dy[i]) == 2 )
+                if ( !(d >= 4 && d <= 8 && dx[i] == 0 || d >= 16 && d <= 20 && dx[i] == 1) || abs(dy[i]) == 2 )
                     doty += dy[i];
                 if (doty >= dot_by_line.length)
                     doty = cast(ubyte) (doty > 200 ? dot_by_line.length-1 : 0);
