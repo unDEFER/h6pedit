@@ -810,13 +810,14 @@ void process_mask2_editor_keys(SDL_Event event)
         {
             ubyte d;
             uint scalew = scales[scale];
+            d = dot_by_line[doty][dotx];
 
             do
             {
                 ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
                 doty += dy[i];
                 if (doty >= dot_by_line.length)
-                    doty = cast(ubyte) (dot_by_line.length-1);
+                    doty = cast(ubyte) (doty > 200 ? dot_by_line.length-1 : 0);
                 else
                 {
                     dotx_ += dx[i];
@@ -828,7 +829,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 }
 
                 if (dotx >= dot_by_line[doty].length)
-                    dotx = cast(ubyte) (dot_by_line[doty].length-1);
+                    dotx = cast(ubyte) (dotx > 200 ? dot_by_line[doty].length-1 : 0);
 
                 d = dot_by_line[doty][dotx];
             }
