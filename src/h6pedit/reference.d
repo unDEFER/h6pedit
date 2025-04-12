@@ -83,7 +83,7 @@ class Reference
                 float scaleup = 1.0f*pixw/sizeRw;
                 int offx = picture.offx;
                 int offy = picture.offy;
-                if (pixw < 8) return;
+                if (pixw < 4) return;
 
                 SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, select.x, select.y);
 
