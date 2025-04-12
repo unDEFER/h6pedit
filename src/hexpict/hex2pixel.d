@@ -25,8 +25,8 @@ import hexpict.h6p;
 import hexpict.color;
 import hexpict.hyperpixel;
 
-enum DBGX = -1;
-enum DBGY = -1;
+enum DBGX = 45;
+enum DBGY = 32;
 
 SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh)
 {   
