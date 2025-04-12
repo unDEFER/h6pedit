@@ -73,12 +73,18 @@ class Reference
         {
             if (select.x != oldx || select.y != oldy || scales[.scale] != oldpixwnum)
             {
-                if (texture) SDL_DestroyTexture(texture);
+                if (texture)
+                {
+                    SDL_DestroyTexture(texture);
+                    texture = null;
+                }
 
                 int pixw = scales[.scale];
                 float scaleup = 1.0f*pixw/sizeRw;
                 int offx = picture.offx;
                 int offy = picture.offy;
+                if (pixw < 8) return;
+
                 SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, select.x, select.y);
 
                 texture = SDL_CreateTextureFromSurface(renderer, im);
