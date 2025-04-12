@@ -311,7 +311,7 @@ struct HPoint
     ubyte x, y;
 }
 
-HPoint[61] hpoints;
+private HPoint[61] hpoints;
 
 static this()
 {

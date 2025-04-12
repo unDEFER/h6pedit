@@ -838,8 +838,8 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (mir)
                 {
                     d = (d+12)%24;
-                    dotx = hpoints[d].x;
-                    doty = hpoints[d].y;
+                    dotx = dot_to_coords[d][0];
+                    doty = dot_to_coords[d][1];
                 }
                 else
                 {
