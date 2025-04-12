@@ -308,7 +308,7 @@ void update_mask_hint()
 
 struct HPoint
 {
-    ushort x, y;
+    ubyte x, y;
 }
 
 HPoint[61] hpoints;
@@ -332,8 +332,8 @@ static this()
         {
             int p1 = (27 - i*3)*i + p*(4-i);
 
-            ushort xx = cast(ushort)((hpoints[p0].x*(4-i) + hpoints[60].x*i)/4);
-            ushort yy = cast(ushort)((hpoints[p0].y*(4-i) + hpoints[60].y*i)/4);
+            ubyte xx = cast(ubyte)((hpoints[p0].x*(4-i) + hpoints[60].x*i)/4);
+            ubyte yy = cast(ubyte)((hpoints[p0].y*(4-i) + hpoints[60].y*i)/4);
 
             hpoints[p1] = HPoint(xx, yy);
         }
@@ -350,8 +350,8 @@ static this()
 
             foreach(i; 1..v)
             {
-                ushort yy = cast(ushort)((hpoints[p0].y*(v-i) + hpoints[p1].y*i)/v);
-                ushort xx = cast(ushort)((hpoints[p0].x*(v-i) + hpoints[p1].x*i)/v + (yy == 4 || yy == 12 ? 1 : 0));
+                ubyte yy = cast(ubyte)((hpoints[p0].y*(v-i) + hpoints[p1].y*i)/v);
+                ubyte xx = cast(ubyte)((hpoints[p0].x*(v-i) + hpoints[p1].x*i)/v + (yy == 4 || yy == 12 ? 1 : 0));
 
                 hpoints[p0+i] = HPoint(xx, yy);
             }

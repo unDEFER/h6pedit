@@ -15,6 +15,7 @@ module h6pedit.tick;
 
 import h6pedit.global_state;
 import h6pedit.rendered_h6p;
+import h6pedit.draw;
 import hexpict.h6p;
 import hexpict.hyperpixel;
 import hexpict.color;
@@ -815,43 +816,35 @@ void process_mask2_editor_keys(SDL_Event event)
             do
             {
                 ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-                ubyte doty_ = doty;
-                if ( !(d >= 4 && d <= 8 && dx[i] == 1 || d >= 16 && d <= 20 && dx[i] == 0) || abs(dy[i]) == 2 )
-                    doty += dy[i];
+                doty += dy[i];
 
-                if (doty_ <= 4 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == -2)
-                {
-                    doty = cast(ubyte) (16 - doty_);
-                    writefln("O1 %s", dotx_);
-                    dotx_= cast(ubyte) ((doty%2 == 0 ? 4 : 3) - dotx_);
-                    writefln("=> %s", dotx_);
-                }
-                else if (doty_ >= 12 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == 2)
-                {
-                    doty = cast(ubyte) (16 - doty_);
-                    writefln("O1 %s", dotx_);
-                    dotx_= cast(ubyte) ((doty%2 == 0 ? 4 : 3) - dotx_);
-                    writefln("=> %s", dotx_);
-                }
-
+                bool mir;
                 if (doty >= dot_by_line.length)
-                    doty = cast(ubyte) (doty > 200 ? dot_by_line.length-1 : 0);
+                    mir = true;
                 else
                 {
                     dotx_ += dx[i];
-                    if ( abs(dy[i]) == 1 && (doty % 2 == 1 || doty_ % 2 == 0 && dx[i] == 0) )
+                    if ( abs(dy[i]) == 1 && doty % 2 == 1 )
                     {
                         dotx_--;
                     }
+
+                    dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
                 }
 
-                dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
-
-                writefln("dotx = %s (%s), dotx_ = %s", dotx, dot_by_line[doty].length, dotx_);
                 if (dotx >= dot_by_line[doty].length)
-                    dotx = cast(ubyte) (dotx > 200 ? dot_by_line[doty].length-1 : 0);
+                    mir = true;
 
-                d = dot_by_line[doty][dotx];
+                if (mir)
+                {
+                    d = (d+12)%24;
+                    dotx = hpoints[d].x;
+                    doty = hpoints[d].y;
+                }
+                else
+                {
+                    d = dot_by_line[doty][dotx];
+                }
             }
             while ( !(d<24 && (d%2 == 0 || scalew >= 32) || scalew >= 64) );
         }
