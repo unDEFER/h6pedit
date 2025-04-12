@@ -25,8 +25,8 @@ import hexpict.h6p;
 import hexpict.color;
 import hexpict.hyperpixel;
 
-enum DBGX = 45;
-enum DBGY = 32;
+enum DBGX = -1;
+enum DBGY = -1;
 
 SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh)
 {   
@@ -150,7 +150,7 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
                 BitArray *mhp = 
                     subform.form < 19*4 ?
                     get_simple_hyperpixel(subform.form, hpw, subform.rotation, hpw <= 16 && _debug) :
-                    image.forms[subform.form - 19*4].get_hyperpixel(hpw, subform.rotation, hpw <= 64 && _debug);
+                    image.forms[subform.form - 19*4].get_hyperpixel(hpw, subform.rotation, hpw <= 16 && _debug);
 
                 for (uint dy = 0; dy < hph; dy++)
                 {
