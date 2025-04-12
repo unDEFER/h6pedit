@@ -840,7 +840,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 {
                     ubyte side = d/4;
                     ubyte nons = d%4;
-                    if (nons == 0 && (i+1)%6 == side)
+                    if (nons == 0 && i == side)
                     {
                         side = (side + 5)%6;
                         nons = 4;
