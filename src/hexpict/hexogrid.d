@@ -35,7 +35,7 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, i
     // @HyperMask
     uint w = scale;
     float wf = w;
-    float hf = round(wf * 8.0f/7.0f);
+    float hf = round(wf * 2.0 / sqrt(3.0));
     uint h = cast(uint) hf;
 
     int iw = image.w;
@@ -43,7 +43,7 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, i
 
     uint hpw = scale;
     float hpwf = hpw;
-    float hphf = round(hpwf * 8.0f/7.0f);
+    float hphf = round(hpwf * 2.0 / sqrt(3.0));
     uint hph = cast(uint) hphf;
 
     float hhf = floor(hphf/4.0);
