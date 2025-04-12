@@ -851,23 +851,27 @@ void process_mask2_editor_keys(SDL_Event event)
                     // @H6PNeighbours
                     int[][] neigh = new int[][](6, 2);
                     neighbours(select.x, select.y, neigh);
-                    select.x = neigh[nn][0];
-                    select.y = neigh[nn][1];
-
-                    Pixel *p = picture.image.pixel(select.x, select.y);
-                    
-                    edited_form = 8;
-                    foreach (j, f; p.forms)
+                    if (neigh[nn][0] >= 0 && neigh[nn][0] < picture.image.width &&
+                        neigh[nn][1] >= 0 && neigh[nn][1] < picture.image.height)
                     {
-                        if (f.extra_color == color)
-                        {
-                            edited_form = cast(ubyte) j;
-                            break;
-                        }
-                    }
+                        select.x = neigh[nn][0];
+                        select.y = neigh[nn][1];
 
-                    if (edited_form == 8)
-                        edited_form = cast(ubyte) p.forms.length;
+                        Pixel *p = picture.image.pixel(select.x, select.y);
+
+                        edited_form = 8;
+                        foreach (j, f; p.forms)
+                        {
+                            if (f.extra_color == color)
+                            {
+                                edited_form = cast(ubyte) j;
+                                break;
+                            }
+                        }
+
+                        if (edited_form == 8)
+                            edited_form = cast(ubyte) p.forms.length;
+                    }
 
                     mode = Mode.ExtendedFormEdit;
                     mask2_hint.changed = true;
