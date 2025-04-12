@@ -837,7 +837,12 @@ void process_mask2_editor_keys(SDL_Event event)
 
                 if (mir)
                 {
-                    d = cast(ubyte) ((24-d+12)%24);
+                    ubyte side = d/4;
+                    ubyte nons = d%4;
+                    side = (side + 3)%6;
+                    nons = cast(ubyte)(4 - nons);
+
+                    d = cast(ubyte) (side*4 + nons);
                     dotx = dot_to_coords[d][0];
                     doty = dot_to_coords[d][1];
                 }
