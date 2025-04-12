@@ -30,7 +30,7 @@ import hexpict.common;
 enum DBGX = -1;
 enum DBGY = -1;
 
-SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, int offy, int ow, int oh, int selx, int sely)
+SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, int offy, int ow, int oh, int selx, int sely)
 {   
     int iw = image.w;
     int ih = image.h;
@@ -43,8 +43,10 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, i
     float hhf = floor(hphf/4.0);
     uint hh = cast(uint) hhf;
 
-    int nw = cast(int) ceil(iw * scaleup / hpw);
-    int nh = cast(int) ceil(ih * scaleup / (hph-hh));
+    float scaleupy = scaleupx * round(16 * 2.0 / sqrt(3.0)) / hphf;
+
+    int nw = cast(int) ceil(iw * scaleupx / hpw);
+    int nh = cast(int) ceil(ih * scaleupy / (hph-hh));
 
     // @HyperMaskFile
     ubyte[12] form12;
@@ -114,8 +116,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, i
                             int x0 = ix + dx;
                             int y0 = iy + dy;
 
-                            int sx0 = cast(int) round((six + dx)/scaleup);
-                            int sy0 = cast(int) round((siy + dy)/scaleup);
+                            int sx0 = cast(int) round((six + dx)/scaleupx);
+                            int sy0 = cast(int) round((siy + dy)/scaleupy);
 
                             assert(sx0 >= 0 && sy0 >=0);
 
@@ -179,8 +181,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, i
                         int x0 = ix + dx;
                         int y0 = iy + dy;
 
-                        int sx0 = cast(int) round((six + dx)/scaleup);
-                        int sy0 = cast(int) round((siy + dy)/scaleup);
+                        int sx0 = cast(int) round((six + dx)/scaleupx);
+                        int sy0 = cast(int) round((siy + dy)/scaleupy);
 
                         assert(sx0 >= 0 && sy0 >=0);
 
