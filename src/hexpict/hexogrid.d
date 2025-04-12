@@ -43,20 +43,20 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
     float hhf = floor(hphf/4.0f);
     uint hh = cast(uint) hhf;
 
-    float h16 = round(16.0f * 2.0f / sqrt(3.0f));
-    float hh16 = floor(h16/4.0f);
+    float hReal = 2.0f/sqrt(3.0f);
+    float hhReal = hReal/4.0f;
     float scaleupy = scaleupx;
 
-    if (scale > 16)
+    if (scale > 8)
     {
-        scaleupy *= (hph-hh) / ((hpwf/16.0f) * (h16-hh16));
+        scaleupy *= (hph-hh) / (hpwf * (hReal-hhReal));
     }
     else
     {
         float h8 = round(8.0f * 2.0f / sqrt(3.0f));
         float hh8 = floor(h8/4.0f);
 
-        scaleupy *= (h8-hh8) / (0.5f * (h16-hh16));
+        scaleupy *= (h8-hh8) / (8.0f * (hReal-hhReal));
     }
 
     int nw = cast(int) ceil(iw * scaleupx / hpw);
