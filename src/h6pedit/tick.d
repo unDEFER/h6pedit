@@ -839,17 +839,16 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (mir)
                 {
                     ubyte side = d/4;
-                    ubyte nn = (side+1)%6;
                     ubyte nons = d%4;
-                    if (nons == 0)
+                    if (nons == 0 && (i+1)%6 == side)
                     {
-                        side = (side + 4)%6;
+                        side = (side + 5)%6;
+                        nons = 4;
                     }
-                    else
-                    {
-                        side = (side + 3)%6;
-                        nons = cast(ubyte)(4 - nons);
-                    }
+
+                    ubyte nn = (side+1)%6;
+                    side = (side + 3)%6;
+                    nons = cast(ubyte)(4 - nons);
 
                     d = cast(ubyte) (side*4 + nons);
                     dotx = dot_to_coords[d][0];
