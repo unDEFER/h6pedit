@@ -49,8 +49,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     int nw = cast(int) ceil(iw * scaleupx / hpw);
     int nh = cast(int) ceil(ih * scaleupy / (hph-hh));
-    writefln("hpw %s, ih %s, hph-hh %s", hpw, ih, hph-hh);
-    writefln("scaleupx %s, scaleupy %s, nh %s", scaleupx, scaleupy, ih * scaleupy / (hph-hh));
+    //writefln("hpw %s, ih %s, hph-hh %s", hpw, ih, hph-hh);
+    //writefln("scaleupx %s, scaleupy %s, nh %s", scaleupx, scaleupy, ih * scaleupy / (hph-hh));
 
     // @HyperMaskFile
     ubyte[12] form12;
