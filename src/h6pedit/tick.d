@@ -67,6 +67,7 @@ void process_debug_key(SDL_Event event)
             ubyte rotation = p.forms[edited_form].rotation;
 
             writefln("%sx%s form %s rotation %s", select.x, select.y, form, rotation);
+            writefln("scale %s", scales[scale]);
             if (form > 19*4)
                 writefln("form %s", picture.image.forms[form-19*4]);
         }
