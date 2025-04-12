@@ -44,12 +44,6 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
         scale *= 2;
     }*/
 
-    // @HyperMask
-    uint w = scale;
-    float wf = w;
-    float hf = round(wf * 2.0 / sqrt(3.0));
-    uint h = cast(uint) hf;
-
     uint iw = image.width;
     uint ih = image.height;
 
