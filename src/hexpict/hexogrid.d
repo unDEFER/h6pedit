@@ -32,12 +32,6 @@ enum DBGY = -1;
 
 SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleup, int offx, int offy, int ow, int oh, int selx, int sely)
 {   
-    // @HyperMask
-    uint w = scale;
-    float wf = w;
-    float hf = round(wf * 2.0 / sqrt(3.0));
-    uint h = cast(uint) hf;
-
     int iw = image.w;
     int ih = image.h;
 
