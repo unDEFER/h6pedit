@@ -839,7 +839,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (mir)
                 {
                     ubyte side = d/4;
-                    ubyte nn = (side+5)%6;
+                    ubyte nn = (side+1)%6;
                     ubyte nons = d%4;
                     side = (side + 3)%6;
                     nons = cast(ubyte)((4 - nons)%4);
