@@ -822,10 +822,12 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (doty_ <= 4 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == -2)
                 {
                     doty = cast(ubyte) (16 - doty_);
+                    dotx_= cast(ubyte) (10 - dotx_);
                 }
                 else if (doty_ >= 12 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == 2)
                 {
                     doty = cast(ubyte) (16 - doty_);
+                    dotx_= cast(ubyte) (10 - dotx_);
                 }
 
                 if (doty >= dot_by_line.length)
@@ -842,7 +844,7 @@ void process_mask2_editor_keys(SDL_Event event)
 
                 writefln("dotx = %s, dotx_ = %s", dotx, dotx_);
                 if (dotx >= dot_by_line[doty].length)
-                    dotx = cast(ubyte) (dotx <= 200 ? dot_by_line[doty].length-1 : 0);
+                    dotx = cast(ubyte) (dotx > 200 ? dot_by_line[doty].length-1 : 0);
 
                 d = dot_by_line[doty][dotx];
             }
