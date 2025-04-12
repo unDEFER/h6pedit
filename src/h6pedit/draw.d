@@ -430,10 +430,10 @@ void draw_mask2_hint()
     int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
     int hh = cast(int) floor(h/4.0);
 
-    mask2_hint.rect.x = (select.x - picture.offx) * scales[scale];
-    mask2_hint.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
-    mask2_hint.rect.w = scalew / scaledown;
-    mask2_hint.rect.h = h / scaledown;
+    mask2_hint.rect.x = (select.x - picture.offx) * scales[scale] - scalew/scaledown/13/2;
+    mask2_hint.rect.y = (select.y - picture.offy) * (h - hh) / scaledown - h/scaledown/17/2;
+    mask2_hint.rect.w = scalew / scaledown * 14/13;
+    mask2_hint.rect.h = h / scaledown * 18/17;
 
     if (select.y%2 == 1) mask2_hint.rect.x += scales[scale]/2;
 
