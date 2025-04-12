@@ -588,6 +588,22 @@ void process_space_key(SDL_Event event)
         if (reference)
         {
             hide_picture = !hide_picture;
+            if (hide_reference && hide_picture)
+                hide_reference = false;
+        }
+    }
+}
+
+// @Tab
+void process_tab_key(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_TAB)
+    {
+        if (reference)
+        {
+            hide_reference = !hide_reference;
+            if (hide_reference && hide_picture)
+                hide_picture = false;
         }
     }
 }
@@ -1356,6 +1372,7 @@ void process_events()
             process_cancel_key(event);
             process_save_key(event);
             process_space_key(event);
+            process_tab_key(event);
 
             process_choose_pict_keys(event);
 

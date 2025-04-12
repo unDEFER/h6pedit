@@ -511,7 +511,7 @@ void draw_screen()
     int vx = 0;
     int vy = 0;
 
-    if (reference)
+    if (reference && !hide_reference)
     {
         reference.draw();
         reference.draw_cursor();

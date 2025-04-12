@@ -108,6 +108,7 @@ package
     RenderedH6P[] pictures;
     int pict;
     bool hide_picture;
+    bool hide_reference;
 
     RenderedH6P picture()
     {
