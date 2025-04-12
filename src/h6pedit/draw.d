@@ -306,60 +306,64 @@ void update_mask_hint()
     }
 }
 
+struct HPoint
+{
+    ushort x, y;
+}
+
+HPoint[61] hpoints;
+
+static this()
+{
+    hpoints[0] = HPoint(6, 0);
+    hpoints[4] = HPoint(12, 4);
+    hpoints[8] = HPoint(12, 12);
+    hpoints[12] = HPoint(6, 16);
+    hpoints[16] = HPoint(0, 12);
+    hpoints[20] = HPoint(0, 4);
+
+    hpoints[60] = HPoint(6, 8);
+
+    foreach(p; 0..6)
+    {
+        int p0 = p*4;
+
+        foreach(i; 1..4)
+        {
+            int p1 = (27 - i*3)*i + p*(4-i);
+
+            ushort xx = cast(ushort)((hpoints[p0].x*(4-i) + hpoints[60].x*i)/4);
+            ushort yy = cast(ushort)((hpoints[p0].y*(4-i) + hpoints[60].y*i)/4);
+
+            hpoints[p1] = HPoint(xx, yy);
+        }
+    }
+
+    foreach(z; 0..3)
+    {
+        int v = 4 - z;
+        foreach(p; 0..6)
+        {
+            int o = (27 - z*3)*z;
+            int p0 = o + p*v;
+            int p1 = o + ((p+1)*v) % (6*v);
+
+            foreach(i; 1..v)
+            {
+                ushort yy = cast(ushort)((hpoints[p0].y*(v-i) + hpoints[p1].y*i)/v);
+                ushort xx = cast(ushort)((hpoints[p0].x*(v-i) + hpoints[p1].x*i)/v + (yy == 4 || yy == 12 ? 1 : 0));
+
+                hpoints[p0+i] = HPoint(xx, yy);
+            }
+        }
+    }
+}
+
 // @Mask2Hint
 void update_mask2_hint()
 {
     if (mask2_hint.changed)
     {
-        struct HPoint
-        {
-            ushort x, y;
-        }
-
-        HPoint[61] hpoints;
-        hpoints[0] = HPoint(6, 0);
-        hpoints[4] = HPoint(12, 4);
-        hpoints[8] = HPoint(12, 12);
-        hpoints[12] = HPoint(6, 16);
-        hpoints[16] = HPoint(0, 12);
-        hpoints[20] = HPoint(0, 4);
-
-        hpoints[60] = HPoint(6, 8);
-
-        foreach(p; 0..6)
-        {
-            int p0 = p*4;
-
-            foreach(i; 1..4)
-            {
-                int p1 = (27 - i*3)*i + p*(4-i);
-
-                ushort xx = cast(ushort)((hpoints[p0].x*(4-i) + hpoints[60].x*i)/4);
-                ushort yy = cast(ushort)((hpoints[p0].y*(4-i) + hpoints[60].y*i)/4);
-
-                hpoints[p1] = HPoint(xx, yy);
-            }
-        }
-        
-        foreach(z; 0..3)
-        {
-            int v = 4 - z;
-            foreach(p; 0..6)
-            {
-                int o = (27 - z*3)*z;
-                int p0 = o + p*v;
-                int p1 = o + ((p+1)*v) % (6*v);
-
-                foreach(i; 1..v)
-                {
-                    ushort yy = cast(ushort)((hpoints[p0].y*(v-i) + hpoints[p1].y*i)/v);
-                    ushort xx = cast(ushort)((hpoints[p0].x*(v-i) + hpoints[p1].x*i)/v + (yy == 4 || yy == 12 ? 1 : 0));
-
-                    hpoints[p0+i] = HPoint(xx, yy);
-                }
-            }
-        }
-
         mask2_hint.image.cpalette[0].length = 4;
         mask2_hint.image.forms.length = 7;
 
