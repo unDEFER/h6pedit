@@ -850,6 +850,12 @@ void process_mask2_editor_keys(SDL_Event event)
                     side = (side + 3)%6;
                     nons = cast(ubyte)(4 - nons);
 
+                    if (nons == 4)
+                    {
+                        side = (side + 1)%6;
+                        nons = 0;
+                    }
+
                     d = cast(ubyte) (side*4 + nons);
                     dotx = dot_to_coords[d][0];
                     doty = dot_to_coords[d][1];
