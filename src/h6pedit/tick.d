@@ -189,16 +189,6 @@ void process_change_view_keys(SDL_Event event)
     }
 }
 
-// @Lens
-void process_lens_key(SDL_Event event)
-{
-    if (event.key.keysym.scancode == SDL_SCANCODE_L)
-    {
-        reference.lens = (reference.lens+1)%3;
-        reference.pixwnum = cast(ubyte) ((reference.pixwnum+1)%reference.pixwar.length);
-    }
-}
-
 // @Pen
 void process_down_pen_mouse(SDL_Event event)
 {
@@ -1382,8 +1372,6 @@ void process_events()
             process_copy_key(event);
             process_insert_key(event);
             process_mask_mode_key(event);
-
-            process_lens_key(event);
 
             final switch(mode)
             {

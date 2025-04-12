@@ -44,9 +44,7 @@ class Reference
         SDL_Surface *image;
 
     public:
-        ubyte lens = 1;
-        int[] pixwar = [8, 16, 32, 64];
-        ubyte pixwnum = 2;
+        //ubyte lens = 1;
 
         this(string file, int cRx, int cRy, int sRw)
         {
