@@ -474,6 +474,59 @@ void process_up_insert_key(SDL_Event event)
     }
 }
 
+void load_form_dots()
+{
+    form_dots.length = 0;
+    Pixel *p = picture.image.pixel(select.x, select.y);
+    if (p.forms.length > edited_form)
+    {
+        ushort form = p.forms[edited_form].form;
+        ubyte rotate = p.forms[edited_form].rotation;
+        if (form > 19*4)
+        {
+            foreach (d; picture.image.forms[form - 19*4].dots)
+            {
+                if (d == 0) break;
+                form_dots ~= cast(ubyte)(d-1);
+            }
+        }
+        else
+        {
+            form_dots.length = 2;
+            form_dots[0] = cast(ubyte)((form-1)/19);
+            form_dots[1] = cast(ubyte)((form-1)%19 + 5);
+        }
+
+        ubyte off, r;
+        foreach(ref dir; form_dots)
+        {
+            if (dir < 24)
+            {
+                off = 0;
+                r = 4;
+            }
+            else if (dir < 42)
+            {
+                off = 24;
+                r = 3;
+            }
+            else if (dir < 54)
+            {
+                off = 42;
+                r = 2;
+            }
+            else if (dir < 60)
+            {
+                off = 54;
+                r = 1;
+            }
+            else continue;
+
+            dir = cast(ubyte) (off + (dir-off + rotate*r)%(6*r));
+        }
+    }
+}
+
 // @EditMask
 void process_mask_mode_key(SDL_Event event)
 {
@@ -490,56 +543,7 @@ void process_mask_mode_key(SDL_Event event)
         {
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
-
-            form_dots.length = 0;
-            Pixel *p = picture.image.pixel(select.x, select.y);
-            if (p.forms.length > edited_form)
-            {
-                ushort form = p.forms[edited_form].form;
-                ubyte rotate = p.forms[edited_form].rotation;
-                if (form > 19*4)
-                {
-                    foreach (d; picture.image.forms[form - 19*4].dots)
-                    {
-                        if (d == 0) break;
-                        form_dots ~= cast(ubyte)(d-1);
-                    }
-                }
-                else
-                {
-                    form_dots.length = 2;
-                    form_dots[0] = cast(ubyte)((form-1)/19);
-                    form_dots[1] = cast(ubyte)((form-1)%19 + 5);
-                }
-
-                ubyte off, r;
-                foreach(ref dir; form_dots)
-                {
-                    if (dir < 24)
-                    {
-                        off = 0;
-                        r = 4;
-                    }
-                    else if (dir < 42)
-                    {
-                        off = 24;
-                        r = 3;
-                    }
-                    else if (dir < 54)
-                    {
-                        off = 42;
-                        r = 2;
-                    }
-                    else if (dir < 60)
-                    {
-                        off = 54;
-                        r = 1;
-                    }
-                    else continue;
-
-                    dir = cast(ubyte) (off + (dir-off + rotate*r)%(6*r));
-                }
-            }
+            load_form_dots();
         }
         else if (mode == Mode.ExtendedFormEdit)
         {
@@ -798,9 +802,6 @@ void process_mask_editor_keys24(SDL_Event event)
 
 void process_mask2_editor_keys(SDL_Event event)
 {
-    // @H6PNeighbours
-    int[][] neigh = new int[][](6, 2);
-    //neighbours(select.x, select.y, neigh);
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
     byte[6] dx = [0, 1, 1, 0, 0, 0];
     byte[6] dy = [-2, -1, 1, 2, 1, -1];
@@ -838,6 +839,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (mir)
                 {
                     ubyte side = d/4;
+                    ubyte nn = (side+5)%6;
                     ubyte nons = d%4;
                     side = (side + 3)%6;
                     nons = cast(ubyte)(4 - nons);
@@ -845,6 +847,31 @@ void process_mask2_editor_keys(SDL_Event event)
                     d = cast(ubyte) (side*4 + nons);
                     dotx = dot_to_coords[d][0];
                     doty = dot_to_coords[d][1];
+
+                    // @H6PNeighbours
+                    int[][] neigh = new int[][](6, 2);
+                    neighbours(select.x, select.y, neigh);
+                    select.x = neigh[nn][0];
+                    select.y = neigh[nn][1];
+
+                    Pixel *p = picture.image.pixel(select.x, select.y);
+                    
+                    edited_form = 8;
+                    foreach (j, f; p.forms)
+                    {
+                        if (f.extra_color == color)
+                        {
+                            edited_form = cast(ubyte) j;
+                            break;
+                        }
+                    }
+
+                    if (edited_form == 8)
+                        edited_form = cast(ubyte) p.forms.length;
+
+                    mode = Mode.ExtendedFormEdit;
+                    mask2_hint.changed = true;
+                    load_form_dots();
                 }
                 else
                 {
