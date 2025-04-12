@@ -40,13 +40,16 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
     float hphf = round(hpwf * 2.0f / sqrt(3.0f));
     uint hph = cast(uint) hphf;
 
-    float hhf = floor(hphf/4.0);
+    float hhf = floor(hphf/4.0f);
     uint hh = cast(uint) hhf;
 
-    float scaleupy = scaleupx * (hpwf / (hphf-hh)) / (16.0f / round(16.0f * 2.0f / sqrt(3.0f)));
+    float h16 = round(16.0f * 2.0f / sqrt(3.0f));
+    float hh16 = floor(h16/4.0f);
+    float scaleupy = scaleupx * (hpwf / (hphf-hh)) / (16.0f / (h16-hh16));
 
     int nw = cast(int) ceil(iw * scaleupx / hpw);
     int nh = cast(int) ceil(ih * scaleupy / (hph-hh));
+    writefln("scaleupx %s, scaleupy %s, nh %s", scaleupx, scaleupy, ih * scaleupy / (hph-hh));
 
     // @HyperMaskFile
     ubyte[12] form12;
