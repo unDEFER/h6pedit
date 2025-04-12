@@ -288,12 +288,12 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                         else
                             x2 = x1;
                     }
-                }
 
-                if (abs(p1.y - fy) <= 0.1)
-                    xc = p1.x;
-                if (abs(p2.y - fy) <= 0.1)
-                    xc = p2.x;
+                    if (abs(p1.y - fy) <= 0.1)
+                        xc = xx1;
+                    if (abs(p2.y - fy) <= 0.1)
+                        xc = xx0;
+                }
 
                 yinters ~= YInter(x1, x2, cast(short) (p2.y - p1.y), xc, yc);
             }
