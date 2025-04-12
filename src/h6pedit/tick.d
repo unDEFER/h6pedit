@@ -830,10 +830,10 @@ void process_mask2_editor_keys(SDL_Event event)
                     }
 
                     dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
-                }
 
-                if (dotx >= dot_by_line[doty].length)
-                    mir = true;
+                    if (dotx >= dot_by_line[doty].length)
+                        mir = true;
+                }
 
                 if (mir)
                 {
