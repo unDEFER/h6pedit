@@ -38,6 +38,7 @@ class Reference
         int rw, rh;
 
         int oldx = -1, oldy = -1;
+        int oldoffx = -1, oldoffy = -1;
         int oldpixwnum;
 
         SDL_Surface *image;
@@ -71,7 +72,9 @@ class Reference
 
         void draw()
         {
-            if (select.x != oldx || select.y != oldy || scales[.scale] != oldpixwnum)
+            if (select.x != oldx || select.y != oldy ||
+                    picture.offx != oldoffx || picture.offy != oldoffy ||
+                    scales[.scale] != oldpixwnum)
             {
                 if (texture)
                 {
