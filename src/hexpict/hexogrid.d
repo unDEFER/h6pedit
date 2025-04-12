@@ -45,7 +45,7 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     float h16 = round(16.0f * 2.0f / sqrt(3.0f));
     float hh16 = floor(h16/4.0f);
-    float scaleupy = scaleupx;
+    float scaleupy = scaleupx * (hpwf/16.0f) * (h16-hh16) / (hph-hh);
 
     int nw = cast(int) ceil(iw * scaleupx / hpw);
     int nh = cast(int) ceil(ih * scaleupy / (hph-hh));
