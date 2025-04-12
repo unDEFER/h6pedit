@@ -822,13 +822,13 @@ void process_mask2_editor_keys(SDL_Event event)
                 if (doty_ <= 4 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == -2)
                 {
                     doty = cast(ubyte) (16 - doty_);
-                    dotx_= cast(ubyte) (5 - dotx_);
+                    dotx_= cast(ubyte) (4 - dotx_);
                     writefln("O1");
                 }
                 else if (doty_ >= 12 && (dotx == 0 || dotx == dot_by_line[doty_].length-1) && dy[i] == 2)
                 {
                     doty = cast(ubyte) (16 - doty_);
-                    dotx_= cast(ubyte) (5 - dotx_);
+                    dotx_= cast(ubyte) (4 - dotx_);
                     writefln("O2");
                 }
 
