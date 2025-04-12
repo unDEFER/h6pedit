@@ -175,7 +175,25 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                     float yy1 = y + 1.0f;
 
                     float xx0 = (yy0 - uy1)*dx/dy + ux1;
+                    
+                    if (abs(p1.y - fy) <= 0.1)
+                    {
+                        if (p1.y < p2.y)
+                            fy += 0.25;
+                        else
+                            fy -= 0.25;
+                    }
+                    
+                    if (abs(p2.y - fy) <= 0.1)
+                    {
+                        if (p1.y > p2.y)
+                            fy += 0.25;
+                        else
+                            fy -= 0.25;
+                    }
+
                     xc = (fy - uy1)*dx/dy + ux1;
+
                     float xx1 = (yy1 - uy1)*dx/dy + ux1;
 
                     if (y == debugy)
@@ -288,11 +306,6 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                         else
                             x2 = x1;
                     }
-
-                    if (abs(p1.y - fy) <= 0.1)
-                        xc = xx1;
-                    if (abs(p2.y - fy) <= 0.1)
-                        xc = xx0;
                 }
 
                 yinters ~= YInter(x1, x2, cast(short) (p2.y - p1.y), xc, yc);
