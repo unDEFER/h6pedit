@@ -188,7 +188,7 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
                 ubyte[4] p = [r, g, b, a];
 
-                uint off = (y0*ow + x0)*4;
+                uint off = (y0*(ow*scaledown) + x0)*4;
                 imgbuf[off..off+4] = p;
             }
         }
