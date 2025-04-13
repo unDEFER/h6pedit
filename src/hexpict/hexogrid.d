@@ -105,91 +105,166 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     ColorSpace *rgbspace = get_rgbspace(space);
 
-    for (int y0 = 0; y0 < oh*scaledown; y0++)
+    for (int y = offy; y < th; y++)
     {
-        int y = offy + y0/(hph-hh);
+        int iy = (y-offy)*(hph-hh);
+        int siy = y*(hph-hh);
 
-        for (int x0 = 0; x0 < ow*scaledown; x0++)
+        for (int x = offx; x < tw; x++)
         {
-            int x = offx + (x0 - (y%2 == 1?hpw/2:0))/hpw;
+            int ix;
+            int six;
 
-            int hx = (y%2 == 1?hpw/2:0) + (x-offx)*hpw;
-            int hx2 = hx + hpw/2;
-            int hy = (y-offy)*(hph-hh);
-            int hy2 = hy + hh;
-
-            float hw = hpwf;
-
-            int dx = x0 - hx2;
-            int dy = y0 - hy;
-
-            if (y0 < hy2)
+            if (y%2 == 0)
             {
-                hw = 1.0f*dy*hpw/hh;
-
-                if (abs(dx) > hw/2.0f)
-                {
-                    hy -= (hph-hh);
-                    if (dx > 0) hx = hx2;
-                    else hx -= hpw/2;
-
-                    hx2 = hx + hpw/2;
-                    dx = x0 - hx2;
-                    dy = y0 - hy;
-                    hw = hpw - hw;
-                }
+                ix = (x-offx)*hpw;
+                six = x*hpw;
+            }
+            else
+            {
+                ix = hpw/2 + (x-offx)*hpw;
+                six = hpw/2 + x*hpw;
             }
 
-            bool bdr = (abs(dx) >= (hw/2.0f - 1.0f));
+            bool sel = (x == selx && y == sely);
+            bool seldark;
 
-            int sx0 = cast(int) round(x0/scaleupx/scaledown);
-            int sy0 = cast(int) round(y0/scaleupy/scaledown);
-
-            // @Pixel2HexScaleUp
-            if (sx0 < iw && sy0 < ih)
+            if (sel)
             {
-                uint pixel_value;
-                ubyte *pixel = cast(ubyte*) (image.pixels + sy0 * image.pitch + sx0 * image.format.BytesPerPixel);
-                switch(image.format.BytesPerPixel) {
-                    case 1:
-                        pixel_value = *cast(ubyte *)pixel;
-                        break;
-                    case 2:
-                        pixel_value = *cast(ushort *)pixel;
-                        break;
-                    case 3:
-                        pixel_value = *cast(uint *)pixel & (~image.format.Amask);
-                        break;
-                    case 4:
-                        pixel_value = *cast(uint *)pixel;
-                        break;
-                    default:
-                        assert(0);
-                }
-                ubyte r, g, b, a;
-                SDL_GetRGBA(pixel_value,image.format,&r,&g,&b,&a);
-
-                bool sel = (x == selx && y == sely);
-                if (bdr)
+                int total, numdark;
+                for (int dy = 0; dy < hph; dy++)
                 {
-                    if (dx < 0)
+                    if (iy+dy >= oh*scaledown) { break; }
+
+                    for (int dx = 0; dx < hpw; dx++)
                     {
-                        if (!sel) r = cast(ubyte) (r < 205 ? r + 50 : 255);
-                        g = cast(ubyte) (g < 205 ? g + 50 : 255);
-                        if (!sel) b = cast(ubyte) (b < 205 ? b + 50 : 255);
-                    }
-                    else
-                    {
-                        if (!sel) r = cast(ubyte) (r > 50 ? r - 50 : 0);
-                        g = cast(ubyte) (g > 50 ? g - 50 : 0);
-                        if (!sel) b = cast(ubyte) (b > 50 ? b - 50 : 0);
+                        if (ix+dx >= ow*scaledown) { break; }
+
+                        // @HyperMask
+                        if ((*hp)[dx + dy*hpw])
+                        {
+                            int x0 = ix + dx;
+                            int y0 = iy + dy;
+
+                            int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
+                            int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
+
+                            assert(sx0 >= 0 && sy0 >=0);
+
+                            // @Pixel2HexScaleUp
+                            if (sx0 < iw && sy0 < ih)
+                            {
+                                ubyte r, g, b, a;
+                                SdlGetPixel(image, sx0, sy0, r, g, b, a);
+                                
+                                total++;
+                                if (max(r, g, b) < 205)
+                                {
+                                    numdark++;
+                                }
+                            }
+                        }
                     }
                 }
 
-                ubyte[4] p = [r, g, b, a];
+                seldark = (numdark > total/2);
+            }
 
-                uint off = (y0*(ow*scaledown) + x0)*4;
-                imgbuf[off..off+4] = p;
+            // @Pixel2HexAverage
+            for (int dy = 0; dy < hph; dy++)
+            {
+                if (iy+dy >= oh*scaledown) { break; }
+
+                for (int dx = 0; dx < hpw; dx++)
+                {
+                    if (ix+dx >= ow*scaledown) { break; }
+
+                    bool bdr = (dx == 0 || dx == hpw-1);
+
+                    if (!bdr)
+                    {
+                        int dx0 = dx-1;
+                        int dx2 = dx+1;
+
+                        bool prev = (*hp)[dx0 + dy*hpw];
+                        bool curr = (*hp)[dx + dy*hpw];
+                        bool next = (*hp)[dx2 + dy*hpw];
+
+                        bdr = curr && (!prev || !next);
+                    }
+
+                    if (!bdr && dy > 0 && dy < hph-1)
+                    {
+                        int dy0 = dy-1;
+                        int dy2 = dy+1;
+
+                        bool prev = (*hp)[dx + dy0*hpw];
+                        bool curr = (*hp)[dx + dy*hpw];
+                        bool next = (*hp)[dx + dy2*hpw];
+
+                        bdr = curr && (!prev || !next);
+                    }
+
+                    // @HyperMask
+                    if ((*hp)[dx + dy*hpw])
+                    {
+                        int x0 = ix + dx;
+                        int y0 = iy + dy;
+
+                        int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
+                        int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
+
+                        assert(sx0 >= 0 && sy0 >=0);
+
+                        // @Pixel2HexScaleUp
+                        if (sx0 < iw && sy0 < ih)
+                        {
+                            ubyte r, g, b, a;
+                            SdlGetPixel(image, sx0, sy0, r, g, b, a);
+
+                            if (bdr)
+                            {
+                                if (dx < hpw/2)
+                                {
+                                    r = cast(ubyte) (r < 205 ? r + 50 : 255);
+                                    g = cast(ubyte) (g < 205 ? g + 50 : 255);
+                                    b = cast(ubyte) (b < 205 ? b + 50 : 255);
+                                }
+                                else
+                                {
+                                    r = cast(ubyte) (r > 50 ? r - 50 : 0);
+                                    g = cast(ubyte) (g > 50 ? g - 50 : 0);
+                                    b = cast(ubyte) (b > 50 ? b - 50 : 0);
+                                }
+                            }
+                            else if (sel)
+                            {
+                                if (seldark)
+                                {
+                                    r = cast(ubyte) (r < 205 ? r + 50 : 255);
+                                    g = cast(ubyte) (g < 205 ? g + 50 : 255);
+                                    b = cast(ubyte) (b < 205 ? b + 50 : 255);
+                                }
+                                else
+                                {
+                                    r = cast(ubyte) (r > 50 ? r - 50 : 0);
+                                    g = cast(ubyte) (g > 50 ? g - 50 : 0);
+                                    b = cast(ubyte) (b > 50 ? b - 50 : 0);
+                                }
+                            }
+
+                            ubyte[4] p = [r, g, b, a];
+
+                            if (x0 == DBGX && y0 == DBGY)
+                            {
+                                writefln("x0 %s y0 %s p %s, x %s y %s, dx %s dy %d", x0, y0, p, x, y, dx, dy);
+                            }
+
+                            uint off = (y0*(ow*scaledown) + x0)*4;
+                            imgbuf[off..off+4] = p;
+                        }
+                    }
+                }
             }
         }
     }
