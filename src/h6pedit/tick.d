@@ -1008,6 +1008,15 @@ void process_choose_edited_form(SDL_Event event)
     }
 }
 
+// @EditMask24
+void process_invert_form(SDL_Event event)
+{
+    if (event.key.keysym.scancode == SDL_SCANCODE_I)
+    {
+        form_dots.reverse();
+    }
+}
+
 // @DrawLine
 void process_draw_line(SDL_Event event)
 {
@@ -1338,6 +1347,7 @@ void process_events()
                 case Mode.ExtendedFormEdit:
                     process_mask2_editor_keys(event);
                     process_choose_edited_form(event);
+                    process_invert_form(event);
                     break;
                 case Mode.ColorPicker:
                     process_color_picker_navigation_keys(event);
