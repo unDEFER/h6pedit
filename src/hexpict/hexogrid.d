@@ -32,6 +32,20 @@ enum DBGY = -1;
 
 SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, int offy, int ow, int oh, int selx, int sely)
 {   
+    // @Hex2PixelScaleDown
+    uint scaledown = 1;
+
+    if (scale == 4 || scale == 2 || scale == 1)
+    {
+        scaledown = 8/scale;
+        scale = 8;
+    }
+    else
+    {
+        scaledown = 2;
+        scale *= 2;
+    }
+
     int iw = image.w;
     int ih = image.h;
 
@@ -70,13 +84,13 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     ubyte[] imgbuf;
 
-    int oow = cast(int) ceil(ow * 1.0f / hpw);
-    int ooh = cast(int) ceil(oh * 1.0f / (hph-hh));
+    int oow = cast(int) ceil(1.0 * ow*scaledown / hpw);
+    int ooh = cast(int) ceil(1.0 * oh*scaledown / (hph-hh));
 
     int th = min(nh, offy+ooh-1);
     int tw = min(nw, offx+oow);
 
-    imgbuf = new ubyte[ow*oh*4];
+    imgbuf = new ubyte[(ow*scaledown)*(oh*scaledown)*4];
     assert(imgbuf !is null);
 
     ColorSpace *space = new ColorSpace;
@@ -120,11 +134,11 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                 int total, numdark;
                 for (int dy = 0; dy < hph; dy++)
                 {
-                    if (iy+dy >= oh) { break; }
+                    if (iy+dy >= oh*scaledown) { break; }
 
                     for (int dx = 0; dx < hpw; dx++)
                     {
-                        if (ix+dx >= ow) { break; }
+                        if (ix+dx >= ow*scaledown) { break; }
 
                         // @HyperMask
                         if ((*hp)[dx + dy*hpw])
@@ -132,8 +146,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                             int x0 = ix + dx;
                             int y0 = iy + dy;
 
-                            int sx0 = cast(int) round((six + dx)/scaleupx);
-                            int sy0 = cast(int) round((siy + dy)/scaleupy);
+                            int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
+                            int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
 
                             assert(sx0 >= 0 && sy0 >=0);
 
@@ -159,11 +173,11 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
             // @Pixel2HexAverage
             for (int dy = 0; dy < hph; dy++)
             {
-                if (iy+dy >= oh) { break; }
+                if (iy+dy >= oh*scaledown) { break; }
 
                 for (int dx = 0; dx < hpw; dx++)
                 {
-                    if (ix+dx >= ow) { break; }
+                    if (ix+dx >= ow*scaledown) { break; }
 
                     bool bdr = (dx == 0 || dx == hpw-1);
 
@@ -197,8 +211,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                         int x0 = ix + dx;
                         int y0 = iy + dy;
 
-                        int sx0 = cast(int) round((six + dx)/scaleupx);
-                        int sy0 = cast(int) round((siy + dy)/scaleupy);
+                        int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
+                        int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
 
                         assert(sx0 >= 0 && sy0 >=0);
 
@@ -246,13 +260,57 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                                 writefln("x0 %s y0 %s p %s, x %s y %s, dx %s dy %d", x0, y0, p, x, y, dx, dy);
                             }
 
-                            uint off = (y0*ow + x0)*4;
+                            uint off = (y0*(ow*scaledown) + x0)*4;
                             imgbuf[off..off+4] = p;
                         }
                     }
                 }
             }
         }
+    }
+
+    // @Hex2PixelScaleDown
+    if (scaledown > 1)
+    {
+        ubyte[] imgbuf2 = new ubyte[ow*oh * 4];
+        assert(imgbuf2 !is null);
+
+        for (uint y = 0; y < oh; y++)
+        {
+            for (uint x = 0; x < ow; x++)
+            {
+                ushort[4] p = [0, 0, 0, 0];
+
+                for (uint dy = 0; dy < scaledown; dy++)
+                {
+                    for (uint dx = 0; dx < scaledown; dx++)
+                    {
+                        ubyte[4] pp;
+                        uint xx = x*scaledown+dx;
+                        uint yy = y*scaledown+dy;
+                        size_t off = (yy*(ow*scaledown) + xx)*4;
+                        pp = imgbuf[off..off+4];
+
+                        p[0] += pp[0];
+                        p[1] += pp[1];
+                        p[2] += pp[2];
+                        p[3] += pp[3];
+                    }
+                }
+
+                ushort ss = cast(ushort) (scaledown*scaledown);
+                p[0] = cast(ushort) ((p[0]+ss/2)/ss);
+                p[1] = cast(ushort) ((p[1]+ss/2)/ss);
+                p[2] = cast(ushort) ((p[2]+ss/2)/ss);
+                p[3] = cast(ushort) ((p[3]+ss/2)/ss);
+
+                ubyte[4] pp = [cast(ubyte) p[0], cast(ubyte) p[1], cast(ubyte) p[2], cast(ubyte) p[3]];
+                uint off = (y*ow + x)*4;
+                imgbuf2[off..off+4] = pp;
+            }
+        }
+
+        imgbuf = imgbuf2;
     }
 
     uint rmask, gmask, bmask, amask;
