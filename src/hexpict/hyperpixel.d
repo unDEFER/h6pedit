@@ -357,92 +357,96 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
 {
     if (form.length < 2) return tuple!("form", "rot")(form, cast(ubyte) 0);
 
-    ubyte[] wr_form;
-    foreach (dir; form)
+    if (form[0] >= 24 || form[$-1] >= 24)
     {
-        ubyte off, r;
-        if (dir < 24)
+        ubyte[] wr_form;
+        foreach (dir; form)
         {
-            off = 0;
-            r = 4;
-        }
-        else if (dir < 42)
-        {
-            off = 24;
-            r = 3;
-        }
-        else if (dir < 54)
-        {
-            off = 42;
-            r = 2;
-        }
-        else if (dir < 60)
-        {
-            off = 54;
-            r = 1;
-        }
-        else
-        {
-            off = 60;
-            r = 0;
-        }
-
-        if (r > 0)
-            dir = cast(ubyte) (off + (dir-off)%r);
-        wr_form ~= dir;
-    }
-
-    ptrdiff_t mindf = minIndex(wr_form);
-    ubyte minv = wr_form[mindf];
-    ubyte[] minds = [cast(ubyte) mindf];
-    ubyte[] minds2;
-
-    foreach (i, dir; wr_form[mindf+1..$])
-    {
-        if (dir == minv)
-        {
-            minds ~= cast(ubyte)(mindf+1+i);
-        }
-    }
-
-    if (minds.length > 1)
-    {
-        ubyte till = cast(ubyte) ((wr_form.length + minds.length-1) / minds.length);
-        //writefln("form %s, wr_form %s, minds %s", form, wr_form, minds);
-
-        foreach (off; 1..till)
-        {
-            ubyte[] nexts;
-            foreach (mind; minds)
+            ubyte off, r;
+            if (dir < 24)
             {
-                nexts ~= wr_form[(mind+off)%$];
+                off = 0;
+                r = 4;
+            }
+            else if (dir < 42)
+            {
+                off = 24;
+                r = 3;
+            }
+            else if (dir < 54)
+            {
+                off = 42;
+                r = 2;
+            }
+            else if (dir < 60)
+            {
+                off = 54;
+                r = 1;
+            }
+            else
+            {
+                off = 60;
+                r = 0;
             }
 
-            mindf = minIndex(nexts);
-            minv = nexts[mindf];
-            minds2 ~= minds[mindf];
+            if (r > 0)
+                dir = cast(ubyte) (off + (dir-off)%r);
+            wr_form ~= dir;
+        }
 
-            foreach (i, dir; nexts[mindf+1..$])
+        ptrdiff_t mindf = minIndex(wr_form);
+        ubyte minv = wr_form[mindf];
+        ubyte[] minds = [cast(ubyte) mindf];
+        ubyte[] minds2;
+
+        foreach (i, dir; wr_form[mindf+1..$])
+        {
+            if (dir == minv)
             {
-                if (dir == minv)
+                minds ~= cast(ubyte)(mindf+1+i);
+            }
+        }
+
+        if (minds.length > 1)
+        {
+            ubyte till = cast(ubyte) ((wr_form.length + minds.length-1) / minds.length);
+            //writefln("form %s, wr_form %s, minds %s", form, wr_form, minds);
+
+            foreach (off; 1..till)
+            {
+                ubyte[] nexts;
+                foreach (mind; minds)
                 {
-                    minds2 ~= minds[mindf+1+i];
+                    nexts ~= wr_form[(mind+off)%$];
+                }
+
+                mindf = minIndex(nexts);
+                minv = nexts[mindf];
+                minds2 ~= minds[mindf];
+
+                foreach (i, dir; nexts[mindf+1..$])
+                {
+                    if (dir == minv)
+                    {
+                        minds2 ~= minds[mindf+1+i];
+                    }
+                }
+
+                swap(minds, minds2);
+                minds2.length = 0;
+
+                //writefln("off %s, minds %s", off, minds);
+
+                if (minds.length == 1)
+                {
+                    break;
                 }
             }
-
-            swap(minds, minds2);
-            minds2.length = 0;
-
-            //writefln("off %s, minds %s", off, minds);
-
-            if (minds.length == 1)
-            {
-                break;
-            }
         }
+
+        form = form[minds[0]..$] ~ form[0..minds[0]];
     }
 
-    form = form[minds[0]..$] ~ form[0..minds[0]];
     ubyte rot = get_rot(form[0]);
 
     foreach(ref dir; form)
