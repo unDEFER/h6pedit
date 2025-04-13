@@ -73,8 +73,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
         scaleupy *= (h8-hh8) / (8.0f * (hReal-hhReal));
     }
 
-    int nw = cast(int) ceil(iw * scaleupx / hpw);
-    int nh = cast(int) ceil(ih * scaleupy / (hph-hh));
+    int nw = cast(int) ceil(iw * scaleupx * scaledown / hpw);
+    int nh = cast(int) ceil(ih * scaleupy * scaledown / (hph-hh));
     //writefln("hpw %s, ih %s, hph-hh %s", hpw, ih, hph-hh);
     //writefln("scaleupx %s, scaleupy %s, nh %s", scaleupx, scaleupy, ih * scaleupy / (hph-hh));
 
