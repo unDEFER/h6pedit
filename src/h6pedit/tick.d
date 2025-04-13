@@ -1191,63 +1191,9 @@ void change_form24()
     ubyte[] dform = form_dots.dup();
     //writefln("dform = %s", dform);
     ubyte rotate = 0;
-    if (dform[0] >= 4 && dform[0] < 60)
-    {
-        ubyte f = dform[0];
-        ubyte off, r;
-
-        if (f < 24)
-        {
-            off = 0;
-            r = 4;
-        }
-        else if (f < 42)
-        {
-            off = 24;
-            r = 3;
-        }
-        else if (f < 54)
-        {
-            off = 42;
-            r = 2;
-        }
-        else if (f < 60)
-        {
-            off = 54;
-            r = 1;
-        }
-
-        f -= off;
-        rotate = cast(ubyte) (f/r);
-        dform[0] = cast(ubyte) (off + f%r);
-
-        foreach(ref dir; dform[1..$])
-        {
-            if (dir < 24)
-            {
-                off = 0;
-                r = 4;
-            }
-            else if (dir < 42)
-            {
-                off = 24;
-                r = 3;
-            }
-            else if (dir < 54)
-            {
-                off = 42;
-                r = 2;
-            }
-            else if (dir < 60)
-            {
-                off = 54;
-                r = 1;
-            }
-            else continue;
-
-            dir = cast(ubyte) (off + (dir-off + (6-rotate)*r)%(6*r));
-        }
-    }
+    auto r = normalize_form(dform);
+    dform = r.form;
+    rotate = r.rot;
 
     if (dform.length == 2 && dform[1] >= 5 && dform[0] < 24 && dform[1] < 24)
     {
