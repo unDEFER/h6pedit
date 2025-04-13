@@ -38,11 +38,11 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
         scaledown = 8/scale;
         scale = 8;
     }
-    else
+    /*else
     {
         scaledown = 2;
         scale *= 2;
-    }
+    }*/
 
     uint iw = image.width;
     uint ih = image.height;

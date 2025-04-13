@@ -40,11 +40,11 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
         scaledown = 8/scale;
         scale = 8;
     }
-    else
+    /*else
     {
         scaledown = 2;
         scale *= 2;
-    }
+    }*/
 
     int iw = image.w;
     int ih = image.h;
