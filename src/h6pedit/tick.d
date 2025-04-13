@@ -1221,7 +1221,6 @@ void change_form24()
         rotate = cast(ubyte) (f/r);
         dform[0] = cast(ubyte) (off + f%r);
 
-        ubyte inc;
         foreach(ref dir; dform[1..$])
         {
             if (dir < 24)
