@@ -421,11 +421,11 @@ void draw_mask2_hint()
         scaledown = 8/scalew;
         scalew = 8;
     }
-    else
+    /*else
     {
         scaledown = 2;
         scalew *= 2;
-    }
+    }*/
 
     int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
     int hh = cast(int) floor(h/4.0);
@@ -465,11 +465,11 @@ void draw_cursor()
                 scaledown = 8/scalew;
                 scalew = 8;
             }
-            else
+            /*else
             {
                 scaledown = 2;
                 scalew *= 2;
-            }
+            }*/
 
             int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
             int hh = cast(int) floor(h/4.0);
