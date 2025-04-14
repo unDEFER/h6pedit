@@ -197,5 +197,5 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
 static this()
 {
-    writefln("%s", get_line(Vertex(0,0,60), Vertex(10,10,60)));
+    writefln("%s", get_line(Vertex(1,1,60), Vertex(10,10,60)));
 }
