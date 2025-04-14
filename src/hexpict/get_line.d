@@ -27,7 +27,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
     float[3] eq;
     line_equation([fx0, fy0], [fx1, fy1], eq);
 
-    writefln("v0 %s", v0);
+    //writefln("v0 %s", v0);
 
     Vertex vc = v0;
 
@@ -141,8 +141,8 @@ Vertex[] get_line(Vertex v0, Vertex v1)
             float mindist2, mincdist2;
             byte op2 = choose_op(nv2, mindist2, mincdist2);
 
-            writefln("nv1 %s mindist1 %s mincdist1 %s op1 %s, nv2 %s mindist2 %s mincdist2 %s op2 %s",
-                    nv1, mindist1, mincdist1, op1, nv2, mindist2, mincdist2, op2);
+            //writefln("nv1 %s mindist1 %s mincdist1 %s op1 %s, nv2 %s mindist2 %s mincdist2 %s op2 %s",
+            //        nv1, mindist1, mincdist1, op1, nv2, mindist2, mincdist2, op2);
 
             if (nv1.x == v1.x && nv1.y == v1.y)
             {
