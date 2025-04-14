@@ -555,6 +555,7 @@ void process_mask_mode_key(SDL_Event event)
         }
         else if (mode == Mode.ExtendedFormEdit)
         {
+            last_v.p = 100;
             mode = Mode.SimpleFormEdit;
             mask_hint.changed = true;
         }
@@ -935,10 +936,34 @@ void process_mask2_editor_keys(SDL_Event event)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
-        if (v.x != last_v.x || v.y != last_v.y)
+        if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
         {
             Vertex[] line = get_line(last_v, v);
-            writefln("LINE %s", line);
+
+            foreach(v2; line[1..$-1])
+            {
+                if (select.x != v2.x || select.y != v2.y)
+                {
+                    change_form24();
+
+                    select.x = v2.x;
+                    select.y = v2.y;
+
+                    load_form_dots();
+                }
+
+                form_dots ~= v2.p;
+            }
+
+            if (select.x != v.x || select.y != v.y)
+            {
+                change_form24();
+
+                select.x = v.x;
+                select.y = v.y;
+
+                load_form_dots();
+            }
         }
 
         form_dots ~= v.p;
