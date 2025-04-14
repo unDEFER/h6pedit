@@ -194,3 +194,8 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
     return vxs;
 }
+
+static this()
+{
+    writefln("%s", get_line(Vertex(0,0,60), Vertex(10,10,60)));
+}
