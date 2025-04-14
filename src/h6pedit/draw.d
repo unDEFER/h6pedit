@@ -367,7 +367,7 @@ void update_mask2_hint()
         mask2_hint.image.cpalette[0].length = 4;
         mask2_hint.image.forms.length = 7;
 
-        mask2_hint.image.cpalette[0][1] = Color([0.0f, 0.0f, 1.0f, 1.0f], false, &SRGB_SPACE);
+        mask2_hint.image.cpalette[0][1] = Color([0.0f, 0.0f, 1.0f, 0.5f], false, &SRGB_SPACE);
         mask2_hint.image.cpalette[0][2] = Color([1.0f, 1.0f, 0.0f, 1.0f], false, &SRGB_SPACE);
         mask2_hint.image.cpalette[0][3] = Color([0.5f, 0.5f, 0.5f, 1.0f], false, &SRGB_SPACE);
 
