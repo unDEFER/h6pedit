@@ -42,17 +42,17 @@ Vertex[] get_line(Vertex v0, Vertex v1)
             Vertex v = vc;
             foreach (byte side; 0..6)
             {
-                //if (vc.p >= side*4 && (vc.p < (side+1)*4 || vc.p == ((side+1)*4)%24)) continue;
+                if (vc.p >= side*4 && (vc.p < (side+1)*4 || vc.p == ((side+1)*4)%24)) continue;
 
                 v.p = cast(byte) (side*4);
                 float sx1, sy1;
                 to_float_coords(v, sx1, sy1);
-                //writefln("side = %s, v = %s, sx1 = %s, sy1 = %s", side, v, sx1, sy1);
+                writefln("side = %s, v = %s, sx1 = %s, sy1 = %s", side, v, sx1, sy1);
 
                 v.p = ((side+1)*4)%24;
                 float sx2, sy2;
                 to_float_coords(v, sx2, sy2);
-                //writefln("side = %s, v = %s, sx2 = %s, sy2 = %s", side, v, sx2, sy2);
+                writefln("side = %s, v = %s, sx2 = %s, sy2 = %s", side, v, sx2, sy2);
 
                 float[3] side_eq;
                 line_equation([sx1, sy1], [sx2, sy2], side_eq);
@@ -68,13 +68,13 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                 float dx = intersection[0] - fx1;
                 float dy = intersection[1] - fy1;
                 float cdist = hypot(dx, dy);
-                //writefln("intersection %s, cdist = %s", intersection, cdist);
-                //writefln("between1 %s, between2 %s", between(intersection[0], sx1, sx2), between(intersection[1], sy1, sy2));
+                writefln("intersection %s, cdist = %s", intersection, cdist);
+                writefln("between1 %s, between2 %s", between(intersection[0], sx1, sx2), between(intersection[1], sy1, sy2));
 
                 if (between(intersection[0], sx1, sx2) && between(intersection[1], sy1, sy2) && cdist < mincdist)
                 {
                     mincdist = cdist;
-                    //writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
+                    writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
 
                     mindist = 1e10f;
 
@@ -89,7 +89,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         {
                             mindist = dist;
                             op = v.p;
-                            //writefln("op %s, dist %s", op, dist);
+                            writefln("op %s, dist %s", op, dist);
                         }
                     }
                 }
