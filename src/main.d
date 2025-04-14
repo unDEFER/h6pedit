@@ -178,6 +178,10 @@ int main(string[] args)
         return 1;
     }
 
+    import hexpict.get_line;
+    import hexpict.hyperpixel;
+    writefln("%s", get_line(Vertex(1,1,60), Vertex(10,10,60)));
+
     h6pedit.main_loop.main_loop();
     return 0;
 }
