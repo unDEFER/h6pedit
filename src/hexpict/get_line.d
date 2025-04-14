@@ -100,21 +100,13 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
         float mindist, mincdist;
         byte op = choose_op(vc, mindist, mincdist);
-
-        /*ubyte[4] p2 = [255, 0, 0, 255];
-          Color pr2 = Color([0.0, 0.0, 0.0, 0.0], false, null);
-          color_from_u8(p2, rgbspace, &pr2);
-          Pixel h6ppixel2 = Pixel(pr2, 0, 0);
-          set_pixel(h6p_image, xc+1, yc, &h6ppixel2, ErrCorrection.ORDINARY);
-         */
+        writefln("op = %s", op);
 
         byte pp1 = vc.p;
         byte pp2 = op;
 
-        bool invw;
         if (pp1 > pp2 && pp1 - pp2 < 12 || pp2 - pp1 > 12)
         {
-            invw = true;
             swap(pp1, pp2);
         }
 
