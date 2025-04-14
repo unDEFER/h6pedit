@@ -114,14 +114,14 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
         if (vc.x == v1.x && vc.y == v1.y) break;
 
+        // @H6PNeighbours
+        neighbours(vc.x, vc.y, neigh);
+
         //float fxp, fyp; //DEBUG
         //to_float_coords(xc, yc, op, fxp, fyp); //DEBUG
 
         if (op%4 == 0)
         {
-            // @H6PNeighbours
-            neighbours(vc.x, vc.y, neigh);
-
             auto ng1 = neigh[(op/4)%6];
             Vertex nv1 = Vertex(ng1[0], ng1[1], ((op/4+2)%6*4)%24);
 
