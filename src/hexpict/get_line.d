@@ -100,7 +100,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
         float mindist, mincdist;
         byte op = choose_op(vc, mindist, mincdist);
-        writefln("op = %s");
+        writefln("op = %s", op);
 
         byte pp1 = vc.p;
         byte pp2 = op;
