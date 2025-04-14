@@ -534,6 +534,22 @@ void process_mask_mode_key(SDL_Event event)
         {
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
+
+            Pixel *p = picture.image.pixel(select.x, select.y);
+
+            edited_form = 8;
+            foreach (j, f; p.forms)
+            {
+                if (f.extra_color == color)
+                {
+                    edited_form = cast(ubyte) j;
+                    break;
+                }
+            }
+
+            if (edited_form == 8)
+                edited_form = cast(ubyte) p.forms.length;
+
             load_form_dots();
         }
         else if (mode == Mode.ExtendedFormEdit)
