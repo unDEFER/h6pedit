@@ -734,9 +734,8 @@ void scalelist()
     writeln();
 }
 
-/+
 // @PointsOfHexagon
-private FPoint[25] points;
+private Point[61] fpoints;
 
 private
 {
@@ -761,28 +760,48 @@ static this()
      *        12
      */
 
-    points[0] = FPoint(fw/2, 0);
-    points[4] = FPoint(fw, fh/4);
-    points[8] = FPoint(fw, fh - fh/4);
-    points[12] = FPoint(fw/2, fh);
-    points[16] = FPoint(0, fh - fh/4);
-    points[20] = FPoint(0, fh/4);
+    fpoints[0] = Point(fw/2, 0);
+    fpoints[4] = Point(fw, fh/4);
+    fpoints[8] = Point(fw, fh - fh/4);
+    fpoints[12] = Point(fw/2, fh);
+    fpoints[16] = Point(0, fh - fh/4);
+    fpoints[20] = Point(0, fh/4);
+
+    fpoints[60] = Point(fw/2.0f, fh/2.0f);
 
     foreach(p; 0..6)
     {
         int p0 = p*4;
-        int p1 = ((p+1)*4) % 24;
 
         foreach(i; 1..4)
         {
-            float xx = (points[p0].x*(4-i) + points[p1].x*i)/4.0f;
-            float yy = (points[p0].y*(4-i) + points[p1].y*i)/4.0f;
+            int p1 = (27 - i*3)*i + p*(4-i);
 
-            points[i+p*4] = FPoint(xx, yy);
+            float xx = (fpoints[p0].x*(4-i) + fpoints[60].x*i)/4.0f;
+            float yy = (fpoints[p0].y*(4-i) + fpoints[60].y*i)/4.0f;
+
+            fpoints[p1] = Point(xx, yy);
         }
     }
-    
-    points[24] = FPoint(fw/2, fh/2);
+
+    foreach(z; 0..3)
+    {
+        int v = 4 - z;
+        foreach(p; 0..6)
+        {
+            int o = (27 - z*3)*z;
+            int p0 = o + p*v;
+            int p1 = o + ((p+1)*v) % (6*v);
+
+            foreach(i; 1..v)
+            {
+                float xx = (fpoints[p0].x*(v-i) + fpoints[p1].x*i)/v;
+                float yy = (fpoints[p0].y*(v-i) + fpoints[p1].y*i)/v;
+
+                fpoints[p0+i] = Point(xx, yy);
+            }
+        }
+    }
 }
 
 struct Vertex
@@ -796,5 +815,4 @@ void to_float_coords(Vertex v, out float fx, out float fy)
     fx = (v.x + (v.y%2 == 1 ? 0.5f : 0.0f))*fw + points[v.p].x;
     fy = v.y*(fh-fvh) + points[v.p].y;
 }
-+/
 
