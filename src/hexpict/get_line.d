@@ -111,8 +111,6 @@ Vertex[] get_line(Vertex v0, Vertex v1)
         }
 
         vxs ~= vc;
-        if (vc.p != op)
-            vxs ~= Vertex(vc.x, vc.y, op);
 
         if (vc.x == v1.x && vc.y == v1.y)
         {
@@ -120,6 +118,9 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                 vxs ~= v1;
             break;
         }
+        
+        if (vc.p != op)
+            vxs ~= Vertex(vc.x, vc.y, op);
 
         // @H6PNeighbours
         neighbours(vc.x, vc.y, neigh);
