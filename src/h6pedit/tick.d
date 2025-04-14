@@ -908,6 +908,14 @@ void process_mask2_editor_keys(SDL_Event event)
                             edited_form = cast(ubyte) p.forms.length;
                     }
 
+                    doty += dy[i];
+                    dotx_ += dx[i];
+                    if ( abs(dy[i]) == 1 && doty % 2 == 1 )
+                    {
+                        dotx_--;
+                    }
+                    dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+
                     mode = Mode.ExtendedFormEdit;
                     mask2_hint.changed = true;
                     load_form_dots();
