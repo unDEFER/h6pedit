@@ -74,7 +74,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                 if (between(intersection[0], sx1, sx2) && between(intersection[1], sy1, sy2) && cdist < mincdist)
                 {
                     mincdist = cdist;
-                    writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
+                    //writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
 
                     mindist = 1e10f;
 
