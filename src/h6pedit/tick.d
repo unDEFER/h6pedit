@@ -20,6 +20,7 @@ import hexpict.h6p;
 import hexpict.hyperpixel;
 import hexpict.color;
 import hexpict.colors;
+import hexpict.get_line;
 
 import std.datetime;
 import std.algorithm;
@@ -932,7 +933,16 @@ void process_mask2_editor_keys(SDL_Event event)
 
     if (event.key.keysym.scancode == SDL_SCANCODE_H)
     {
-        form_dots ~= dot_by_line[doty][dotx];
+        Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+
+        if (v.x != last_v.x || v.y != last_v.y)
+        {
+            Vertex[] line = get_line(last_v, v);
+            writefln("LINE %s", line);
+        }
+
+        form_dots ~= v.p;
+        last_v = v;
     }
 
     mask2_hint.changed = true;

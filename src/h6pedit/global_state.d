@@ -29,6 +29,7 @@ import hexpict.h6p;
 import hexpict.color;
 import hexpict.colors;
 import hexpict.hex2pixel;
+import hexpict.hyperpixel;
 
 // @Scales
 int[] scales = [1, 2, 4, 8, 16, 32, 64, 128];
@@ -151,6 +152,7 @@ package
     byte pressed_dir = -1;
     ubyte edited_form;
     ubyte[] form_dots;
+    Vertex last_v;
 
     // @Selection
     SDL_Rect select;
