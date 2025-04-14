@@ -116,6 +116,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
         // @H6PNeighbours
         neighbours(vc.x, vc.y, neigh);
+        vxs ~= Vertex(vc.x, vc.y, op);
 
         //float fxp, fyp; //DEBUG
         //to_float_coords(xc, yc, op, fxp, fyp); //DEBUG
@@ -174,7 +175,6 @@ Vertex[] get_line(Vertex v0, Vertex v1)
         }
         else
         {
-            vxs ~= Vertex(vc.x, vc.y, op);
             auto n = neigh[(op/4 + 1)%6];
             vc = Vertex(n[0], n[1], ((op/4+3)%6*4 + 4-op%4)%24);
         }
