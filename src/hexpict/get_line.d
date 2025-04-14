@@ -111,12 +111,18 @@ Vertex[] get_line(Vertex v0, Vertex v1)
         }
 
         vxs ~= vc;
+        if (vc.p != op)
+            vxs ~= Vertex(vc.x, vc.y, op);
 
-        if (vc.x == v1.x && vc.y == v1.y) break;
+        if (vc.x == v1.x && vc.y == v1.y)
+        {
+            if (vc.p != v1.p)
+                vxs ~= v1;
+            break;
+        }
 
         // @H6PNeighbours
         neighbours(vc.x, vc.y, neigh);
-        vxs ~= Vertex(vc.x, vc.y, op);
 
         //float fxp, fyp; //DEBUG
         //to_float_coords(xc, yc, op, fxp, fyp); //DEBUG
@@ -153,7 +159,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
                 float dist = signed_dist_point_to_line([fx, fy], eq);
 
-                writefln("signed dist for %s %s", Vertex(nv1.x, nv1.y, 24), dist);
+                //writefln("signed dist for %s %s", Vertex(nv1.x, nv1.y, 24), dist);
 
                 if (dist > 0.0f)
                 {
@@ -179,7 +185,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
             vc = Vertex(n[0], n[1], ((op/4+3)%6*4 + 4-op%4)%24);
         }
 
-        writefln("vc %s", vc);
+        //writefln("vc %s", vc);
 
         //to_float_coords(xc, yc, nc, fxc, fyc); //DEBUG
         //assert(hypot(fxc-fxp, fyc-fyp) < 1e-2); //DEBUG
