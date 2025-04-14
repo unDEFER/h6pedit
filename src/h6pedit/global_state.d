@@ -152,7 +152,7 @@ package
     byte pressed_dir = -1;
     ubyte edited_form;
     ubyte[] form_dots;
-    Vertex last_v;
+    Vertex last_v = Vertex(uint.max, uint.max, 100);
 
     // @Selection
     SDL_Rect select;
