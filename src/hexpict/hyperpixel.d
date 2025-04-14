@@ -812,7 +812,7 @@ struct Vertex
 
 void to_float_coords(Vertex v, out float fx, out float fy)
 {
-    fx = (v.x + (v.y%2 == 1 ? 0.5f : 0.0f))*fw + points[v.p].x;
-    fy = v.y*(fh-fvh) + points[v.p].y;
+    fx = (v.x + (v.y%2 == 1 ? 0.5f : 0.0f))*fw + fpoints[v.p].x;
+    fy = v.y*(fh-fvh) + fpoints[v.p].y;
 }
 
