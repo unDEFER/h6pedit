@@ -496,6 +496,7 @@ void load_form_dots()
 
             dir = cast(ubyte) (o.off + (dir-o.off + rotate*o.r)%(6*o.r));
         }
+        writefln("Loaded %sx%s forms %s", select.x, select.y, form_dots);
     }
 }
 
