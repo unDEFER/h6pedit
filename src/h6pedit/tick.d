@@ -981,6 +981,7 @@ void process_mask2_editor_keys(SDL_Event event)
                 }
 
                 form_dots ~= v2.p;
+                writefln("%sx%s Add2 %s", v2.x, v2.y, v2.p);
             }
 
             if (select.x != v.x || select.y != v.y)
@@ -1008,6 +1009,7 @@ void process_mask2_editor_keys(SDL_Event event)
         }
 
         form_dots ~= v.p;
+        writefln("%sx%s Add %s", v.x, v.y, v.p);
         last_v = v;
 
         if (first_v.p == 100)
