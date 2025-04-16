@@ -1536,7 +1536,7 @@ void process_events()
             }
         }+/
 
-        //if (form_dots.length >= 2)
+        if (form_dots.length > 0)
         {
             change_form24();
         }
