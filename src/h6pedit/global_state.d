@@ -153,6 +153,7 @@ package
     ubyte edited_form;
     ubyte[] form_dots;
     Vertex last_v = Vertex(uint.max, uint.max, 100);
+    Vertex first_v = Vertex(uint.max, uint.max, 100);
 
     // @Selection
     SDL_Rect select;

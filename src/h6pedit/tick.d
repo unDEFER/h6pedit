@@ -932,7 +932,21 @@ void process_mask2_editor_keys(SDL_Event event)
         }
     }
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_H)
+    bool loop;
+    if (event.key.keysym.scancode == SDL_SCANCODE_L)
+    {
+        if (first_v.p <= 60)
+        {
+            last_v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+            select.x = first_v.x;
+            select.y = first_v.y;
+            dotx = dot_to_coords[first_v.p][0];
+            doty = dot_to_coords[first_v.p][1];
+            loop = true;
+        }
+    }
+
+    if (event.key.keysym.scancode == SDL_SCANCODE_H || loop)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
@@ -968,6 +982,17 @@ void process_mask2_editor_keys(SDL_Event event)
 
         form_dots ~= v.p;
         last_v = v;
+
+        if (first_v.p == 100)
+            first_v = v;
+    }
+
+    if (loop && !lshift)
+    {
+        select.x = last_v.x;
+        select.y = last_v.y;
+        dotx = dot_to_coords[last_v.p][0];
+        doty = dot_to_coords[last_v.p][1];
     }
 
     mask2_hint.changed = true;
