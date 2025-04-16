@@ -359,6 +359,7 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
 
     if (form.length > 2 && (form[0] >= 24 || form[$-1] >= 24))
     {
+        writefln("Normilize form %s", form);
         ubyte[] wr_form;
         foreach (dir; form)
         {
@@ -420,6 +421,7 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
         }
 
         form = form[minds[0]..$] ~ form[0..minds[0]];
+        writefln("Till %s", form);
     }
 
     ubyte rot = get_rot(form[0]);
