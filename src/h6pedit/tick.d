@@ -1347,9 +1347,18 @@ void change_form24()
             else if (picture.image.forms[form - 19*4].used == 1)
             {
                 picture.image.formsmap.remove(picture.image.forms[form - 19*4].dots);
-                picture.image.formsmap[f12] = cast(ushort)(form - 19*4);
-                picture.image.forms[form - 19*4].dots = f12;
-                picture.image.forms[form - 19*4].hp = (BitArray*[6]).init;
+                if (f12 !in picture.image.formsmap)
+                {
+                    picture.image.formsmap[f12] = cast(ushort)(form - 19*4);
+                    picture.image.forms[form - 19*4].dots = f12;
+                    picture.image.forms[form - 19*4].hp = (BitArray*[6]).init;
+                }
+                else
+                {
+                    picture.image.forms[form - 19*4].used--;
+                    form = p.forms[edited_form].form = picture.image.get_form_num(f12);
+                    picture.image.forms[form - 19*4].used++;
+                }
             }
             else
             {
