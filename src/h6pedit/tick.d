@@ -1299,7 +1299,7 @@ void change_form24()
     Pixel *p = picture.image.pixel(select.x, select.y);
 
     ubyte[] dform = form_dots.dup();
-    writefln("dform = %s", dform);
+    //writefln("dform = %s", dform);
     ubyte rotate = 0;
     auto r = normalize_form(dform);
     dform = r.form;
@@ -1536,7 +1536,7 @@ void process_events()
             }
         }+/
 
-        if (form_dots.length >= 2)
+        //if (form_dots.length >= 2)
         {
             change_form24();
         }
