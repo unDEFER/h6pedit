@@ -1011,7 +1011,7 @@ void process_mask2_editor_keys(SDL_Event event)
         if (form_dots.length == 0 || form_dots[0] != v.p)
         {
             form_dots ~= v.p;
-            writefln("%sx%s Add %s", v.x, v.y, v.p);
+            writefln("%sx%s Add %s (First %s)", v.x, v.y, v.p, form_dots.length == 0 ? 100 : form_dots[0]);
         }
         last_v = v;
 
