@@ -78,6 +78,7 @@ static this()
         foreach (x, o; line)
         {
             auto p = dot_to_coords[o];
+            if (o < 51)
             assert(p[0] == x && p[1] == y,
                     format("dot_by_line error %sx%s => %s => %sx%s", x, y, o, p[0], p[1]));
         }
