@@ -965,6 +965,19 @@ void process_mask2_editor_keys(SDL_Event event)
                     select.y = v2.y;
 
                     load_form_dots();
+
+                    if (form_dots.length > 0 && form_dots[$-1] < 24 && v2.p < 24)
+                    {
+                        ubyte fe = v2.p;
+                        ubyte f = form_dots[$-1];
+                        f = (f+23)%24;
+
+                        while (f != fe)
+                        {
+                            if (f%4 == 0) form_dots ~= f;
+                            f = (f+1)%24;
+                        }
+                    }
                 }
 
                 form_dots ~= v2.p;
