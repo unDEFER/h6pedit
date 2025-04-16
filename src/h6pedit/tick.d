@@ -1362,7 +1362,8 @@ void change_form24()
         p.forms[edited_form].extra_color = color;
         p.forms[edited_form].rotation = rotate;
         writefln("%sx%s dform = %s, form = %s, rotate = %s, used = %s", select.x, select.y, dform, p.forms[edited_form].form, rotate, picture.image.forms[p.forms[edited_form].form - 19*4].used);
-        load_form_dots();
+        ushort f = picture.image.get_form_num(f12);
+        writefln("f = %s", f);
 
         picture.changed = true;
         selection.changed = true;
