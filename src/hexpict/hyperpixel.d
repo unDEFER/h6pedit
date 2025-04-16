@@ -462,6 +462,7 @@ Tuple!(ubyte, "off", ubyte, "r") get_off_r(ubyte dir)
 ubyte get_rot(ubyte dir)
 {
     auto o = get_off_r(dir);
+    if (o.r == 0) return 0;
 
     return cast(ubyte) ((dir-o.off)/o.r);
 }
