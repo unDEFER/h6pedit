@@ -489,32 +489,12 @@ void load_form_dots()
             form_dots[1] = cast(ubyte)((form-1)%19 + 5);
         }
 
-        ubyte off, r;
         foreach(ref dir; form_dots)
         {
-            if (dir < 24)
-            {
-                off = 0;
-                r = 4;
-            }
-            else if (dir < 42)
-            {
-                off = 24;
-                r = 3;
-            }
-            else if (dir < 54)
-            {
-                off = 42;
-                r = 2;
-            }
-            else if (dir < 60)
-            {
-                off = 54;
-                r = 1;
-            }
-            else continue;
+            auto o = get_off_r(dir);
+            if (o.r == 0) continue;
 
-            dir = cast(ubyte) (off + (dir-off + rotate*r)%(6*r));
+            dir = cast(ubyte) (o.off + (dir-o.off + rotate*o.r)%(6*o.r));
         }
     }
 }

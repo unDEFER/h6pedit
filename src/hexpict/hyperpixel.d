@@ -357,40 +357,15 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
 {
     if (form.length < 2) return tuple!("form", "rot")(form, cast(ubyte) 0);
 
-    if (form[0] >= 24 || form[$-1] >= 24)
+    if (form.length > 2 && (form[0] >= 24 || form[$-1] >= 24))
     {
         ubyte[] wr_form;
         foreach (dir; form)
         {
-            ubyte off, r;
-            if (dir < 24)
-            {
-                off = 0;
-                r = 4;
-            }
-            else if (dir < 42)
-            {
-                off = 24;
-                r = 3;
-            }
-            else if (dir < 54)
-            {
-                off = 42;
-                r = 2;
-            }
-            else if (dir < 60)
-            {
-                off = 54;
-                r = 1;
-            }
-            else
-            {
-                off = 60;
-                r = 0;
-            }
+            auto o = get_off_r(dir);
 
-            if (r > 0)
-                dir = cast(ubyte) (off + (dir-off)%r);
+            if (o.r > 0)
+                dir = cast(ubyte) (o.off + (dir-o.off)%o.r);
             wr_form ~= dir;
         }
 
