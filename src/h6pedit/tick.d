@@ -999,12 +999,16 @@ void process_mask2_editor_keys(SDL_Event event)
             first_v = v;
     }
 
-    if (loop && !lshift)
+    if (loop && !lshift && (select.x != ov.x || select.y != ov.y))
     {
+        change_form24();
+
         select.x = ov.x;
         select.y = ov.y;
         dotx = dot_to_coords[ov.p][0];
         doty = dot_to_coords[ov.p][1];
+
+        load_form_dots();
     }
 
     mask2_hint.changed = true;
