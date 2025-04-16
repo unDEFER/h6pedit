@@ -533,6 +533,7 @@ void process_mask_mode_key(SDL_Event event)
         }
         else if (mode == Mode.SimpleFormEdit)
         {
+            first_v.p = 100;
             last_v.p = 100;
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
