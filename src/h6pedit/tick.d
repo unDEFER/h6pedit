@@ -1336,9 +1336,9 @@ void change_form24()
     ubyte[] dform = form_dots.dup();
     //writefln("dform = %s", dform);
     ubyte rotate = 0;
-    auto r = normalize_form(dform);
+    /*auto r = normalize_form(dform);
     dform = r.form;
-    rotate = r.rot;
+    rotate = r.rot;*/
 
     if (dform.length == 2 && dform[1] >= 5 && dform[0] < 24 && dform[1] < 24)
     {
