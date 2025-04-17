@@ -1344,7 +1344,7 @@ void change_form24()
     {
         rotate = dform[0]/4;
         dform[0] %= 4;
-        dform[1] -= rotate*4;
+        dform[1] = cast(ubyte) ((dform[1] + 24 - rotate*4)%24);
 
         if (p.forms.length < edited_form + 1) p.forms.length = edited_form + 1;
         if (p.forms[edited_form].form >= 19*4)
