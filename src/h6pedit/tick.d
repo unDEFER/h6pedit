@@ -1317,6 +1317,8 @@ void process_draw_line(SDL_Event event)
 // @EditMask24
 void change_form24()
 {
+    if (!form_changed) return;
+
     Pixel *p = picture.image.pixel(select.x, select.y);
 
     ubyte[] dform = form_dots.dup();
