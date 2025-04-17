@@ -1412,6 +1412,7 @@ void change_form24()
     }
 
     mask_hint.changed = true;
+    form_changed = false;
 }
 
 void make_screenshot() {
