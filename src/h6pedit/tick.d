@@ -1374,6 +1374,15 @@ void change_form24()
         ushort f = picture.image.get_form_num(f12);
         writefln("f = %s", f);
 
+        ubyte[12] f13;
+        foreach(i, ff; f12)
+        {
+            f13[i] = ff;
+        }
+
+        ushort f2 = picture.image.get_form_num(f13);
+        writefln("f2 = %s", f2);
+
         picture.changed = true;
         selection.changed = true;
     }
