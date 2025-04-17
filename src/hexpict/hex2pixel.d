@@ -80,7 +80,7 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
 
         for (uint x = offx; x < tw; x++)
         {
-            bool _debug = true;
+            bool _debug = (cast(int) x == DBGX && cast(int) y == DBGY);
 
             Pixel *h6p = image.pixel(x, y);
             bool err;
