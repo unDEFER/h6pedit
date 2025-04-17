@@ -960,7 +960,10 @@ void process_mask2_editor_keys(SDL_Event event)
                     {
                         ubyte fe = v2.p;
                         ubyte f = form_dots[$-1];
-                        f = (f+23)%24;
+                        if (lshift)
+                            f = (f+1)%24;
+                        else
+                            f = (f+23)%24;
 
                         while (f != fe)
                         {
@@ -969,7 +972,10 @@ void process_mask2_editor_keys(SDL_Event event)
                                 form_dots ~= f;
                                 form_changed = true;
                             }
-                            f = (f+23)%24;
+                            if (lshift)
+                                f = (f+1)%24;
+                            else
+                                f = (f+23)%24;
                         }
                     }
                 }
@@ -992,7 +998,10 @@ void process_mask2_editor_keys(SDL_Event event)
                 {
                     ubyte fe = v.p;
                     ubyte f = form_dots[$-1];
-                    f = (f+23)%24;
+                    if (lshift)
+                        f = (f+1)%24;
+                    else
+                        f = (f+23)%24;
 
                     while (f != fe)
                     {
@@ -1001,7 +1010,10 @@ void process_mask2_editor_keys(SDL_Event event)
                             form_dots ~= f;
                             form_changed = true;
                         }
-                        f = (f+1)%24;
+                        if (lshift)
+                            f = (f+1)%24;
+                        else
+                            f = (f+23)%24;
                     }
                 }
             }
