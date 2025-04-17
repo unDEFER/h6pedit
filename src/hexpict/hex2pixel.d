@@ -132,7 +132,7 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
             //static if (false)
             foreach (s, subform; h6p.forms)
             {
-                if (_debug)
+                if (true || _debug)
                 {
                     writefln("%sx%s %s. Form=%s rot=%s", x, y, s, subform.form, subform.rotation);
                 }
