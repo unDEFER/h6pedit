@@ -917,6 +917,7 @@ void process_mask2_editor_keys(SDL_Event event)
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
+    if (first_v.p <= 60)
     {
         select.x = first_v.x;
         select.y = first_v.y;
