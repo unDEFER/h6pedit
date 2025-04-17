@@ -916,6 +916,15 @@ void process_mask2_editor_keys(SDL_Event event)
 
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+
+    {
+        select.x = first_v.x;
+        select.y = first_v.y;
+        load_form_dots();
+        select.x = ov.x;
+        select.y = ov.y;
+    }
+
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
     {
         if (first_v.p <= 60)
@@ -1371,15 +1380,6 @@ void change_form24()
         p.forms[edited_form].extra_color = color;
         p.forms[edited_form].rotation = rotate;
         writefln("%sx%s dform = %s, form = %s, rotate = %s, used = %s", select.x, select.y, dform, p.forms[edited_form].form, rotate, picture.image.forms[p.forms[edited_form].form - 19*4].used);
-        ushort f = picture.image.get_form_num(f12);
-        writefln("f = %s", f);
-
-        ubyte[12] f13;
-        f13[0] = 1;
-        f13[1] = 61;
-
-        ushort f2 = picture.image.get_form_num(f13);
-        writefln("f2 = %s", f2);
 
         picture.changed = true;
         selection.changed = true;
