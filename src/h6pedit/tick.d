@@ -924,6 +924,7 @@ void process_mask2_editor_keys(SDL_Event event)
         load_form_dots();
         select.x = ov.x;
         select.y = ov.y;
+        load_form_dots();
     }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
