@@ -1375,10 +1375,8 @@ void change_form24()
         writefln("f = %s", f);
 
         ubyte[12] f13;
-        foreach(i, ff; f12)
-        {
-            f13[i] = ff;
-        }
+        f13[0] = 1;
+        f13[1] = 61;
 
         ushort f2 = picture.image.get_form_num(f13);
         writefln("f2 = %s", f2);
