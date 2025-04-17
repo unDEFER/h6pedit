@@ -969,7 +969,7 @@ void process_mask2_editor_keys(SDL_Event event)
                                 form_dots ~= f;
                                 form_changed = true;
                             }
-                            f = (f+1)%24;
+                            f = (f+23)%24;
                         }
                     }
                 }
