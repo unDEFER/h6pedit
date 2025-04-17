@@ -498,6 +498,8 @@ void load_form_dots()
         }
         writefln("Loaded %sx%s forms %s, num %s", select.x, select.y, form_dots, form);
     }
+
+    form_changed = false;
 }
 
 // @EditMask
@@ -779,6 +781,7 @@ void process_mask_editor_keys24(SDL_Event event)
                     pressed_dir -= 6;
 
                 form_dots ~= (2*(i+pressed_dir) + 22)%24;
+                form_changed = true;
                 mask_hint.changed = true;
 
                 pressed_dir = -1;
@@ -799,6 +802,7 @@ void process_mask_editor_keys24(SDL_Event event)
                 if (kn == 6 && pressed_dir < 2) d = -1;
 
                 form_dots ~= cast(ubyte)((4*pressed_dir + d + 22)%24);
+                form_changed = true;
                 mask_hint.changed = true;
 
                 pressed_dir = -1;
@@ -917,25 +921,19 @@ void process_mask2_editor_keys(SDL_Event event)
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
-    if (first_v.p <= 60)
-    {
-        select.x = first_v.x;
-        select.y = first_v.y;
-        load_form_dots();
-        select.x = ov.x;
-        select.y = ov.y;
-        load_form_dots();
-    }
-
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
     {
-        if (first_v.p <= 60)
+        if (first_v.p <= 60 && (select.x != first_v.x || select.y != first_v.y))
         {
+            change_form24();
+
             select.x = first_v.x;
             select.y = first_v.y;
             dotx = dot_to_coords[first_v.p][0];
             doty = dot_to_coords[first_v.p][1];
             loop = true;
+
+            load_form_dots();
         }
     }
 
@@ -966,13 +964,18 @@ void process_mask2_editor_keys(SDL_Event event)
 
                         while (f != fe)
                         {
-                            if (f%4 == 0) form_dots ~= f;
+                            if (f%4 == 0)
+                            {
+                                form_dots ~= f;
+                                form_changed = true;
+                            }
                             f = (f+1)%24;
                         }
                     }
                 }
 
                 form_dots ~= v2.p;
+                form_changed = true;
                 writefln("%sx%s Add2 %s", v2.x, v2.y, v2.p);
             }
 
@@ -993,7 +996,11 @@ void process_mask2_editor_keys(SDL_Event event)
 
                     while (f != fe)
                     {
-                        if (f%4 == 0) form_dots ~= f;
+                        if (f%4 == 0)
+                        {
+                            form_dots ~= f;
+                            form_changed = true;
+                        }
                         f = (f+1)%24;
                     }
                 }
@@ -1004,6 +1011,7 @@ void process_mask2_editor_keys(SDL_Event event)
         {
             writefln("%sx%s Add %s (First %s)", v.x, v.y, v.p, form_dots.length == 0 ? 100 : form_dots[0]);
             form_dots ~= v.p;
+            form_changed = true;
         }
         last_v = v;
 
@@ -1040,6 +1048,7 @@ void process_mask_editor_up_keys24(SDL_Event event)
                 pressed_dir = -1;
 
                 form_dots ~= (i*4 + 22)%24;
+                form_changed = true;
             }
         }
     }

@@ -176,6 +176,7 @@ package
     // @EditMask
     byte pressed_dir = -1;
     ubyte edited_form;
+    bool form_changed;
     ubyte[] form_dots;
     Vertex last_v = Vertex(uint.max, uint.max, 100);
     Vertex first_v = Vertex(uint.max, uint.max, 100);
