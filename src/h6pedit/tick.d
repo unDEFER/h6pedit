@@ -918,6 +918,16 @@ void process_mask2_editor_keys(SDL_Event event)
         }
     }
 
+    {
+        Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+
+        ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+        uint gx = v.x*8 + (v.y%2 == 1 ? 4 : 0) + dotx_;
+        uint gy = v.y*6 + doty;
+
+        writefln("%s gx = %s, gy = %s", v, gx, gy);
+    }
+
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
@@ -940,63 +950,44 @@ void process_mask2_editor_keys(SDL_Event event)
     if (event.key.keysym.scancode == SDL_SCANCODE_H || loop)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+        paint(v);
+    }
 
-        if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
+    if (loop && !lshift && (select.x != ov.x || select.y != ov.y))
+    {
+        change_form24();
+
+        select.x = ov.x;
+        select.y = ov.y;
+        dotx = dot_to_coords[ov.p][0];
+        doty = dot_to_coords[ov.p][1];
+
+        load_form_dots();
+    }
+
+    mask2_hint.changed = true;
+}
+
+void paint(Vertex v)
+{
+    if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
+    {
+        Vertex[] line = get_line(last_v, v);
+
+        foreach(v2; line[1..$-1])
         {
-            Vertex[] line = get_line(last_v, v);
-
-            foreach(v2; line[1..$-1])
-            {
-                if (select.x != v2.x || select.y != v2.y)
-                {
-                    change_form24();
-
-                    select.x = v2.x;
-                    select.y = v2.y;
-
-                    load_form_dots();
-
-                    if (form_dots.length > 0 && form_dots[$-1] < 24 && v2.p < 24)
-                    {
-                        ubyte fe = v2.p;
-                        ubyte f = form_dots[$-1];
-                        if (lshift)
-                            f = (f+1)%24;
-                        else
-                            f = (f+23)%24;
-
-                        while (f != fe)
-                        {
-                            if (f%4 == 0)
-                            {
-                                form_dots ~= f;
-                                form_changed = true;
-                            }
-                            if (lshift)
-                                f = (f+1)%24;
-                            else
-                                f = (f+23)%24;
-                        }
-                    }
-                }
-
-                form_dots ~= v2.p;
-                form_changed = true;
-                writefln("%sx%s Add2 %s", v2.x, v2.y, v2.p);
-            }
-
-            if (select.x != v.x || select.y != v.y)
+            if (select.x != v2.x || select.y != v2.y)
             {
                 change_form24();
 
-                select.x = v.x;
-                select.y = v.y;
+                select.x = v2.x;
+                select.y = v2.y;
 
                 load_form_dots();
 
-                if (form_dots.length > 0 && form_dots[$-1] < 24 && v.p < 24)
+                if (form_dots.length > 0 && form_dots[$-1] < 24 && v2.p < 24)
                 {
-                    ubyte fe = v.p;
+                    ubyte fe = v2.p;
                     ubyte f = form_dots[$-1];
                     if (lshift)
                         f = (f+1)%24;
@@ -1017,33 +1008,56 @@ void process_mask2_editor_keys(SDL_Event event)
                     }
                 }
             }
-        }
 
-        if (form_dots.length == 0 || form_dots[0] != v.p)
-        {
-            writefln("%sx%s Add %s (First %s)", v.x, v.y, v.p, form_dots.length == 0 ? 100 : form_dots[0]);
-            form_dots ~= v.p;
+            form_dots ~= v2.p;
             form_changed = true;
+            writefln("%sx%s Add2 %s", v2.x, v2.y, v2.p);
         }
-        last_v = v;
 
-        if (first_v.p == 100)
-            first_v = v;
+        if (select.x != v.x || select.y != v.y)
+        {
+            change_form24();
+
+            select.x = v.x;
+            select.y = v.y;
+
+            load_form_dots();
+
+            if (form_dots.length > 0 && form_dots[$-1] < 24 && v.p < 24)
+            {
+                ubyte fe = v.p;
+                ubyte f = form_dots[$-1];
+                if (lshift)
+                    f = (f+1)%24;
+                else
+                    f = (f+23)%24;
+
+                while (f != fe)
+                {
+                    if (f%4 == 0)
+                    {
+                        form_dots ~= f;
+                        form_changed = true;
+                    }
+                    if (lshift)
+                        f = (f+1)%24;
+                    else
+                        f = (f+23)%24;
+                }
+            }
+        }
     }
 
-    if (loop && !lshift && (select.x != ov.x || select.y != ov.y))
+    if (form_dots.length == 0 || form_dots[0] != v.p)
     {
-        change_form24();
-
-        select.x = ov.x;
-        select.y = ov.y;
-        dotx = dot_to_coords[ov.p][0];
-        doty = dot_to_coords[ov.p][1];
-
-        load_form_dots();
+        writefln("%sx%s Add %s (First %s)", v.x, v.y, v.p, form_dots.length == 0 ? 100 : form_dots[0]);
+        form_dots ~= v.p;
+        form_changed = true;
     }
+    last_v = v;
 
-    mask2_hint.changed = true;
+    if (first_v.p == 100)
+        first_v = v;
 }
 
 // @EditMask24
