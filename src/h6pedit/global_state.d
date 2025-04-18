@@ -181,7 +181,7 @@ package
     ubyte[] form_dots;
     Vertex last_v = Vertex(uint.max, uint.max, 100);
     Vertex first_v = Vertex(uint.max, uint.max, 100);
-    Brush brush = Brush([Vector(0, -14), Vector(8, 0), Vector(0, 14), Vector(-8, 0)]);
+    Brush brush = Brush([Vector(0, 14), Vector(8, 0), Vector(0, -14), Vector(-8, 0)]);
 
     // @Selection
     SDL_Rect select;
