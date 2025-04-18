@@ -1099,6 +1099,8 @@ void apply_brush(in Brush b)
 
         select.x = v.x;
         select.y = v.y;
+
+        i++;
     }
 }
 
