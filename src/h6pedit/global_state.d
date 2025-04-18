@@ -24,6 +24,7 @@ import bindbc.sdl;
 
 import h6pedit.reference;
 import h6pedit.rendered_h6p;
+import h6pedit.brush;
 
 import hexpict.h6p;
 import hexpict.color;
@@ -180,6 +181,7 @@ package
     ubyte[] form_dots;
     Vertex last_v = Vertex(uint.max, uint.max, 100);
     Vertex first_v = Vertex(uint.max, uint.max, 100);
+    Brush brush = Brush([Vector(0, 14), Vector(8, 0), Vector(0, -14), Vector(-8, 0)]);
 
     // @Selection
     SDL_Rect select;

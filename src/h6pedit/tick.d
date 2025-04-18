@@ -15,6 +15,7 @@ module h6pedit.tick;
 
 import h6pedit.global_state;
 import h6pedit.rendered_h6p;
+import h6pedit.brush;
 import h6pedit.draw;
 import hexpict.h6p;
 import hexpict.hyperpixel;
@@ -920,6 +921,11 @@ void process_mask2_editor_keys(SDL_Event event)
 
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+    
+    if (event.key.keysym.scancode == SDL_SCANCODE_B)
+    {
+        brush.apply();
+    }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
     {
