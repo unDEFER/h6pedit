@@ -1095,10 +1095,12 @@ void apply_brush(in Brush b)
 
         v.p = dot_by_line[doty][dotx];
 
-        //writefln("New %s", v);
+        writefln("New %s", v);
 
         select.x = v.x;
         select.y = v.y;
+
+        load_form_dots();
 
         i++;
     }
