@@ -922,7 +922,7 @@ void process_mask2_editor_keys(SDL_Event event)
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
 
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-        uint gx = v.x*8 + (v.y%2 == 1 ? 4 : 0) + dotx_;
+        uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
         uint gy = v.y*6 + doty;
 
         writefln("%s gx = %s, gy = %s", v, gx, gy);
