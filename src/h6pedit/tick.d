@@ -937,6 +937,7 @@ void process_mask2_editor_keys(SDL_Event event)
         if (dotx >= dot_by_line[doty].length)
         {
             v.y--;
+            doty += 12;
             sx = gx - (v.y%2)*4 - (doty%2);
             v.x = sx/8;
             dotx_ = (sx%8)/2;
