@@ -926,6 +926,16 @@ void process_mask2_editor_keys(SDL_Event event)
         uint gy = v.y*12 + doty;
 
         writefln("%s gx = %s, gy = %s", v, gx, gy);
+
+        v.y = gy/12;
+        doty = gy%12;
+        uint sx = gx - (v.y%2)*4 - (doty%2);
+        v.x = sx/8;
+        dotx_ = (sx%8)/2;
+        dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+        v.p = dot_by_line[doty][dotx];
+
+        writefln("Back to Vertex %s", v);
     }
 
     bool loop;
