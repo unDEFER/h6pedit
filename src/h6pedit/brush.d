@@ -17,17 +17,45 @@ struct Brush
     void apply()
     {
         size_t i = 0;
-        do
+        while (true)
         {
             Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
             paint(v);
+            
+            if (i >= form.length) break;
 
             ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-            uint gx = v.x*8 + (v.y%2 == 1 ? 4 : 0) + dotx_;
-            uint gy = v.y*6 + doty;
+            uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
+            uint gy = v.y*12 + doty;
 
-            //doty += dy[i];
+            //writefln("%s gx = %s, gy = %s", v, gx, gy);
+
+            gx += form[i].dx;
+            gy += form[i].dy;
+
+            v.y = gy/12;
+            doty = gy%12;
+            uint sx = gx - (v.y%2)*4 - (doty%2);
+            v.x = sx/8;
+            dotx_ = (sx%8)/2;
+            dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+
+            if (dotx >= dot_by_line[doty].length)
+            {
+                v.y--;
+                doty += 12;
+                sx = gx - (v.y%2)*4 - (doty%2);
+                v.x = sx/8;
+                dotx_ = (sx%8)/2;
+                dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+            }
+
+            v.p = dot_by_line[doty][dotx];
+
+            //writefln("New %s", v);
+
+            select.x = v.x;
+            select.y = v.y;
         }
-        while (i < form.length);
     }
 }
