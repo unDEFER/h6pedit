@@ -1065,18 +1065,20 @@ void apply_brush(in Brush b)
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
         paint(v);
 
-        change_form24();
-
         if (i >= b.form.length) break;
+
+        change_form24();
 
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
         uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
         uint gy = v.y*12 + doty;
 
-        //writefln("%s gx = %s, gy = %s", v, gx, gy);
+        writefln("%s gx = %s, gy = %s", v, gx, gy);
 
         gx += b.form[i].dx;
         gy += b.form[i].dy;
+
+        writefln("New gx = %s, gy = %s", v, gx, gy);
 
         v.y = gy/12;
         doty = gy%12;
