@@ -1078,7 +1078,7 @@ void apply_brush(in Brush b)
         gx += b.form[i].dx;
         gy += b.form[i].dy;
 
-        writefln("New gx = %s, gy = %s", v, gx, gy);
+        writefln("New gx = %s, gy = %s", gx, gy);
 
         v.y = gy/12;
         doty = gy%12;
