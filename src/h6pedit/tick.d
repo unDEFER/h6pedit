@@ -936,7 +936,7 @@ void process_mask2_editor_keys(SDL_Event event)
 
         if (dotx >= dot_by_line[doty].length)
         {
-            v.y++;
+            v.y--;
             sx = gx - (v.y%2)*4 - (doty%2);
             v.x = sx/8;
             dotx_ = (sx%8)/2;
@@ -945,7 +945,7 @@ void process_mask2_editor_keys(SDL_Event event)
 
         v.p = dot_by_line[doty][dotx];
 
-        writefln("Back to Vertex %s", v);
+        writefln("Back to %s", v);
     }
 
     bool loop;
