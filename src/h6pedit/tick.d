@@ -947,6 +947,8 @@ void process_mask2_editor_keys(SDL_Event event)
         v.p = dot_by_line[doty][dotx];
 
         writefln("Back to %s", v);
+        select.x = v.x;
+        select.y = v.y;
     }
 
     bool loop;
