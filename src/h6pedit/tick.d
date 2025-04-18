@@ -923,7 +923,7 @@ void process_mask2_editor_keys(SDL_Event event)
 
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
         uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
-        uint gy = v.y*6 + doty;
+        uint gy = v.y*12 + doty;
 
         writefln("%s gx = %s, gy = %s", v, gx, gy);
     }
