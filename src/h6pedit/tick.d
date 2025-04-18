@@ -922,7 +922,7 @@ void process_mask2_editor_keys(SDL_Event event)
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
     
-    if (event.key.keysym.scancode == SDL_SCANCODE_B)
+    if (event.key.keysym.scancode == SDL_SCANCODE_K)
     {
         apply_brush(brush);
     }
