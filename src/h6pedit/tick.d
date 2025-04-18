@@ -924,7 +924,7 @@ void process_mask2_editor_keys(SDL_Event event)
     
     if (event.key.keysym.scancode == SDL_SCANCODE_B)
     {
-        brush.apply();
+        apply_brush(brush);
     }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
@@ -1054,6 +1054,52 @@ void paint(Vertex v)
 
     if (first_v.p == 100)
         first_v = v;
+}
+
+
+void apply_brush(in Brush b)
+{
+    size_t i = 0;
+    while (true)
+    {
+        Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+        paint(v);
+
+        if (i >= b.form.length) break;
+
+        ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+        uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
+        uint gy = v.y*12 + doty;
+
+        //writefln("%s gx = %s, gy = %s", v, gx, gy);
+
+        gx += b.form[i].dx;
+        gy += b.form[i].dy;
+
+        v.y = gy/12;
+        doty = gy%12;
+        uint sx = gx - (v.y%2)*4 - (doty%2);
+        v.x = sx/8;
+        dotx_ = (sx%8)/2;
+        dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+
+        if (dotx >= dot_by_line[doty].length)
+        {
+            v.y--;
+            doty += 12;
+            sx = gx - (v.y%2)*4 - (doty%2);
+            v.x = sx/8;
+            dotx_ = (sx%8)/2;
+            dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+        }
+
+        v.p = dot_by_line[doty][dotx];
+
+        //writefln("New %s", v);
+
+        select.x = v.x;
+        select.y = v.y;
+    }
 }
 
 // @EditMask24
