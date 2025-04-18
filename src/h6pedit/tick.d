@@ -1065,6 +1065,8 @@ void apply_brush(in Brush b)
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
         paint(v);
 
+        change_form24();
+
         if (i >= b.form.length) break;
 
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
