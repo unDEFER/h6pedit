@@ -925,6 +925,7 @@ void process_mask2_editor_keys(SDL_Event event)
     if (event.key.keysym.scancode == SDL_SCANCODE_K)
     {
         first_v.p = 100;
+        last_v.p = 100;
         apply_brush(brush);
     }
 
