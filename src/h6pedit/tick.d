@@ -1424,7 +1424,7 @@ void change_form24()
         picture.changed = true;
         selection.changed = true;
     }
-    else
+    else if (dform.length <= 12)
     {
         ubyte[12] f12;
         foreach(i, f; dform)
