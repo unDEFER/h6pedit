@@ -913,6 +913,10 @@ void process_mask2_editor_keys(SDL_Event event)
         first_v.p = 100;
         last_v.p = 100;
         edited_forms_by_coords.clear();
+
+        Pixel *p = picture.image.pixel(select.x, select.y);
+        edited_form = cast(ubyte) p.forms.length;
+
         apply_brush(brush);
     }
 
