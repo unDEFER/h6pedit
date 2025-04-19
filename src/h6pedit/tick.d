@@ -519,23 +519,13 @@ void process_mask_mode_key(SDL_Event event)
         {
             first_v.p = 100;
             last_v.p = 100;
+            edited_forms_by_coords.clear();
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
 
             Pixel *p = picture.image.pixel(select.x, select.y);
 
-            edited_form = 8;
-            foreach (j, f; p.forms)
-            {
-                if (f.extra_color == color)
-                {
-                    edited_form = cast(ubyte) j;
-                    break;
-                }
-            }
-
-            if (edited_form == 8)
-                edited_form = cast(ubyte) p.forms.length;
+            edited_form = cast(ubyte) p.forms.length;
 
             load_form_dots();
         }
@@ -883,18 +873,14 @@ void process_mask2_editor_keys(SDL_Event event)
 
                         Pixel *p = picture.image.pixel(select.x, select.y);
 
-                        edited_form = 8;
-                        foreach (j, f; p.forms)
+                        if ([select.x, select.y] in edited_forms_by_coords)
                         {
-                            if (f.extra_color == color)
-                            {
-                                edited_form = cast(ubyte) j;
-                                break;
-                            }
+                            edited_form = edited_forms_by_coords[[select.x, select.y]];
                         }
-
-                        if (edited_form == 8)
+                        else
+                        {
                             edited_form = cast(ubyte) p.forms.length;
+                        }
                     }
 
                     dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
@@ -926,6 +912,7 @@ void process_mask2_editor_keys(SDL_Event event)
     {
         first_v.p = 100;
         last_v.p = 100;
+        edited_forms_by_coords.clear();
         apply_brush(brush);
     }
 
@@ -1480,18 +1467,7 @@ void change_form24()
         selection.changed = true;
     }
 
-    {
-        /*
-        Pixel p = get_pixel(picture.image, select.x, select.y);
-        if (mask_of == 1)
-            p.form = p.form & 0xFFFF00;
-        else
-            p.form = p.form & 0xFF00FF;
-        set_pixel(picture.image, select.x, select.y, &p, ErrCorrection.ORDINARY);
-        picture.changed = true;
-        mode = Mode.MaskStep1;
-        */
-    }
+    edited_forms_by_coords[[select.x, select.y]] = edited_form;
 
     mask_hint.changed = true;
     form_changed = false;
