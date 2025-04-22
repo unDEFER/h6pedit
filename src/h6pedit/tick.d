@@ -1076,6 +1076,7 @@ void apply_brush(in Brush b)
 
         change_form24();
 
+        writefln("dotx = %s, doty = %s", dotx, doty);
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
         uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
         uint gy = v.y*12 + doty;
