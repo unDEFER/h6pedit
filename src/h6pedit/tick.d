@@ -968,6 +968,7 @@ void paint(Vertex v)
         select.y = last_v.y;
         dotx = dot_to_coords[last_v.p][0];
         doty = dot_to_coords[last_v.p][1];
+        writefln("D1 dotx = %s, doty = %s", dotx, doty);
 
         load_form_dots();
 
@@ -983,6 +984,7 @@ void paint(Vertex v)
                 select.y = v2.y;
                 dotx = dot_to_coords[v2.p][0];
                 doty = dot_to_coords[v2.p][1];
+                writefln("D2 dotx = %s, doty = %s", dotx, doty);
 
                 load_form_dots();
 
@@ -1023,6 +1025,7 @@ void paint(Vertex v)
             select.y = v.y;
             dotx = dot_to_coords[v.p][0];
             doty = dot_to_coords[v.p][1];
+            writefln("D3 dotx = %s, doty = %s", dotx, doty);
 
             load_form_dots();
 
