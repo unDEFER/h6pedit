@@ -961,6 +961,13 @@ void paint(Vertex v)
 {
     if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
     {
+        change_form24();
+
+        select.x = last_v.x;
+        select.y = last_v.y;
+
+        load_form_dots();
+
         Vertex[] line = get_line(last_v, v);
 
         foreach(v2; line[1..$-1])
