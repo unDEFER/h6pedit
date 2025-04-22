@@ -981,6 +981,8 @@ void paint(Vertex v)
 
                 select.x = v2.x;
                 select.y = v2.y;
+                dotx = dot_to_coords[v2.p][0];
+                doty = dot_to_coords[v2.p][1];
 
                 load_form_dots();
 
@@ -1019,6 +1021,8 @@ void paint(Vertex v)
 
             select.x = v.x;
             select.y = v.y;
+            dotx = dot_to_coords[v.p][0];
+            doty = dot_to_coords[v.p][1];
 
             load_form_dots();
 
