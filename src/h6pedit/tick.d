@@ -1108,6 +1108,7 @@ void apply_brush(in Brush b)
         v.p = dot_by_line[doty][dotx];
 
         writefln("New %s", v);
+        writefln("dotx = %s, doty = %s", dotx, doty);
 
         select.x = v.x;
         select.y = v.y;
