@@ -963,6 +963,7 @@ void paint(Vertex v)
     {
         change_form24();
 
+        writefln("Return to last_v %sx%s %s", last_v.x, last_v.y, last_v.p);
         select.x = last_v.x;
         select.y = last_v.y;
         dotx = dot_to_coords[last_v.p][0];
