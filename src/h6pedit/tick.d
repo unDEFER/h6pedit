@@ -469,8 +469,19 @@ void process_up_insert_key(SDL_Event event)
 
 void load_form_dots()
 {
-    form_dots.length = 0;
     Pixel *p = picture.image.pixel(select.x, select.y);
+    if ([select.x, select.y] in edited_forms_by_coords)
+    {
+        edited_form = edited_forms_by_coords[[select.x, select.y]];
+        writefln("%dx%d edited form %d restored", select.x, select.y, edited_form);
+    }
+    else
+    {
+        edited_form = cast(ubyte) p.forms.length;
+        writefln("%dx%d edited form %d new", select.x, select.y, edited_form);
+    }
+
+    form_dots.length = 0;
     if (p.forms.length > edited_form)
     {
         ushort form = p.forms[edited_form].form;
