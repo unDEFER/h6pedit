@@ -1507,6 +1507,7 @@ void change_form24()
     }
 
     edited_forms_by_coords[[select.x, select.y]] = edited_form;
+    writefln("Save %dx%d edited form %d", select.x, select.y, edited_form);
 
     mask_hint.changed = true;
     form_changed = false;
