@@ -511,8 +511,10 @@ void process_mask_mode_key(SDL_Event event)
         if (mode == Mode.Edit)
         {
             mode = Mode.SimpleFormEdit;
-            edited_form = 0;
             form_dots.length = 0;
+            Pixel *p = picture.image.pixel(select.x, select.y);
+            edited_form = cast(ubyte) p.forms.length;
+            load_form_dots();
             mask_hint.changed = true;
         }
         else if (mode == Mode.SimpleFormEdit)
@@ -522,12 +524,6 @@ void process_mask_mode_key(SDL_Event event)
             edited_forms_by_coords.clear();
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
-
-            Pixel *p = picture.image.pixel(select.x, select.y);
-
-            edited_form = cast(ubyte) p.forms.length;
-
-            load_form_dots();
         }
         else if (mode == Mode.ExtendedFormEdit)
         {
