@@ -925,6 +925,7 @@ void process_mask2_editor_keys(SDL_Event event)
 
         Pixel *p = picture.image.pixel(select.x, select.y);
         edited_form = cast(ubyte) p.forms.length;
+        form_dots.length = 0;
 
         apply_brush(brush);
     }
