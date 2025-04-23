@@ -1416,25 +1416,28 @@ void change_form24()
     dform = r.form;
     rotate = r.rot;*/
 
-    if (dform.length == 2 && dform[1] >= 5 && dform[0] < 24 && dform[1] < 24)
+    if (dform.length == 2 && dform[0] < 24 && dform[1] < 24)
     {
         rotate = dform[0]/4;
         dform[0] %= 4;
         dform[1] = cast(ubyte) ((dform[1] + 24 - rotate*4)%24);
 
-        if (p.forms.length < edited_form + 1) p.forms.length = edited_form + 1;
-        if (p.forms[edited_form].form >= 19*4)
+        if (dform[1] >= 5)
         {
-            ushort form = p.forms[edited_form].form;
-            picture.image.forms[form - 19*4].used--;
-        }
-        p.forms[edited_form].extra_color = color;
-        p.forms[edited_form].form = cast(ushort) (1 + dform[0]*19 + (dform[1] - 5));
-        p.forms[edited_form].rotation = rotate;
-        writefln("dform = %s, form = %s, rotate = %s", dform, p.forms[edited_form].form, rotate);
+            if (p.forms.length < edited_form + 1) p.forms.length = edited_form + 1;
+            if (p.forms[edited_form].form >= 19*4)
+            {
+                ushort form = p.forms[edited_form].form;
+                picture.image.forms[form - 19*4].used--;
+            }
+            p.forms[edited_form].extra_color = color;
+            p.forms[edited_form].form = cast(ushort) (1 + dform[0]*19 + (dform[1] - 5));
+            p.forms[edited_form].rotation = rotate;
+            writefln("dform = %s, form = %s, rotate = %s", dform, p.forms[edited_form].form, rotate);
 
-        picture.changed = true;
-        selection.changed = true;
+            picture.changed = true;
+            selection.changed = true;
+        }
     }
     else if (dform.length <= 12)
     {
