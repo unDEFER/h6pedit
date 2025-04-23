@@ -872,10 +872,12 @@ void process_mask2_editor_keys(SDL_Event event)
                         if ([select.x, select.y] in edited_forms_by_coords)
                         {
                             edited_form = edited_forms_by_coords[[select.x, select.y]];
+                            writefln("%dx%d edited form %d restored", select.x, select.y, edited_form);
                         }
                         else
                         {
                             edited_form = cast(ubyte) p.forms.length;
+                            writefln("%dx%d edited form %d new", select.x, select.y, edited_form);
                         }
                     }
 
