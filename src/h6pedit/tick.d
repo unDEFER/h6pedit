@@ -982,7 +982,8 @@ void paint(Vertex v)
 
         load_form_dots();
 
-        Vertex[] line = get_line(last_v, v);
+        float max_err;
+        Vertex[] line = get_line(last_v, v, max_err);
 
         foreach(v2; line[1..$-1])
         {

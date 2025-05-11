@@ -13,7 +13,7 @@ import hexpict.color;
 import hexpict.colors;
 import hexpict.hyperpixel;
 
-Vertex[] get_line(Vertex v0, Vertex v1)
+Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 {
     Vertex[] vxs;
     int[][] neigh = new int[][](6, 2);
@@ -29,6 +29,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
     //writefln("v0 %s", v0);
 
+    max_err = 0.0f;
     Vertex vc = v0;
 
     while (true)
@@ -73,6 +74,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
                 if (between(intersection[0], sx1, sx2) && between(intersection[1], sy1, sy2) && cdist < mincdist)
                 {
+                    //"RU расстояние от пересечения со стороной гексагона до конечной точки
                     mincdist = cdist;
                     //writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
 
@@ -87,6 +89,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         float dist = hypot(px - intersection[0], py - intersection[1]);
                         if (dist < mindist)
                         {
+                            //"RU расстояние от пересечения до вершины гексагона
                             mindist = dist;
                             op = v.p;
                             //writefln("op %s, dist %s", op, dist);
@@ -100,6 +103,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
         float mindist, mincdist;
         byte op = choose_op(vc, mindist, mincdist);
+        if (mindist > max_err) max_err = mindist;
         //writefln("op = %s", op);
 
         byte pp1 = vc.p;
@@ -148,10 +152,12 @@ Vertex[] get_line(Vertex v0, Vertex v1)
             if (nv1.x == v1.x && nv1.y == v1.y)
             {
                 vc = nv1;
+                if (mindist1 > max_err) max_err = mindist1;
             }
             else if (nv2.x == v1.x && nv2.y == v1.y)
             {
                 vc = nv2;
+                if (mindist2 > max_err) max_err = mindist2;
             }
             else if (abs(mindist1 - mindist2) < 1e-1 && abs(mincdist1 - mincdist2) < 1e-1)
             {
@@ -165,19 +171,23 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                 if (dist > 0.0f)
                 {
                     vc = nv1;
+                    if (mindist1 > max_err) max_err = mindist1;
                 }
                 else
                 {
                     vc = nv2;
+                    if (mindist2 > max_err) max_err = mindist2;
                 }
             }
             else if (mincdist1 < mincdist2)
             {
                 vc = nv1;
+                if (mindist1 > max_err) max_err = mindist1;
             }
             else
             {
                 vc = nv2;
+                if (mindist2 > max_err) max_err = mindist2;
             }
         }
         else
