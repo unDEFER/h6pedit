@@ -1021,6 +1021,7 @@ float paint(Vertex v, bool preview = false)
                         if (f%4 == 0)
                         {
                             form_dots ~= f;
+                            writefln("ADD f %s", f);
                             form_changed = true;
                         }
                         if (lshift)
