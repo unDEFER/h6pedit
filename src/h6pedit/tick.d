@@ -927,7 +927,8 @@ void process_mask2_editor_keys(SDL_Event event)
         edited_form = cast(ubyte) p.forms.length;
         form_dots.length = 0;
 
-        apply_brush(brush);
+        float ERR = apply_brush(brush);
+        writefln("%sx%s ERR = %s", select.x, select.y, ERR);
     }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
