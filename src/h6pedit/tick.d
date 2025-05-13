@@ -967,23 +967,25 @@ void process_mask2_editor_keys(SDL_Event event)
     mask2_hint.changed = true;
 }
 
-void paint(Vertex v)
+float paint(Vertex v, bool preview = false)
 {
+    float max_err = 0.0f;
+
     if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
     {
         change_form24();
 
-        writefln("Return to last_v %sx%s %s", last_v.x, last_v.y, last_v.p);
+        if (!preview) writefln("Return to last_v %sx%s %s", last_v.x, last_v.y, last_v.p);
         select.x = last_v.x;
         select.y = last_v.y;
         dotx = dot_to_coords[last_v.p][0];
         doty = dot_to_coords[last_v.p][1];
-        writefln("D1 dotx = %s, doty = %s", dotx, doty);
+        if (!preview) writefln("D1 dotx = %s, doty = %s", dotx, doty);
 
         load_form_dots();
 
-        float max_err;
         Vertex[] line = get_line(last_v, v, max_err);
+        if (preview) return max_err;
 
         foreach(v2; line[1..$-1])
         {
@@ -1079,16 +1081,21 @@ void paint(Vertex v)
 
     if (first_v.p == 100)
         first_v = v;
+
+    return max_err;
 }
 
 
-void apply_brush(in Brush b)
+float apply_brush(in Brush b, bool preview = false)
 {
+    float max_err = 0.0f;
+
     size_t i = 0;
     while (true)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
-        paint(v);
+        float merr = paint(v, preview);
+        if (merr > max_err) max_err = merr;
 
         if (i >= b.form.length) break;
 
@@ -1135,6 +1142,8 @@ void apply_brush(in Brush b)
 
         i++;
     }
+
+    return max_err;
 }
 
 // @EditMask24
