@@ -1092,49 +1092,6 @@ float paint(Vertex v, bool preview = false)
     return max_err;
 }
 
-uint[2] hyper_coords_to_global(Vertex v)
-{
-    ubyte dotx = dot_to_coords[v.p][0];
-    ubyte doty = dot_to_coords[v.p][1];
-
-    ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-    uint gx = v.x*8 + (v.y%2)*4 + (doty%2) + dotx_*2;
-    uint gy = v.y*12 + doty;
-
-    writefln("HyperCoordsToGlobal: %s => gx = %s, gy = %s", v, gx, gy);
-
-    return [gx, gy];
-}
-
-
-Vertex global_coords_to_hyper(uint gx, uint gy)
-{
-    Vertex v;
-
-    v.y = gy/12;
-    ubyte doty = gy%12;
-    uint sx = gx - (v.y%2)*4 - (doty%2);
-    v.x = sx/8;
-    ubyte dotx_ = (sx%8)/2;
-    ubyte dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
-
-    if (dotx >= dot_by_line[doty].length)
-    {
-        v.y--;
-        doty += 12;
-        sx = gx - (v.y%2)*4 - (doty%2);
-        v.x = sx/8;
-        dotx_ = (sx%8)/2;
-        dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
-    }
-
-    v.p = dot_by_line[doty][dotx];
-
-    writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, v);
-
-    return v;
-}
-
 float apply_brush(in Brush b, bool preview = false)
 {
     Vertex[] vertices;
@@ -1151,7 +1108,7 @@ float apply_brush(in Brush b, bool preview = false)
 
         writefln("dotx = %s, doty = %s", dotx, doty);
 
-        uint[2] gc = hyper_coords_to_global(v);
+        uint[2] gc = v.to_global();
 
         uint gx = gc[0];
         uint gy = gc[1];
@@ -1159,7 +1116,8 @@ float apply_brush(in Brush b, bool preview = false)
         gx += b.form[i].dx;
         gy += b.form[i].dy;
 
-        v = global_coords_to_hyper(gx, gy);
+        Vertex[] vs = Vertex.from_global(gx, gy);
+        v = vs[0];
 
         dotx = dot_to_coords[v.p][0];
         doty = dot_to_coords[v.p][1];

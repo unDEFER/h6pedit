@@ -782,10 +782,93 @@ static this()
     }
 }
 
+ubyte[][] dot_by_line = [ [0], 
+                          [23, 1],
+                          [22, 24, 2],
+                          [21, 41, 25, 3],
+                          [20, 40, 42, 26, 4],
+                          [39, 53, 43, 27],
+                          [19, 52, 54, 44, 5],
+                          [38, 59, 55, 28],
+                          [18, 51, 60, 45, 6],
+                          [37, 58, 56, 29],
+                          [17, 50, 57, 46, 7],
+                          [36, 49, 47, 30],
+                          [16, 35, 48, 31, 8],
+                          [15, 34, 32, 9],
+                          [14, 33, 10],
+                          [13, 11],
+                          [12] ];
+
+ubyte[2][61] dot_to_coords = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4],
+                              [4, 6], [4, 8], [4, 10], [4, 12],
+                              [3, 13], [2, 14], [1, 15] , [0, 16],
+                              [0, 15], [0, 14], [0, 13], [0, 12],
+                              [0, 10], [0, 8], [0, 6], [0, 4],
+                              [0, 3], [0, 2], [0, 1],
+
+                              [1, 2], [2, 3], [3, 4], [3, 5], [3, 7], [3, 9],
+                              [3, 11], [3, 12], [2, 13], [1, 14], [1, 13], [1, 12],
+                              [0, 11], [0, 9], [0, 7], [0, 5], [1, 4], [1, 3],
+
+                              [2, 4], [2, 5], [3, 6], [3, 8], [3, 10], [2, 11],
+                              [2, 12], [1, 11], [1, 10], [1, 8], [1, 6], [1, 5],
+
+                              [2, 6], [2, 7], [2, 9], [2, 10], [1, 9], [1, 7],
+
+                              [2, 8]
+];
+
 struct Vertex
 {
     uint x, y;
     byte p;
+
+    uint[2] to_global()
+    {
+        ubyte dotx = dot_to_coords[p][0];
+        ubyte doty = dot_to_coords[p][1];
+
+        ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+        uint gx = x*8 + (y%2)*4 + (doty%2) + dotx_*2;
+        uint gy = y*12 + doty;
+
+        writefln("HyperCoordsToGlobal: %s => gx = %s, gy = %s", this, gx, gy);
+
+        return [gx, gy];
+    }
+
+
+    static Vertex[] from_global(uint gx, uint gy)
+    {
+        Vertex[] vs;
+
+        Vertex v;
+
+        v.y = gy/12;
+        ubyte doty = gy%12;
+        uint sx = gx - (v.y%2)*4 - (doty%2);
+        v.x = sx/8;
+        ubyte dotx_ = (sx%8)/2;
+        ubyte dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+
+        if (dotx >= dot_by_line[doty].length)
+        {
+            v.y--;
+            doty += 12;
+            sx = gx - (v.y%2)*4 - (doty%2);
+            v.x = sx/8;
+            dotx_ = (sx%8)/2;
+            dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+        }
+
+        v.p = dot_by_line[doty][dotx];
+
+        writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, v);
+
+        vs = [v];
+        return vs;
+    }
 }
 
 void to_float_coords(Vertex v, out float fx, out float fy)
