@@ -864,9 +864,24 @@ struct Vertex
 
         v.p = dot_by_line[doty][dotx];
 
+        vs ~= v;
+
+        if (dotx == 0)
+        {
+            if (doty == 0)
+            {
+                int vy_even = (v.y%2 == 0 ? 1 : 0);
+                vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][4]);
+                vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+            }
+            else
+            {
+                vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+            }
+        }
+
         writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, v);
 
-        vs = [v];
         return vs;
     }
 }
