@@ -878,9 +878,8 @@ struct Vertex
             {
                 vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
             }
+            writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
         }
-
-        writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, v);
 
         return vs;
     }
