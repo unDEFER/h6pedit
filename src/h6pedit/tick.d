@@ -1095,18 +1095,17 @@ float paint(Vertex v, bool preview = false)
 
 float apply_brush(in Brush b, bool preview = false)
 {
+    Vertex[] vertices;
+
     float max_err = 0.0f;
 
     size_t i = 0;
     while (true)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
-        float merr = paint(v, preview);
-        if (merr > max_err) max_err = merr;
+        vertices ~= v;
 
         if (i >= b.form.length) break;
-
-        change_form24();
 
         writefln("dotx = %s, doty = %s", dotx, doty);
         ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
@@ -1145,10 +1144,38 @@ float apply_brush(in Brush b, bool preview = false)
         select.x = v.x;
         select.y = v.y;
 
-        load_form_dots();
-
         i++;
     }
+
+    ptrdiff_t off;
+
+    for(off = 0; off < vertices.length; off++)
+    {
+        Vertex v = vertices[off];
+        size_t pi = (off - 1 + vertices.length)%vertices.length;
+        Vertex pv = vertices[pi];
+
+        if (pv.x != v.x || pv.y != v.y)
+        {
+            break;
+        }
+    }
+
+    for(i = 0; i < vertices.length; i++)
+    {
+        change_form24();
+
+        Vertex v = vertices[(off + i)%$];
+
+        select.x = v.x;
+        select.y = v.y;
+
+        load_form_dots();
+
+        float merr = paint(v, preview);
+        if (merr > max_err) max_err = merr;
+    }
+
 
     return max_err;
 }
