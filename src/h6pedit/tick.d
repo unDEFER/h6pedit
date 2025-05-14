@@ -1161,6 +1161,8 @@ float apply_brush(in Brush b, bool preview = false)
         }
     }
 
+    writefln("Offset is %s", off);
+
     for(i = 0; i < vertices.length; i++)
     {
         change_form24();
