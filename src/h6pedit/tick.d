@@ -1099,24 +1099,33 @@ float apply_brush(in Brush b, bool preview = false)
     float max_err = 0.0f;
 
     size_t i = 0;
+
+    Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+    vertices ~= v;
+
     while (true)
     {
-        Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
-        vertices ~= v;
-
-        if (i >= b.form.length) break;
-
         writefln("dotx = %s, doty = %s", dotx, doty);
 
         uint[2] gc = v.to_global();
+        uint[2][] gvertices;
+        gvertices ~= gc;
 
-        uint gx = gc[0];
-        uint gy = gc[1];
+        gc[0] += b.form[i].dx;
+        gc[1] += b.form[i].dy;
 
-        gx += b.form[i].dx;
-        gy += b.form[i].dy;
+        gvertices ~= gc;
 
-        Vertex[] vs = Vertex.from_global(gx, gy);
+        gc[0] += b.form[(i+1)%$].dx;
+        gc[1] += b.form[(i+1)%$].dy;
+
+        gvertices ~= gc;
+
+        Vertex[] vs = Vertex.from_global(gvertices);
+        vertices ~= vs[0];
+
+        if (i >= b.form.length) break;
+
         v = vs[0];
 
         dotx = dot_to_coords[v.p][0];
@@ -1134,7 +1143,7 @@ float apply_brush(in Brush b, bool preview = false)
 
     for(off = 0; off < vertices.length; off++)
     {
-        Vertex v = vertices[off];
+        v = vertices[off];
         size_t pi = (off - 1 + vertices.length)%vertices.length;
         Vertex pv = vertices[pi];
 
@@ -1150,7 +1159,7 @@ float apply_brush(in Brush b, bool preview = false)
     {
         change_form24();
 
-        Vertex v = vertices[(off + i)%$];
+        v = vertices[(off + i)%$];
 
         select.x = v.x;
         select.y = v.y;

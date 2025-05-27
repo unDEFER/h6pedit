@@ -838,10 +838,30 @@ struct Vertex
         return [gx, gy];
     }
 
+    static uint[2] to_flat(uint[2] gc)
+    {
+        uint[2] pc;
+        
+        uint gx = gc[0];
+        uint gy = gc[1];
 
-    static Vertex[] from_global(uint gx, uint gy)
+        pc[0] = gx*2 + gy%2;
+        pc[1] = gy;
+        return pc;
+    }
+
+    uint[2] to_flat()
+    {
+        auto gc = to_global();
+        return to_flat(gc);
+    }
+
+    static Vertex[] from_global(uint[2][] gc)
     {
         Vertex[] vs;
+
+        uint gx = gc[$/2][0];
+        uint gy = gc[$/2][1];
 
         Vertex v;
 
@@ -863,23 +883,196 @@ struct Vertex
         }
 
         v.p = dot_by_line[doty][dotx];
+        int vy_even = (v.y%2 == 0 ? 1 : 0);
 
-        vs ~= v;
-
-        if (dotx == 0)
+        if (dotx == 0 || dotx == dot_by_line[doty].length - 1)
         {
             if (doty == 0)
             {
-                int vy_even = (v.y%2 == 0 ? 1 : 0);
-                vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][4]);
-                vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                if (gc.length == 3)
+                {
+                    uint[2] pc0 = to_flat(gc[0]);
+                    uint[2] pc1 = to_flat(gc[1]);
+                    uint[2] pc2 = to_flat(gc[2]);
+
+                    pc0[] -= pc1[];
+                    pc2[] -= pc1[];
+
+                    float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                    float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                    float dir = dir1;
+
+                    if (abs(dir1 - PI/2.0f) < 1e-5 || abs(dir1 + PI/4.0f) < 1e-5 ||
+                            abs(dir1 + PI*3.0f/4.0f) < 1e-5)
+                    {
+                        dir = dir2;
+                    }
+
+                    if ( dir < PI/2.0f + 1e-5 && dir > -PI/4.0f - 1e-5 )
+                    {
+                        vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                    }
+                    else if ( dir < -PI/4.0f && dir > -PI*3.0f/4.0f - 1e-5 )
+                    {
+                        vs ~= v;
+                    }
+                    else
+                    {
+                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][4]);
+                    }
+                }
+                else
+                {
+                    vs ~= v;
+                    vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][4]);
+                    vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                }
+            }
+            if (doty == 4)
+            {
+                if (dotx == 0)
+                {
+                    if (gc.length == 3)
+                    {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 + PI/2.0f) < 1e-5 || abs(dir1 - PI/4.0f) < 1e-5 ||
+                                abs(dir1 - PI*3.0f/4.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir > -PI/2.0f - 1e-5 && dir < PI/4.0f + 1e-5 )
+                        {
+                            vs ~= v;
+                        }
+                        else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
+                        {
+                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                        }
+                        else
+                        {
+                            vs ~= Vertex(v.x - 1, v.y, dot_by_line[12][4]);
+                        }
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x - 1, v.y, dot_by_line[12][4]);
+                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                    }
+                }
+                else
+                {
+                    if (gc.length == 3)
+                    {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 + PI/2.0f) < 1e-5 || abs(dir1 - PI/4.0f) < 1e-5 ||
+                                abs(dir1 - PI*3.0f/4.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir > -PI/2.0f - 1e-5 && dir < PI/4.0f + 1e-5 )
+                        {
+                            vs ~= Vertex(v.x + 1, v.y, dot_by_line[12][4]);
+                        }
+                        else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
+                        {
+                            vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                        }
+                        else
+                        {
+                            vs ~= v;
+                        }
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x + 1, v.y, dot_by_line[12][4]);
+                        vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                    }
+                }
+            }
+            else if (doty < 4)
+            {
+                if (dotx == 0)
+                {
+                    if (gc.length == 3)
+                    {
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                    }
+                }
+                else
+                {
+                    if (gc.length == 3)
+                    {
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                    }
+                }
             }
             else
             {
-                vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                if (dotx == 0)
+                {
+                    if (gc.length == 3)
+                    {
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                    }
+                }
+                else
+                {
+                    if (gc.length == 3)
+                    {
+                    }
+                    else
+                    {
+                        vs ~= v;
+                        vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                    }
+                }
             }
-            writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
         }
+        else
+        {
+            vs ~= v;
+        }
+
+        writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
 
         return vs;
     }
