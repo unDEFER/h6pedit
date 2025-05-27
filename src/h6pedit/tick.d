@@ -1126,6 +1126,7 @@ float apply_brush(in Brush b, bool preview = false)
 
     ptrdiff_t off;
 
+    /*
     for(off = 0; off < vertices.length; off++)
     {
         v = vertices[off];
@@ -1137,6 +1138,7 @@ float apply_brush(in Brush b, bool preview = false)
             break;
         }
     }
+    */
 
     writefln("Offset is %s, vertices.length = %s", off, vertices.length);
 
