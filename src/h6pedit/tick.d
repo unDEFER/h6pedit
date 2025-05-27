@@ -1100,11 +1100,10 @@ float apply_brush(in Brush b, bool preview = false)
 
     Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
     vertices ~= v;
+    writefln("dotx = %s, doty = %s", dotx, doty);
 
     for (size_t i = 0; i < b.form.length; i++)
     {
-        writefln("dotx = %s, doty = %s", dotx, doty);
-
         uint[2] gc = v.to_global();
         uint[2][] gvertices;
         gvertices ~= gc;
@@ -1123,14 +1122,6 @@ float apply_brush(in Brush b, bool preview = false)
         vertices ~= vs[0];
 
         v = vs[0];
-
-        dotx = dot_to_coords[v.p][0];
-        doty = dot_to_coords[v.p][1];
-
-        writefln("dotx = %s, doty = %s", dotx, doty);
-
-        select.x = v.x;
-        select.y = v.y;
     }
 
     ptrdiff_t off;
@@ -1147,7 +1138,7 @@ float apply_brush(in Brush b, bool preview = false)
         }
     }
 
-    writefln("Offset is %s", off);
+    writefln("Offset is %s, vertices.length = %s", off, vertices.length);
 
     for(size_t i = 0; i < vertices.length; i++)
     {
@@ -1163,7 +1154,6 @@ float apply_brush(in Brush b, bool preview = false)
         float merr = paint(v, preview);
         if (merr > max_err) max_err = merr;
     }
-
 
     return max_err;
 }
