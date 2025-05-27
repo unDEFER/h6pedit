@@ -1102,7 +1102,7 @@ float apply_brush(in Brush b, bool preview = false)
     vertices ~= v;
     writefln("dotx = %s, doty = %s", dotx, doty);
 
-    for (size_t i = 0; i < b.form.length; i++)
+    for (size_t i = 0; i < b.form.length-1; i++)
     {
         uint[2] gc = v.to_global();
         uint[2][] gvertices;
@@ -1148,6 +1148,9 @@ float apply_brush(in Brush b, bool preview = false)
 
         select.x = v.x;
         select.y = v.y;
+
+        dotx = dot_to_coords[v.p][0];
+        doty = dot_to_coords[v.p][1];
 
         load_form_dots();
 
