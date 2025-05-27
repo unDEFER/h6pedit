@@ -1102,7 +1102,7 @@ float apply_brush(in Brush b, bool preview = false)
     vertices ~= v;
     writefln("dotx = %s, doty = %s", dotx, doty);
 
-    for (size_t i = 0; i < b.form.length-1; i++)
+    for (size_t i = 0; i < b.form.length; i++)
     {
         uint[2] gc = v.to_global();
         uint[2][] gvertices;
