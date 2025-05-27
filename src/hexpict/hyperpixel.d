@@ -1022,6 +1022,31 @@ struct Vertex
                 {
                     if (gc.length == 3)
                     {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 - PI/4.0f) < 1e-5 || abs(dir1 + PI*3.0f/4.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir < PI/4.0f + 1e-5 && dir > -PI*3.0f/4.0f - 1e-5 )
+                        {
+                            vs ~= v;
+                        }
+                        else
+                        {
+                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                        }
                     }
                     else
                     {
@@ -1033,6 +1058,31 @@ struct Vertex
                 {
                     if (gc.length == 3)
                     {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 - PI*3.0f/4.0f) < 1e-5 || abs(dir1 + PI/4.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir < PI*3.0f/4.0f + 1e-5 && dir > -PI/4.0f - 1e-5 )
+                        {
+                            vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                        }
+                        else
+                        {
+                            vs ~= v;
+                        }
                     }
                     else
                     {
@@ -1047,6 +1097,31 @@ struct Vertex
                 {
                     if (gc.length == 3)
                     {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 - PI/2.0f) < 1e-5 || abs(dir1 + PI/2.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir < PI/2.0f + 1e-5 && dir > -PI/2.0f - 1e-5 )
+                        {
+                            vs ~= v;
+                        }
+                        else
+                        {
+                            vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                        }
                     }
                     else
                     {
@@ -1058,6 +1133,31 @@ struct Vertex
                 {
                     if (gc.length == 3)
                     {
+                        uint[2] pc0 = to_flat(gc[0]);
+                        uint[2] pc1 = to_flat(gc[1]);
+                        uint[2] pc2 = to_flat(gc[2]);
+
+                        pc0[] -= pc1[];
+                        pc2[] -= pc1[];
+
+                        float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
+                        float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+
+                        float dir = dir1;
+
+                        if (abs(dir1 - PI/2.0f) < 1e-5 || abs(dir1 + PI/2.0f) < 1e-5)
+                        {
+                            dir = dir2;
+                        }
+
+                        if ( dir < PI/2.0f + 1e-5 && dir > -PI/2.0f - 1e-5 )
+                        {
+                            vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                        }
+                        else
+                        {
+                            vs ~= v;
+                        }
                     }
                     else
                     {
