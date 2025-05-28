@@ -919,6 +919,7 @@ void process_mask2_editor_keys(SDL_Event event)
     
     if (event.key.keysym.scancode == SDL_SCANCODE_K)
     {
+        writefln("START PAINT BRUSH");
         first_v.p = 100;
         last_v.p = 100;
         edited_forms_by_coords.clear();
@@ -934,6 +935,7 @@ void process_mask2_editor_keys(SDL_Event event)
         }
 
         writefln("%sx%s MERR = %s", select.x, select.y, merr);
+        writefln("END PAINT BRUSH");
     }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
