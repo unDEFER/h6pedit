@@ -1107,7 +1107,7 @@ float apply_brush(in Brush b, bool preview = false)
     vertices ~= v;
     writefln("dotx = %s, doty = %s", dotx, doty);
 
-    for (size_t i = 0; i < b.form.length; i++)
+    for (size_t i = 0; i < b.form.length-1; i++)
     {
         uint[2] gc = v.to_global();
         uint[2][] gvertices;
@@ -1131,7 +1131,6 @@ float apply_brush(in Brush b, bool preview = false)
 
     ptrdiff_t off;
 
-    /*
     for(off = 0; off < vertices.length; off++)
     {
         v = vertices[off];
@@ -1143,11 +1142,10 @@ float apply_brush(in Brush b, bool preview = false)
             break;
         }
     }
-    */
 
     writefln("Offset is %s, vertices.length = %s", off, vertices.length);
 
-    for(size_t i = 0; i < vertices.length; i++)
+    for(size_t i = 0; i <= vertices.length; i++)
     {
         change_form24();
 
