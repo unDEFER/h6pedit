@@ -467,18 +467,21 @@ void process_up_insert_key(SDL_Event event)
     }
 }
 
-void load_form_dots()
+void load_form_dots(bool manual = false)
 {
     Pixel *p = picture.image.pixel(select.x, select.y);
-    if ([select.x, select.y] in edited_forms_by_coords)
+    if (!manual)
     {
-        edited_form = edited_forms_by_coords[[select.x, select.y]];
-        writefln("%dx%d edited form %d restored", select.x, select.y, edited_form);
-    }
-    else
-    {
-        edited_form = cast(ubyte) p.forms.length;
-        writefln("%dx%d edited form %d new", select.x, select.y, edited_form);
+        if ([select.x, select.y] in edited_forms_by_coords)
+        {
+            edited_form = edited_forms_by_coords[[select.x, select.y]];
+            writefln("%dx%d edited form %d restored", select.x, select.y, edited_form);
+        }
+        else
+        {
+            edited_form = cast(ubyte) p.forms.length;
+            writefln("%dx%d edited form %d new", select.x, select.y, edited_form);
+        }
     }
 
     form_dots.length = 0;
@@ -1258,6 +1261,7 @@ void process_choose_edited_form(SDL_Event event)
         {
             edited_form = cast(ubyte) i;
             writefln("edited_form = %s", edited_form);
+            load_form_dots(true);
         }
     }
 }
