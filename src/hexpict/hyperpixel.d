@@ -838,9 +838,9 @@ struct Vertex
         return [gx, gy];
     }
 
-    static uint[2] to_flat(uint[2] gc)
+    static int[2] to_flat(uint[2] gc)
     {
-        uint[2] pc;
+        int[2] pc;
         
         uint gx = gc[0];
         uint gy = gc[1];
@@ -850,7 +850,7 @@ struct Vertex
         return pc;
     }
 
-    uint[2] to_flat()
+    int[2] to_flat()
     {
         auto gc = to_global();
         return to_flat(gc);
@@ -892,9 +892,9 @@ struct Vertex
                 //0
                 if (gc.length == 3)
                 {
-                    uint[2] pc0 = to_flat(gc[0]);
-                    uint[2] pc1 = to_flat(gc[1]);
-                    uint[2] pc2 = to_flat(gc[2]);
+                    int[2] pc0 = to_flat(gc[0]);
+                    int[2] pc1 = to_flat(gc[1]);
+                    int[2] pc2 = to_flat(gc[2]);
 
                     pc0[] -= pc1[];
                     pc2[] -= pc1[];
@@ -937,9 +937,9 @@ struct Vertex
                     //1
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
@@ -980,9 +980,9 @@ struct Vertex
                     //2
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
@@ -1026,9 +1026,9 @@ struct Vertex
                     //3
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
@@ -1063,9 +1063,9 @@ struct Vertex
                     //4
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
@@ -1103,14 +1103,12 @@ struct Vertex
                     //5
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
-                        writefln("5. pc0=%s, pc1=%s, pc2=%s", pc0, pc1, pc2);
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
-                        writefln("5. pc0=%s, pc2=%s", pc0, pc2);
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
@@ -1143,9 +1141,9 @@ struct Vertex
                     //6
                     if (gc.length == 3)
                     {
-                        uint[2] pc0 = to_flat(gc[0]);
-                        uint[2] pc1 = to_flat(gc[1]);
-                        uint[2] pc2 = to_flat(gc[2]);
+                        int[2] pc0 = to_flat(gc[0]);
+                        int[2] pc1 = to_flat(gc[1]);
+                        int[2] pc2 = to_flat(gc[2]);
 
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
