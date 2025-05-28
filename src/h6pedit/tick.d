@@ -927,13 +927,13 @@ void process_mask2_editor_keys(SDL_Event event)
         edited_form = cast(ubyte) p.forms.length;
         form_dots.length = 0;
 
-        //float merr = apply_brush(brush, true) < 0.01;
-        //if ( merr < 0.01 )
+        float merr = apply_brush(brush, true) < 0.01;
+        if ( merr < 0.01 )
         {
             apply_brush(brush);
         }
 
-        //writefln("%sx%s MERR = %s", select.x, select.y, merr);
+        writefln("%sx%s MERR = %s", select.x, select.y, merr);
     }
 
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
