@@ -1257,6 +1257,7 @@ void process_choose_edited_form(SDL_Event event)
         if (event.key.keysym.scancode == k)
         {
             edited_form = cast(ubyte) i;
+            writefln("edited_form = %s", edited_form);
         }
     }
 }
