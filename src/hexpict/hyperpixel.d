@@ -1107,8 +1107,10 @@ struct Vertex
                         uint[2] pc1 = to_flat(gc[1]);
                         uint[2] pc2 = to_flat(gc[2]);
 
+                        writefln("5. pc0=%s, pc1=%s, pc2=%s", pc0, pc1, pc2);
                         pc0[] -= pc1[];
                         pc2[] -= pc1[];
+                        writefln("5. pc0=%s, pc2=%s", pc0, pc2);
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
