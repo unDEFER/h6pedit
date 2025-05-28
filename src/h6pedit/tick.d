@@ -1137,6 +1137,7 @@ float apply_brush(in Brush b, bool preview = false)
         size_t pi = (off - 1 + vertices.length)%vertices.length;
         Vertex pv = vertices[pi];
 
+        writefln("Off %s, v = %s, pv = %s", off, v, pv);
         if (pv.x != v.x || pv.y != v.y)
         {
             break;
