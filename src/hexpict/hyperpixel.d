@@ -889,6 +889,7 @@ struct Vertex
         {
             if (doty == 0)
             {
+                //0
                 if (gc.length == 3)
                 {
                     uint[2] pc0 = to_flat(gc[0]);
@@ -933,6 +934,7 @@ struct Vertex
             {
                 if (dotx == 0)
                 {
+                    //1
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -975,6 +977,7 @@ struct Vertex
                 }
                 else
                 {
+                    //2
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -1020,6 +1023,7 @@ struct Vertex
             {
                 if (dotx == 0)
                 {
+                    //3
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -1056,6 +1060,7 @@ struct Vertex
                 }
                 else
                 {
+                    //4
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -1095,6 +1100,7 @@ struct Vertex
             {
                 if (dotx == 0)
                 {
+                    //5
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -1106,6 +1112,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("5. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
@@ -1131,6 +1138,7 @@ struct Vertex
                 }
                 else
                 {
+                    //6
                     if (gc.length == 3)
                     {
                         uint[2] pc0 = to_flat(gc[0]);
@@ -1142,6 +1150,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("6. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
