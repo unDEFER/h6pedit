@@ -1104,6 +1104,7 @@ float apply_brush(in Brush b, bool preview = false)
     float max_err = 0.0f;
 
     Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+    Vertex sv = v;
     vertices ~= v;
     writefln("dotx = %s, doty = %s", dotx, doty);
 
@@ -1163,6 +1164,16 @@ float apply_brush(in Brush b, bool preview = false)
         float merr = paint(v, preview);
         if (merr > max_err) max_err = merr;
     }
+
+    change_form24();
+
+    select.x = sv.x;
+    select.y = sv.y;
+
+    dotx = dot_to_coords[sv.p][0];
+    doty = dot_to_coords[sv.p][1];
+
+    load_form_dots();
 
     return max_err;
 }
