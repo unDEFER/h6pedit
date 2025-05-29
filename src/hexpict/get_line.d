@@ -9,8 +9,7 @@ import std.bitmanip;
 import bindbc.sdl;
 
 import hexpict.h6p;
-import hexpict.color;
-import hexpict.colors;
+import hexpict.common;
 import hexpict.hyperpixel;
 
 Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)

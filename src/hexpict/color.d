@@ -16,6 +16,7 @@ module hexpict.color;
 import std.math;
 import std.conv;
 import hexpict.colors;
+import hexpict.common;
 
 alias double[][] Bounds;
 
@@ -743,55 +744,6 @@ float calc_lambda(float cangle)
     float l2 = Lambdas[a2u];
 
     return l1 + (l2-l1)*t;
-}
-
-void line_equation(float[2] p1, float[2] p2, ref float[3] res)
-{
-    float x1, y1;
-    float x2, y2;
-    x1 = p1[0]; y1 = p1[1];
-    x2 = p2[0]; y2 = p2[1];
-
-    float a = y2-y1;
-    float b = -(x2-x1);
-    float c = y1*(x2-x1) - x1*(y2-y1);
-
-    res[0] = a; res[1] = b; res[2] = c;
-}
-
-float dist_point_to_line(float[2] p, float[3] eq)
-{
-    return abs(eq[0]*p[0] + eq[1]*p[1] + eq[2])/hypot(eq[0], eq[1]);
-}
-
-float signed_dist_point_to_line(float[2] p, float[3] eq)
-{
-    return (eq[0]*p[0] + eq[1]*p[1] + eq[2])/hypot(eq[0], eq[1]);
-}
-
-void intersection_by_equation(float[3] eq1, float[3] eq2, ref float[2] res)
-{
-    float a1, b1, c1;
-    float a2, b2, c2;
-    a1 = eq1[0]; b1 = eq1[1]; c1 = eq1[2];
-    a2 = eq2[0]; b2 = eq2[1]; c2 = eq2[2];
-
-    float d = a1*b2-a2*b1;
-    float x = (b1*c2-b2*c1)/d;
-    float y = (c1*a2-c2*a1)/d;
-
-    res[0] = x;
-    res[1] = y;
-}
-
-void intersection(float[2] p11, float[2] p12, float[2] p21, float[2] p22, ref float[2] res)
-{
-    float[3] eq1;
-    float[3] eq2;
-    line_equation(p11, p12, eq1);
-    line_equation(p21, p22, eq2);
-
-    intersection_by_equation(eq1, eq2, res);
 }
 
 void convert_between_rmb_xyy(Color *h6p, ColorType type, ErrCorrection correction)

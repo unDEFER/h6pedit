@@ -489,28 +489,8 @@ void load_form_dots(bool manual = false)
     {
         ushort form = p.forms[edited_form].form;
         ubyte rotate = p.forms[edited_form].rotation;
-        if (form > 19*4)
-        {
-            foreach (d; picture.image.forms[form - 19*4].dots)
-            {
-                if (d == 0) break;
-                form_dots ~= cast(ubyte)(d-1);
-            }
-        }
-        else
-        {
-            form_dots.length = 2;
-            form_dots[0] = cast(ubyte)((form-1)/19);
-            form_dots[1] = cast(ubyte)((form-1)%19 + 5);
-        }
 
-        foreach(ref dir; form_dots)
-        {
-            auto o = get_off_r(dir);
-            if (o.r == 0) continue;
-
-            dir = cast(ubyte) (o.off + (dir-o.off + rotate*o.r)%(6*o.r));
-        }
+        form_dots = picture.image.get_rotated_form(form, rotate);
         writefln("Loaded %sx%s forms %s, num %s", select.x, select.y, form_dots, form);
     }
 
@@ -1192,6 +1172,15 @@ void join_forms()
             if (e != f && form.extra_color == color)
             {
                 writefln("Join forms %s and %s in point %s", e, f, pt);
+
+                ushort form1 = p.forms[f].form;
+                ubyte rotate1 = p.forms[f].rotation;
+                ubyte[] dots1 = picture.image.get_rotated_form(form1, rotate1);
+
+                ushort form2 = p.forms[e].form;
+                ubyte rotate2 = p.forms[e].rotation;
+                ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
+
                 break;
             }
         }

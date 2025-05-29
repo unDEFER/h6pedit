@@ -175,6 +175,36 @@ struct H6P
 
         return &raster[off];
     }
+
+    ubyte[] get_rotated_form(ushort form, ubyte rotate)
+    {
+        ubyte[] dots;
+
+        if (form > 19*4)
+        {
+            foreach (d; forms[form - 19*4].dots)
+            {
+                if (d == 0) break;
+                dots ~= cast(ubyte)(d-1);
+            }
+        }
+        else
+        {
+            dots.length = 2;
+            dots[0] = cast(ubyte)((form-1)/19);
+            dots[1] = cast(ubyte)((form-1)%19 + 5);
+        }
+
+        foreach(ref dir; dots)
+        {
+            auto o = get_off_r(dir);
+            if (o.r == 0) continue;
+
+            dir = cast(ubyte) (o.off + (dir-o.off + rotate*o.r)%(6*o.r));
+        }
+
+        return dots;
+    }
 };
 
 H6P* h6p_create(ColorSpace *space, uint w, uint h)
