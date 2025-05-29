@@ -937,6 +937,8 @@ void process_mask2_editor_keys(SDL_Event event)
             apply_brush(brush);
         }
 
+        join_forms();
+
         writefln("%sx%s MERR = %s", select.x, select.y, merr);
         writefln("END PAINT BRUSH");
     }
@@ -1176,6 +1178,24 @@ float apply_brush(in Brush b, bool preview = false)
     load_form_dots();
 
     return max_err;
+}
+
+void join_forms()
+{
+    foreach (pt, f; edited_forms_by_coords)
+    {
+        Pixel *p = picture.image.pixel(pt[0], pt[1]);
+
+        auto color = p.forms[f].extra_color;
+        foreach (e, form; p.forms)
+        {
+            if (e != f && form.extra_color == color)
+            {
+                writefln("Join forms %s and %s in point %s", e, f, pt);
+                break;
+            }
+        }
+    }
 }
 
 // @EditMask24
