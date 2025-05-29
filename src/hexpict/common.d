@@ -118,3 +118,28 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
 
     return -1;
 }
+
+byte line_segments_intersection(int[2][2] seg1, int[2][2] seg2, ref int[2] res)
+{
+    float[2][2] fseg1;
+    float[2][2] fseg2;
+    float[2] fres;
+
+    foreach (j; 0..2)
+    {
+        foreach (i; 0..2)
+        {
+            fseg1[j][i] = seg1[j][i];
+            fseg2[j][i] = seg2[j][i];
+        }
+    }
+
+    byte r = line_segments_intersection(fseg1, fseg2, fres);
+    if (r != 0)
+    {
+        res[0] = cast(int) round(fres[0]);
+        res[1] = cast(int) round(fres[1]);
+    }
+
+    return r;
+}

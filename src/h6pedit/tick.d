@@ -1181,6 +1181,22 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
+                foreach(i11, d11; dots1)
+                {
+                    ubyte d12 = dots1[(i11+1)%$];
+
+                    int[2] f11 = Vertex(1, 1, d11).to_flat();
+                    int[2] f12 = Vertex(1, 1, d12).to_flat();
+
+                    foreach(i21, d21; dots2)
+                    {
+                        ubyte d22 = dots1[(i11+1)%$];
+
+                        int[2] f21 = Vertex(1, 1, d21).to_flat();
+                        int[2] f22 = Vertex(1, 1, d22).to_flat();
+                    }
+                }
+
                 break;
             }
         }
