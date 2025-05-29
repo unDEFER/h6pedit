@@ -57,7 +57,7 @@ bool intersection_by_equation(float[3] eq1, float[3] eq2, ref float[2] res)
     a2 = eq2[0]; b2 = eq2[1]; c2 = eq2[2];
 
     float d = a1*b2-a2*b1;
-    if (d < 1e-2) return false;
+    if (d < 1e-5) return false;
 
     float x = (b1*c2-b2*c1)/d;
     float y = (c1*a2-c2*a1)/d;
