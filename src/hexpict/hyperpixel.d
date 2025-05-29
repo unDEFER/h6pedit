@@ -856,6 +856,33 @@ struct Vertex
         return to_flat(gc);
     }
 
+    static int[3] flat_to_global(int[2] fc)
+    {
+        int[3] gc;
+
+        int fx = fc[0];
+        int fy = fc[1];
+
+        gc[0] = fx/2;
+        gc[1] = fy;
+        gc[2] = (fx%2 + fy%2)%2;
+        return gc;
+    }
+
+    static Vertex[] from_flat(int[2][] fc)
+    {
+        uint[2][] gc;
+        foreach (fp; fc)
+        {
+            auto gp = flat_to_global(fp);
+            if (gp[2] != 0)
+                return [];
+            gc ~= [gp[0], gp[1]];
+        }
+
+        return from_global(gc);
+    }
+
     static Vertex[] from_global(uint[2][] gc)
     {
         Vertex[] vs;
@@ -1181,7 +1208,7 @@ struct Vertex
             vs ~= v;
         }
 
-        writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
+        //writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
 
         return vs;
     }
