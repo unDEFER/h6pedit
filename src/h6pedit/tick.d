@@ -1201,7 +1201,11 @@ void join_forms()
 
                         if (r > 0)
                         {
-                            writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, intersection);
+                            Vertex[] iv = Vertex.from_flat([intersection]);
+                            if (iv.length > 0)
+                                writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, iv[0]);
+                            else
+                                writefln("Intersection %s-%s & %s-%s is %s [NO POINT IN THE GRID]", d11, d12, d21, d22, intersection);
                         }
                     }
                 }
