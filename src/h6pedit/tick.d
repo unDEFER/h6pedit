@@ -1209,7 +1209,7 @@ void join_forms()
                                 {
                                     if (v.x == 1 && v.y == 1)
                                     {
-                                        writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, iv[0]);
+                                        writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, v);
                                         found = true;
                                         break;
                                     }
