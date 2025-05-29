@@ -1191,7 +1191,7 @@ void join_forms()
 
                     foreach(i21, d21; dots2)
                     {
-                        ubyte d22 = dots1[(i11+1)%$];
+                        ubyte d22 = dots2[(i21+1)%$];
 
                         int[2] f21 = Vertex(1, 1, d21).to_flat();
                         int[2] f22 = Vertex(1, 1, d22).to_flat();
