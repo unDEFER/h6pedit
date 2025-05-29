@@ -1203,7 +1203,19 @@ void join_forms()
                         {
                             Vertex[] iv = Vertex.from_flat([intersection]);
                             if (iv.length > 0)
-                                writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, iv[0]);
+                            {
+                                bool found;
+                                foreach (v; iv)
+                                {
+                                    if (v.x == 1 && v.y == 1)
+                                    {
+                                        writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, iv[0]);
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                assert(found, "Vertex(1, 1) not found in intersection result");
+                            }
                             else
                                 writefln("Intersection %s-%s & %s-%s is %s [NO POINT IN THE GRID]", d11, d12, d21, d22, intersection);
                         }

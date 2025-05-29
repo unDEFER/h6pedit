@@ -833,7 +833,7 @@ struct Vertex
         uint gx = x*8 + (y%2)*4 + (doty%2) + dotx_*2;
         uint gy = y*12 + doty;
 
-        writefln("HyperCoordsToGlobal: %s => gx = %s, gy = %s", this, gx, gy);
+        //writefln("HyperCoordsToGlobal: %s => gx = %s, gy = %s", this, gx, gy);
 
         return [gx, gy];
     }
