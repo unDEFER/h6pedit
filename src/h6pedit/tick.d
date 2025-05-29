@@ -19,6 +19,7 @@ import h6pedit.brush;
 import h6pedit.draw;
 import hexpict.h6p;
 import hexpict.hyperpixel;
+import hexpict.common;
 import hexpict.color;
 import hexpict.colors;
 import hexpict.get_line;
@@ -1194,6 +1195,14 @@ void join_forms()
 
                         int[2] f21 = Vertex(1, 1, d21).to_flat();
                         int[2] f22 = Vertex(1, 1, d22).to_flat();
+
+                        int[2] intersection;
+                        byte r = line_segments_intersection([f11, f12], [f21, f22], intersection);
+
+                        if (r > 0)
+                        {
+                            writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, intersection);
+                        }
                     }
                 }
 
