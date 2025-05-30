@@ -1182,9 +1182,17 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
-                foreach(i11, d11; dots1)
+                ubyte dotsnum = 0;
+                size_t dot = 0;
+
+                ubyte[] new_dots;
+
+                for(size_t i11 = 0; dotsnum != 0 || i11 < dots1.length; i11++)
                 {
+                    ubyte d11 = dots1[i11%$];
                     ubyte d12 = dots1[(i11+1)%$];
+
+                    new_dots ~= d11;
 
                     int[2] f11 = Vertex(1, 1, d11).to_flat();
                     int[2] f12 = Vertex(1, 1, d12).to_flat();
@@ -1204,17 +1212,26 @@ void join_forms()
                             Vertex[] iv = Vertex.from_flat([intersection]);
                             if (iv.length > 0)
                             {
+                                Vertex nv;
                                 bool found;
                                 foreach (v; iv)
                                 {
                                     if (v.x == 1 && v.y == 1)
                                     {
+                                        nv = v;
                                         writefln("Intersection %s-%s & %s-%s is %s", d11, d12, d21, d22, v);
                                         found = true;
                                         break;
                                     }
                                 }
                                 assert(found, "Vertex(1, 1) not found in intersection result");
+
+                                new_dots ~= nv.p;
+
+                                i11 = (i21+1)%dots2.length;
+                                dotsnum = (dotsnum+1)%2;
+                                swap(dots1, dots2);
+                                break;
                             }
                             else
                                 writefln("Intersection %s-%s & %s-%s is %s [NO POINT IN THE GRID]", d11, d12, d21, d22, intersection);
