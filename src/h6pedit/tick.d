@@ -1200,7 +1200,7 @@ void join_forms()
                     int[2] f11 = Vertex(1, 1, d11).to_flat();
                     int[2] f12 = Vertex(1, 1, d12).to_flat();
 
-                    for(size_t i21 = ii[(dotsnum+1)%$]; i21 < ii[(dotsnum+1)%$] + dots2.length; i21++)
+                    for(size_t i21 = ii[(dotsnum+1)%$]; i21 < dots2.length; i21++)
                     {
                         ubyte d21 = dots2[i21%$];
                         ubyte d22 = dots2[(i21+1)%$];
