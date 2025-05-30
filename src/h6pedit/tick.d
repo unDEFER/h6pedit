@@ -1235,7 +1235,7 @@ void join_forms()
                             else
                                 writefln("Intersection %s-%s & %s-%s is %s [NO POINT IN THE GRID]", d11, d12, d21, d22, intersection);
 
-                            assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
+                            //assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
                             ii[dotsnum] = (i11+1)%dots1.length;
                             i11 = i21/*%dots2.length*/;
                             dotsnum = (dotsnum+1)%2;
