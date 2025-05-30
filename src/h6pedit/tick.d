@@ -1245,6 +1245,11 @@ void join_forms()
                 }
 
                 writefln("new_dots %s", new_dots);
+                form_dots = new_dots;
+                edited_form = cast(ubyte) e;
+                p.forms = p.forms[0..f] ~ p.forms[f+1..$];
+
+                change_form24();
 
                 break;
             }
