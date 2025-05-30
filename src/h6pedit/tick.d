@@ -1232,7 +1232,7 @@ void join_forms()
 
                                 new_dots ~= nv.p;
 
-                                ii[dotsnum] = (i11+1)%dots1.length;
+                                ii[dotsnum] = i11%dots1.length;
                                 i11 = (i21+1)%dots2.length;
                                 dotsnum = (dotsnum+1)%2;
                                 swap(dots1, dots2);
