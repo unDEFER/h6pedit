@@ -1182,6 +1182,8 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
+                writefln("dots %s and %s", dots1, dots2);
+
                 size_t[2] ii = [0, 0];
                 ubyte dotsnum = 0;
                 size_t dot = 0;
@@ -1241,6 +1243,8 @@ void join_forms()
                         }
                     }
                 }
+
+                writefln("new_dots %s", new_dots);
 
                 break;
             }
