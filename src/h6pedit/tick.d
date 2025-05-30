@@ -1182,6 +1182,7 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
+                size_t[2] ii = [0, 0];
                 ubyte dotsnum = 0;
                 size_t dot = 0;
 
@@ -1197,8 +1198,9 @@ void join_forms()
                     int[2] f11 = Vertex(1, 1, d11).to_flat();
                     int[2] f12 = Vertex(1, 1, d12).to_flat();
 
-                    foreach(i21, d21; dots2)
+                    for(size_t i21 = ii[(dotsnum+1)%$]; i21 < ii[(dotsnum+1)%$] + dots2.length; i21++)
                     {
+                        ubyte d21 = dots2[i21%$];
                         ubyte d22 = dots2[(i21+1)%$];
 
                         int[2] f21 = Vertex(1, 1, d21).to_flat();
@@ -1228,6 +1230,7 @@ void join_forms()
 
                                 new_dots ~= nv.p;
 
+                                ii[dotsnum] = (i11+1)%dots1.length;
                                 i11 = (i21+1)%dots2.length;
                                 dotsnum = (dotsnum+1)%2;
                                 swap(dots1, dots2);
