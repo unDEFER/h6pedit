@@ -49,7 +49,7 @@ float signed_dist_point_to_line(float[2] p, float[3] eq)
     return (eq[0]*p[0] + eq[1]*p[1] + eq[2])/hypot(eq[0], eq[1]);
 }
 
-bool intersection_by_equation(float[3] eq1, float[3] eq2, ref float[2] res)
+byte intersection_by_equation(float[3] eq1, float[3] eq2, ref float[2] res)
 {
     float a1, b1, c1;
     float a2, b2, c2;
@@ -57,17 +57,50 @@ bool intersection_by_equation(float[3] eq1, float[3] eq2, ref float[2] res)
     a2 = eq2[0]; b2 = eq2[1]; c2 = eq2[2];
 
     float d = a1*b2-a2*b1;
-    if (abs(d) < 1e-5) return false;
+    if (abs(d) < 1e-5)
+    {
+        float k;
+        if (abs(a2) >= 1e-5)
+        {
+            k = a1/a2;
+        }
+
+        if (abs(b2) >= 1e-5)
+        {
+            if (isNaN(k))
+            {
+                k = b1/b2;
+            }
+            else if (abs(k - b1/b2) >= 1e-5)
+            {
+                return -1; // Параллельны
+            }
+        }
+
+        if (abs(c2) >= 1e-5)
+        {
+            if (abs(k - c1/c2) >= 1e-5)
+            {
+                return -1; // Параллельны
+            }
+        }
+        else if (abs(c1) >= 1e-5)
+        {
+            return -1; // Параллельны
+        }
+
+        return 0; // Совпадают
+    }
 
     float x = (b1*c2-b2*c1)/d;
     float y = (c1*a2-c2*a1)/d;
 
     res[0] = x;
     res[1] = y;
-    return true;
+    return 1; // Пересекаются
 }
 
-bool intersection(float[2] p11, float[2] p12, float[2] p21, float[2] p22, ref float[2] res)
+byte intersection(float[2] p11, float[2] p12, float[2] p21, float[2] p22, ref float[2] res)
 {
     float[3] eq1;
     float[3] eq2;
@@ -95,28 +128,33 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
         return between(r[0], a[0], b[0]) && between(r[1], a[1], b[1]);
     }
 
-    if ( !intersection_by_equation(line_eq1, line_eq2, res) )
+    byte ri = intersection_by_equation(line_eq1, line_eq2, res);
+    if ( ri == -1 )
+    {
+        return -2; // Лежат на параллельных прямых
+    }
+    else if ( ri == 0 )
     {
         if ( between2(seg2[0], seg1[0], seg1[1]) )
         {
             res = seg2[0];
-            return 2;
+            return 2; // Лежат на одной прямой и пересекаются
         }
         else if ( between2(seg2[1], seg1[0], seg1[1]) )
         {
             res = seg2[1];
-            return 3;
+            return 3; // Лежат на одной прямой и пересекаются
         }
-        else return 0;
+        else return 0; // Лежат на одной прямой, но не пересекаются
     }
 
     if ( between2(res, seg1[0], seg1[1]) &&
             between2(res, seg2[0], seg2[1]) )
     {
-        return 1;
+        return 1; // Пересекаются
     }
 
-    return -1;
+    return -1; // Не пересекаюся, хотя лежат на пересекающихся прямых
 }
 
 byte line_segments_intersection(int[2][2] seg1, int[2][2] seg2, ref int[2] res)
