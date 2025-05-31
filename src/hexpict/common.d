@@ -131,7 +131,7 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
     byte ri = intersection_by_equation(line_eq1, line_eq2, res);
     if ( ri == -1 )
     {
-        return -2; // Лежат на параллельных прямых
+        return -4; // Лежат на параллельных прямых
     }
     else if ( ri == 0 )
     {
@@ -145,16 +145,28 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
             res = seg2[1];
             return 3; // Лежат на одной прямой и пересекаются
         }
+        else if ( between2(seg1[0], seg2[0], seg2[1]) )
+        {
+            res = seg1[0];
+            return 4; // Лежат на одной прямой и пересекаются
+        }
         else return 0; // Лежат на одной прямой, но не пересекаются
     }
 
-    if ( between2(res, seg1[0], seg1[1]) &&
-            between2(res, seg2[0], seg2[1]) )
+    bool i1 = between2(res, seg1[0], seg1[1]);
+    bool i2 = between2(res, seg2[0], seg2[1]);
+
+    if ( i1 && i2 )
     {
         return 1; // Пересекаются
     }
 
-    return -1; // Не пересекаюся, хотя лежат на пересекающихся прямых
+    if ( i1 ) return -3; // Не пересекаюся, хотя лежат на пересекающихся прямых
+
+    if ( between2(seg1[1], seg1[0], res) )
+        return -1; // Не пересекаюся, хотя луч AB пересекается
+
+    return -2; // Не пересекаюся, хотя луч BA пересекается
 }
 
 byte line_segments_intersection(int[2][2] seg1, int[2][2] seg2, ref int[2] res)
