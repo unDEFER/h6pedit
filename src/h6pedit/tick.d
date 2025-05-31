@@ -1217,7 +1217,7 @@ void join_forms()
                         int[2] inter;
                         byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
 
-                        if (r > 0)
+                        if (r == 1)
                         {
                             iint = i21;
                             intersection[0..2] = inter[0..2];
