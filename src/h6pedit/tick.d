@@ -1242,6 +1242,7 @@ void join_forms()
 
                     if (num_intersections == 1)
                     {
+                        iok = true;
                         Vertex[] iv = Vertex.from_flat([intersection]);
                         if (iv.length > 0)
                         {
