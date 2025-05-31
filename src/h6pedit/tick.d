@@ -1230,6 +1230,8 @@ void join_forms()
                         }
                     }
 
+                    writefln("S %s-%s, num_bias_intersections %s", d11, d12, num_bias_intersections);
+
                     if (num_bias_intersections%2 == 0)
                     {
                         iok = true;
