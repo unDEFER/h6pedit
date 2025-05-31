@@ -1270,7 +1270,6 @@ void join_forms()
                         dotsnum = (dotsnum+1)%2;
                         swap(dots1, dots2);
                         writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
-                        break;
                     }
                     else if (num_intersections > 1)
                     {
