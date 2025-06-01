@@ -172,6 +172,7 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
     }
 
     if ( i1 ) return -3; // Не пересекаюся, хотя лежат на пересекающихся прямых
+    else if ( !i2 ) return -4; // Не пересекаюся, хотя лежат на пересекающихся прямых
 
     if ( between2(seg1[1], seg1[0], res) )
         return -1; // Не пересекаюся, хотя луч AB пересекается
