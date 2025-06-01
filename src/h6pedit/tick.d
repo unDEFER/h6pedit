@@ -1219,8 +1219,12 @@ void join_forms()
 
                         if (r == 1)
                         {
-                            iint = i21;
-                            intersection[0..2] = inter[0..2];
+                            if ( num_intersections == 0 || between2(inter, f11, intersection) )
+                            {
+                                iint = i21;
+                                intersection[0..2] = inter[0..2];
+                            }
+
                             num_intersections++;
                             num_bias_intersections++;
                         }

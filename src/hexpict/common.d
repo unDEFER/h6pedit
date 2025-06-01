@@ -110,6 +110,26 @@ byte intersection(float[2] p11, float[2] p12, float[2] p21, float[2] p22, ref fl
     return intersection_by_equation(eq1, eq2, res);
 }
 
+bool between(float r, float a, float b)
+{
+    return b > a ? r >= a - 1e-2 && r <= b + 1e-2 : r >= b - 1e-2 && r <= a + 1e-2;
+}
+
+bool between2(float[2] r, float[2] a, float[2] b)
+{
+    return between(r[0], a[0], b[0]) && between(r[1], a[1], b[1]);
+}
+
+bool between(int r, int a, int b)
+{
+    return b > a ? r >= a && r <= b : r >= b && r <= a;
+}
+
+bool between2(int[2] r, int[2] a, int[2] b)
+{
+    return between(r[0], a[0], b[0]) && between(r[1], a[1], b[1]);
+}
+
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
 {
     float[3] line_eq1;
@@ -117,16 +137,6 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
 
     float[3] line_eq2;
     line_equation(seg2[0], seg2[1], line_eq2);
-
-    bool between(float r, float a, float b)
-    {
-        return b > a ? r >= a - 1e-2 && r <= b + 1e-2 : r >= b - 1e-2 && r <= a + 1e-2;
-    }
-
-    bool between2(float[2] r, float[2] a, float[2] b)
-    {
-        return between(r[0], a[0], b[0]) && between(r[1], a[1], b[1]);
-    }
 
     byte ri = intersection_by_equation(line_eq1, line_eq2, res);
     if ( ri == -1 )
