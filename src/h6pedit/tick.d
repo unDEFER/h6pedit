@@ -1244,7 +1244,7 @@ void join_forms()
                     else if (!iok)
                         ioff++;
 
-                    if (num_intersections == 1)
+                    if (num_intersections > 0)
                     {
                         iok = true;
                         Vertex[] iv = Vertex.from_flat([intersection]);
@@ -1276,26 +1276,14 @@ void join_forms()
                         swap(dots1, dots2);
                         writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
                     }
-                    else if (num_intersections > 1)
-                    {
-                        bad = true;
-                        break;
-                    }
                 }
 
-                if (!bad)
-                {
-                    writefln("new_dots %s", new_dots);
-                    form_dots = new_dots;
-                    edited_form = cast(ubyte) e;
-                    p.forms = p.forms[0..f] ~ p.forms[f+1..$];
+                writefln("new_dots %s", new_dots);
+                form_dots = new_dots;
+                edited_form = cast(ubyte) e;
+                p.forms = p.forms[0..f] ~ p.forms[f+1..$];
 
-                    change_form24();
-                }
-                else
-                {
-                    writefln("bad", bad);
-                }
+                change_form24();
 
                 break;
             }
