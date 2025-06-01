@@ -1271,7 +1271,7 @@ void join_forms()
 
                         //assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
                         ii[dotsnum] = i11+1;
-                        i11 = iint+1;
+                        i11 = iint;
                         dotsnum = (dotsnum+1)%2;
                         swap(dots1, dots2);
                         writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
