@@ -1244,7 +1244,7 @@ void join_forms()
                     else if (!iok)
                         ioff++;
 
-                    if (num_intersections > 0)
+                    if (num_intersections > 0 && num_bias_intersections%2 == 1)
                     {
                         iok = true;
                         Vertex[] iv = Vertex.from_flat([intersection]);
