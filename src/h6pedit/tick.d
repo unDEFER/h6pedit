@@ -1200,7 +1200,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
             if (r == 1)
             {
-                if ( num_intersections == 0 || between2(inter, f11, intersection) )
+                if ( (num_intersections == 0 || between2(inter, f11, intersection)) && intersection != f22 )
                 {
                     iint = i21;
                     intersection[0..2] = inter[0..2];
@@ -1250,10 +1250,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             else
                 writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
 
-            //assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
+            assert(ii[dotsnum] != i11+1, "Oops!");
             ii[dotsnum] = i11+1;
             i11 = iint;
             dotsnum = (dotsnum+1)%2;
+            if (i11 < ii[dotsnum]) break;
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
         }
@@ -1266,8 +1267,8 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
 unittest
 {
-    ubyte[] dots1 = [20, 17, 7, 4];
-    ubyte[] dots2 = [60, 12, 8, 6];
+    ubyte[] dots2 = [20, 17, 7, 4];
+    ubyte[] dots1 = [60, 12, 8, 6];
 
     ubyte[] jdots = join_dots(dots1, dots2);
     ubyte[] expected = [20, 17, 57, 12, 7, 4];
