@@ -1264,6 +1264,15 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     return new_dots;
 }
 
+unittest
+{
+    ubyte dots1 = [20, 17, 7, 4];
+    ubyte dots2 = [60, 12, 8, 6];
+
+    ubyte[] jdots = join_dots(dots1, dots2);
+    assert(jdots == [20, 17, 57, 12, 7, 4]);
+}
+
 void join_forms()
 {
     foreach (pt, f; edited_forms_by_coords)
