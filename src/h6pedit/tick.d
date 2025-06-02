@@ -1161,6 +1161,109 @@ float apply_brush(in Brush b, bool preview = false)
     return max_err;
 }
 
+ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
+{
+    writefln("dots %s and %s", dots1, dots2);
+
+    size_t[2] ii = [0, 0];
+    ubyte dotsnum = 0;
+    size_t dot = 0;
+    size_t ioff = 0;
+    bool iok;
+
+    ubyte[] new_dots;
+    bool bad;
+
+    for(size_t i11 = 0; dotsnum != 0 || i11 < ioff + dots1.length; i11++)
+    {
+        ubyte d11 = dots1[i11%$];
+        ubyte d12 = dots1[(i11+1)%$];
+
+        int[2] f11 = Vertex(1, 1, d11).to_flat();
+        int[2] f12 = Vertex(1, 1, d12).to_flat();
+
+        int[2] intersection;
+        size_t iint;
+        int num_intersections;
+        int num_bias_intersections;
+
+        for(size_t i21 = 0; i21 < dots2.length; i21++)
+        {
+            ubyte d21 = dots2[i21%$];
+            ubyte d22 = dots2[(i21+1)%$];
+
+            int[2] f21 = Vertex(1, 1, d21).to_flat();
+            int[2] f22 = Vertex(1, 1, d22).to_flat();
+
+            int[2] inter;
+            byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
+
+            if (r == 1)
+            {
+                if ( num_intersections == 0 || between2(inter, f11, intersection) )
+                {
+                    iint = i21;
+                    intersection[0..2] = inter[0..2];
+                }
+
+                num_intersections++;
+                num_bias_intersections++;
+            }
+            else if (r == -1)
+            {
+                num_bias_intersections++;
+            }
+        }
+
+        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s", d11, d12, num_intersections, num_bias_intersections);
+
+        if (num_bias_intersections%2 == 0)
+        {
+            iok = true;
+            new_dots ~= d11;
+        }
+        else if (!iok)
+            ioff++;
+
+        if (num_intersections > 0 && num_bias_intersections%2 == 0)
+        {
+            iok = true;
+            Vertex[] iv = Vertex.from_flat([intersection]);
+            if (iv.length > 0)
+            {
+                Vertex nv;
+                bool found;
+                foreach (v; iv)
+                {
+                    if (v.x == 1 && v.y == 1)
+                    {
+                        nv = v;
+                        writefln("Intersection %s-%s & %s is %s", d11, d12, dots2, v);
+                        found = true;
+                        break;
+                    }
+                }
+                assert(found, "Vertex(1, 1) not found in intersection result");
+
+                new_dots ~= nv.p;
+            }
+            else
+                writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
+
+            //assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
+            ii[dotsnum] = i11+1;
+            i11 = iint;
+            dotsnum = (dotsnum+1)%2;
+            swap(dots1, dots2);
+            writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
+        }
+    }
+
+    writefln("new_dots %s", new_dots);
+
+    return new_dots;
+}
+
 void join_forms()
 {
     foreach (pt, f; edited_forms_by_coords)
@@ -1182,104 +1285,7 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
-                writefln("dots %s and %s", dots1, dots2);
-
-                size_t[2] ii = [0, 0];
-                ubyte dotsnum = 0;
-                size_t dot = 0;
-                size_t ioff = 0;
-                bool iok;
-
-                ubyte[] new_dots;
-                bool bad;
-
-                for(size_t i11 = 0; dotsnum != 0 || i11 < ioff + dots1.length; i11++)
-                {
-                    ubyte d11 = dots1[i11%$];
-                    ubyte d12 = dots1[(i11+1)%$];
-
-                    int[2] f11 = Vertex(1, 1, d11).to_flat();
-                    int[2] f12 = Vertex(1, 1, d12).to_flat();
-
-                    int[2] intersection;
-                    size_t iint;
-                    int num_intersections;
-                    int num_bias_intersections;
-
-                    for(size_t i21 = 0; i21 < dots2.length; i21++)
-                    {
-                        ubyte d21 = dots2[i21%$];
-                        ubyte d22 = dots2[(i21+1)%$];
-
-                        int[2] f21 = Vertex(1, 1, d21).to_flat();
-                        int[2] f22 = Vertex(1, 1, d22).to_flat();
-
-                        int[2] inter;
-                        byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
-
-                        if (r == 1)
-                        {
-                            if ( num_intersections == 0 || between2(inter, f11, intersection) )
-                            {
-                                iint = i21;
-                                intersection[0..2] = inter[0..2];
-                            }
-
-                            num_intersections++;
-                            num_bias_intersections++;
-                        }
-                        else if (r == -1)
-                        {
-                            num_bias_intersections++;
-                        }
-                    }
-
-                    writefln("S %s-%s, num_intersections %s, num_bias_intersections %s", d11, d12, num_intersections, num_bias_intersections);
-
-                    if (num_bias_intersections%2 == 0)
-                    {
-                        iok = true;
-                        new_dots ~= d11;
-                    }
-                    else if (!iok)
-                        ioff++;
-
-                    if (num_intersections > 0 && num_bias_intersections%2 == 0)
-                    {
-                        iok = true;
-                        Vertex[] iv = Vertex.from_flat([intersection]);
-                        if (iv.length > 0)
-                        {
-                            Vertex nv;
-                            bool found;
-                            foreach (v; iv)
-                            {
-                                if (v.x == 1 && v.y == 1)
-                                {
-                                    nv = v;
-                                    writefln("Intersection %s-%s & %s is %s", d11, d12, dots2, v);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            assert(found, "Vertex(1, 1) not found in intersection result");
-
-                            new_dots ~= nv.p;
-                        }
-                        else
-                            writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
-
-                        //assert(ii[dotsnum] != (i11+1)%dots1.length, "Oops!");
-                        ii[dotsnum] = i11+1;
-                        i11 = iint;
-                        dotsnum = (dotsnum+1)%2;
-                        swap(dots1, dots2);
-                        writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
-                    }
-                }
-
-                writefln("new_dots %s", new_dots);
-                form_dots = new_dots;
+                form_dots = join_dots(dots1, dots2);
                 edited_form = cast(ubyte) e;
                 p.forms = p.forms[0..f] ~ p.forms[f+1..$];
 
