@@ -359,7 +359,7 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
 
     if (form.length > 2 && (form[0] >= 24 || form[$-1] >= 24))
     {
-        writefln("Normilize form %s", form);
+        writefln("Normalize form %s", form);
         ubyte[] wr_form;
         foreach (dir; form)
         {
@@ -467,12 +467,7 @@ ubyte get_rot(ubyte dir)
     return cast(ubyte) ((dir-o.off)/o.r);
 }
 
-/*
- * Generates hyperpixel with width w.
- * Returns false if wasn't generated.
- * @HyperPixel
- */
-BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
+ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
 {
     ubyte[] form;
     foreach (f; form12)
@@ -482,22 +477,9 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
         if (rotate > 0)
         {
-            if (f < 24)
-            {
-                f = (f + 4*rotate)%24;
-            }
-            else if (f < 42)
-            {
-                f = 24 + (f-24 + 3*rotate)%18;
-            }
-            else if (f < 54)
-            {
-                f = 42 + (f-42 + 2*rotate)%12;
-            }
-            else if (f < 60)
-            {
-                f = 54 + (f-54 + rotate)%6;
-            }
+            auto o = get_off_r(f);
+            if (o.r != 0)
+                f = cast(ubyte) (o.off + (f - o.off + o.r*rotate)%(6*o.r));
         }
 
         form ~= f;
@@ -532,6 +514,18 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
     if (form.length > 1 && form[0] == form[$-1])
         form = form[0..$-1];
+
+    return form;
+}
+
+/*
+ * Generates hyperpixel with width w.
+ * Returns false if wasn't generated.
+ * @HyperPixel
+ */
+BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
+{
+    ubyte[] form = form12toform(form12, rotate, _debug);
 
     //writefln("form=%s", form);
 
