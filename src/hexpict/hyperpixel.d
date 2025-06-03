@@ -424,6 +424,66 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
         writefln("Till %s", form);
     }
 
+    size_t max_i, max_j;
+    ubyte[] form2;
+    for(size_t i = 0; i < form.length; i++)
+    {
+        ubyte dir = form[i];
+        if (dir < 24)
+        {
+            size_t i2 = form2.length;
+            size_t j, j2;
+            ubyte dir2;
+            for(j = 1; j < form.length; j++)
+            {
+                dir2 = form[(i+j)%$];
+
+                if (!(dir2 < 24 && (dir/4 == dir2/4 ||
+                            dir%4 == 0 && dir2%4 == 0 && ((dir+4)%24 == dir2 || (dir2+4)%24 == dir))))
+                {
+                    break;
+                }
+
+                if (dir%4 == 0 || j == 1)
+                {
+                    form2 ~= dir;
+                    j2++;
+                }
+
+                dir = dir2;
+            }
+
+            form2 ~= dir;
+            j2++;
+
+            if (j2 > max_j)
+            {
+                max_j = j2;
+                max_i = i2;
+            }
+
+            i = i+j-1;
+        }
+        else
+        {
+            form2 ~= dir;
+        }
+    }
+
+    swap(form, form2);
+
+    if (max_j > 2)
+    {
+        if (max_i+max_j < form.length)
+        {
+            form = form[max_i+max_j-1..$] ~ form[0..max_i+1];
+        }
+        else
+        {
+            form = form[(max_i+max_j-1)%$..max_i+1];
+        }
+    }
+
     ubyte rot = get_rot(form[0]);
 
     foreach(ref dir; form)
@@ -434,7 +494,7 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
         dir = cast(ubyte) (o.off + (dir-o.off + (6-rot)*o.r)%(6*o.r));
     }
 
-    //writefln("return %s", tuple!("form", "rot")(form, rot));
+    writefln("return %s", tuple!("form", "rot")(form, rot));
     return tuple!("form", "rot")(form, rot);
 }
 
