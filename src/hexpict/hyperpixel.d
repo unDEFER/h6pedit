@@ -21,6 +21,7 @@ import std.conv;
 import std.file;
 import std.bitmanip;
 
+import hexpict.common;
 import hexpict.color;
 
 void neighbours(int x, int y, int[][] neigh)
@@ -652,6 +653,36 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                     float yy = (points[p0].y*(v-i) + points[p1].y*i)/v;
 
                     points[p0+i] = Point(xx, yy);
+                }
+            }
+        }
+
+        Point[] opoints;
+
+        foreach(p1; 0..61)
+        {
+            foreach(p2; (p1+1)..61)
+            {
+                float[2] p11 = [points[p1].x, points[p1].y];
+                float[2] p12 = [points[p2].x, points[p2].y];
+
+                float[2] p21 = [points[0].x, points[0].y];
+                float[2] p22 = [points[4].x, points[4].y];
+
+                float[2] ip;
+                int i = intersection(p11, p12, p21, p22, ip);
+                if (i == 1)
+                {
+                    bool found;
+                    foreach (p; points ~ opoints)
+                    {
+                        float[2] p3 = [p.x, p.y];
+                        if (is_same_point(ip, p3))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
                 }
             }
         }

@@ -204,3 +204,8 @@ byte line_segments_intersection(int[2][2] seg1, int[2][2] seg2, ref int[2] res)
 
     return r;
 }
+
+bool is_same_point(float[2] a, float[2] b, float delta = 1e-5)
+{
+    return abs(a[0] - b[0]) < delta && abs(a[1] - b[1]) < delta;
+}
