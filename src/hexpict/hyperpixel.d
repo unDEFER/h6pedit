@@ -692,6 +692,9 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             }
         }
 
+        alias myComp = (x, y) => x.y > y.y;
+        opoints = opoints.sort!(myComp).release;
+
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
     }
 
