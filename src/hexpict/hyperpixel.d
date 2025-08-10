@@ -689,6 +689,8 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 }
             }
         }
+
+        writefln("len %s, opoints = %s", opoints.length, opoints);
     }
 
     // @HyperPixelSuccess
