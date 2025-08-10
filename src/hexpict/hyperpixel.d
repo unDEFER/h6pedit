@@ -701,7 +701,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             auto p2 = opoints[i+1];
             pdiff ~= p2.y - p.y;
             if (pdiff[$-1] > 0.1f)
-                writefln("%s - %s, %s", p, p2, pdiff);
+                writefln("%s - %s, %s", p, p2, pdiff[$-1]);
         }
 
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
