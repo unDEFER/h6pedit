@@ -683,6 +683,9 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                             break;
                         }
                     }
+
+                    if (!found)
+                        opoints ~= Point(ip[0], ip[1]);
                 }
             }
         }
