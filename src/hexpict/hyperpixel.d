@@ -671,8 +671,8 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 float[2] p22 = [points[4].x, points[4].y];
 
                 float[2] ip;
-                int i = intersection(p11, p12, p21, p22, ip);
-                if (i == 1)
+                int i = line_segments_intersection([p11, p12], [p21, p22], ip);
+                if (i == -1 || i == -2)
                 {
                     bool found;
                     foreach (p; points ~ opoints)
