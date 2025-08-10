@@ -667,7 +667,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 float[2] p11 = [points[p1].x, points[p1].y];
                 float[2] p12 = [points[p2].x, points[p2].y];
 
-                float[2] p21 = [points[0].x, points[0].y];
+                float[2] p21 = [points[8].x, points[8].y];
                 float[2] p22 = [points[4].x, points[4].y];
 
                 float[2] ip;
