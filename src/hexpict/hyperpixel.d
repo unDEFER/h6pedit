@@ -678,7 +678,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                     foreach (p; points ~ opoints)
                     {
                         float[2] p3 = [p.x, p.y];
-                        if (is_same_point(ip, p3, 0.0178))
+                        if (is_same_point(ip, p3, 0.056))
                         {
                             found = true;
                             break;
