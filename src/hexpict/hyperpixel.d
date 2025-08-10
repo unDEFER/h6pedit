@@ -706,6 +706,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
         writefln("pdiff = %s", pdiff);
+        writefln("h = %s", h);
     }
 
     // @HyperPixelSuccess
