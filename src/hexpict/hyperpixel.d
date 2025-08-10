@@ -678,7 +678,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                     foreach (p; points ~ opoints)
                     {
                         float[2] p3 = [p.x, p.y];
-                        if (is_same_point(ip, p3, 0.056))
+                        if (is_same_point(ip, p3))
                         {
                             found = true;
                             break;
@@ -692,10 +692,18 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             }
         }
 
-        alias myComp = (x, y) => x.y > y.y;
+        alias myComp = (x, y) => x.y < y.y;
         opoints = opoints.sort!(myComp).release;
 
+        float[] pdiff;
+        foreach (i, p; opoints[0..$-1])
+        {
+            auto p2 = opoints[i+1];
+            pdiff ~= p2.y - p.y;
+        }
+
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
+        writefln("pdiff = %s", pdiff);
     }
 
     // @HyperPixelSuccess
