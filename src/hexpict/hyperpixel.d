@@ -658,6 +658,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
         }
 
         Point[] opoints;
+        int total;
 
         foreach(p1; 0..61)
         {
@@ -686,11 +687,12 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
                     if (!found)
                         opoints ~= Point(ip[0], ip[1]);
+                    total++;
                 }
             }
         }
 
-        writefln("len %s, opoints = %s", opoints.length, opoints);
+        writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
     }
 
     // @HyperPixelSuccess
