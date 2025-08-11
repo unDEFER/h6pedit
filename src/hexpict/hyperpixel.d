@@ -658,91 +658,21 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             }
         }
 
-        Point[] opoints;
-        int total;
-
-        foreach(p1; 0..61)
+        foreach(p; 0..6)
         {
-            foreach(p2; (p1+1)..61)
+            Point p1 = points[4*p];
+            Point p2 = points[4*(p+1)%24];
+
+            Point dp = Point(p2.x-p1.x, p2.y-p1.y);
+
+            size_t i0 = 60 + 32*p;
+
+            foreach(o; 1..33)
             {
-                float[2] p11 = [points[p1].x, points[p1].y];
-                float[2] p12 = [points[p2].x, points[p2].y];
-
-                float[2] p21 = [points[8].x, points[8].y];
-                float[2] p22 = [points[4].x, points[4].y];
-
-                float[2] ip;
-                int i = line_segments_intersection([p11, p12], [p21, p22], ip);
-                if (i == -1 || i == -2)
-                {
-                    bool found;
-                    foreach (p; points ~ opoints)
-                    {
-                        float[2] p3 = [p.x, p.y];
-                        if (is_same_point(ip, p3))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                        opoints ~= Point(ip[0], ip[1]);
-                    total++;
-                }
+                points[i0 + o-1] = Point(p1.x + dp.x*o/33.0f, p1.y + dp.y*o/33.0f);
+                writefln("points[%s] = %s", i0 + o-1, points[i0 + o-1]);
             }
         }
-
-        alias myComp = (x, y) => x.y < y.y;
-        opoints = opoints.sort!(myComp).release;
-
-        float[] pdiff;
-        foreach (i, p; opoints[0..$-1])
-        {
-            auto p2 = opoints[i+1];
-            pdiff ~= p2.y - p.y;
-            if (pdiff[$-1] > 0.1f)
-                writefln("%s - %s, %s", p, p2, pdiff[$-1]);
-        }
-
-        Point[] rpoints;
-        float x = w;
-        float y = h/4.0f;
-        float dx = 0.0f;
-        float dy = h/2.0f;
-
-        foreach(o; 1..33)
-        {
-            rpoints ~= Point(x + dx*o/33.0f, y + dy*o/33.0f);
-        }
-
-        float maxErr = 0.0f;
-        foreach (p; opoints)
-        {
-            Point bestP;
-            float minDist = h;
-            foreach (r; rpoints)
-            {
-                float dist = hypot(r.x - p.x, r.y - p.y);
-                if (dist < minDist)
-                {
-                    bestP = r;
-                    minDist = dist;
-                }
-            }
-
-            assert (minDist < h/2.0f/65.0f, format("minDist = %s, 0.5f*h/minDist = %s (replace '65.0f' by this), p = %s, bestP = %s", minDist, 0.5f*h/minDist, p, bestP));
-
-            if (minDist > maxErr)
-                maxErr = minDist;
-        }
-
-        writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
-        writefln("pdiff = %s", pdiff);
-        writefln("h = %s", h);
-
-        writefln("len %s, rpoints = %s", rpoints.length, rpoints);
-        writefln("maxErr = %s, h/2/maxErr=%s", maxErr, 0.5f*h/maxErr);
     }
 
     // @HyperPixelSuccess
