@@ -758,7 +758,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
         writefln("h = %s", h);
 
         writefln("len %s, rpoints = %s", rpoints.length, rpoints);
-        writefln("maxErr = %s, h/2/maxErr", maxErr, 0.5f*h/maxErr);
+        writefln("maxErr = %s, h/2/maxErr=%s", maxErr, 0.5f*h/maxErr);
     }
 
     // @HyperPixelSuccess
