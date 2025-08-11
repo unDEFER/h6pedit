@@ -747,7 +747,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 }
             }
 
-            assert (minDist < h/83.0f, format("minDist = %s, p = %s, bestP = %s", minDist, p, bestP));
+            assert (minDist < h/2.0f/84.0f, format("minDist = %s, p = %s, bestP = %s", minDist, p, bestP));
 
             if (minDist > maxErr)
                 maxErr = minDist;
