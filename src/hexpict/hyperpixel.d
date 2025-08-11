@@ -706,7 +706,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
         Point[] rpoints;
         float x = w;
-        float y = h/4;
+        float y = h/4.0f;
         float dx = 0.0f;
         float dy = h/2.0f;
 
