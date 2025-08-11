@@ -720,6 +720,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
             float x1 = x + dx * ((o+1)/4.0f - k2);
             float y1 = y + dy * ((o+1)/4.0f - k2);
+            writefln("o=%s, y0=%s, y1=%s", o, y0, y1);
 
             float dx01 = x1-x0;
             float dy01 = y1-y0;
