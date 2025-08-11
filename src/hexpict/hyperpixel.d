@@ -57,7 +57,7 @@ struct Point
 }
 
 // @PointsOfHexagon
-Point[61] points;
+Point[61 + 32*6] points;
 int pw = 0;
 
 BitArray*[6][19*4] hp19_4;
