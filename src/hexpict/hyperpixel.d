@@ -20,6 +20,7 @@ import std.stdio;
 import std.conv;
 import std.file;
 import std.bitmanip;
+import std.format;
 
 import hexpict.common;
 import hexpict.color;
@@ -746,10 +747,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 }
             }
 
-            if (minDist > 0.05)
-            {
-                writefln("minDist = %s, p = %s, bestP = %s", minDist, p, bestP);
-            }
+            assert (minDist < h/84.0f, format("minDist = %s, p = %s, bestP = %s", minDist, p, bestP));
 
             if (minDist > maxErr)
                 maxErr = minDist;
