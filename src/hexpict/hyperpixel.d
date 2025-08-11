@@ -704,6 +704,32 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 writefln("%s - %s, %s", p, p2, pdiff[$-1]);
         }
 
+        Point[] rpoints;
+        float x = w;
+        float y = h/4;
+        float dx = 0.0f;
+        float dy = h/2.0f;
+
+        foreach(o; 0..4)
+        {
+            float k1 = (o == 0 ? 1.0f/28.0f : 1.0f/24.0f);
+            float k2 = (o == 3 ? 1.0f/28.0f : 1.0f/24.0f);
+
+            float x0 = x + dx * (o/4.0f + k1);
+            float y0 = y + dy * (o/4.0f + k1);
+
+            float x1 = x + dx * ((o+1)/4.0f - k2);
+            float y1 = y + dy * ((o+1)/4.0f - k2);
+
+            float dx01 = x1-x0;
+            float dy01 = y1-y0;
+
+            foreach(s; 0..8)
+            {
+                rpoints ~= Point(x0 + dx01*s/7.0f, y0 + dy01*s/7.0f);
+            }
+        }
+
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
         writefln("pdiff = %s", pdiff);
         writefln("h = %s", h);
