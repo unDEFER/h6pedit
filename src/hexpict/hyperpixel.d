@@ -733,14 +733,21 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
         float maxErr = 0.0f;
         foreach (p; opoints)
         {
+            Point bestP;
             float minDist = h;
             foreach (r; rpoints)
             {
                 float dist = hypot(r.x - p.x, r.y - p.y);
                 if (dist < minDist)
                 {
+                    bestP = r;
                     minDist = dist;
                 }
+            }
+
+            if (minDist > 0.02)
+            {
+                writefln("minDist = %s, p = %s, bestP = %s", minDist, p, bestP);
             }
 
             if (minDist > maxErr)
