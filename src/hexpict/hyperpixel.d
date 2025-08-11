@@ -745,7 +745,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 }
             }
 
-            if (minDist > 0.02)
+            if (minDist > 0.2)
             {
                 writefln("minDist = %s, p = %s, bestP = %s", minDist, p, bestP);
             }
