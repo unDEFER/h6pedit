@@ -730,9 +730,29 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             }
         }
 
+        float maxErr = 0.0f;
+        foreach (p; opoints)
+        {
+            float minDist = h;
+            foreach (r; rpoints)
+            {
+                float dist = hypot(r.x - p.x, r.y - p.y);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                }
+            }
+
+            if (minDist > maxErr)
+                maxErr = minDist;
+        }
+
         writefln("len %s/%s, opoints = %s", opoints.length, total, opoints);
         writefln("pdiff = %s", pdiff);
         writefln("h = %s", h);
+
+        writefln("len %s, rpoints = %s", rpoints.length, rpoints);
+        writefln("maxErr = %s", maxErr);
     }
 
     // @HyperPixelSuccess
