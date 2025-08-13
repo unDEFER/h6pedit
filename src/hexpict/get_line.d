@@ -79,21 +79,60 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 
                     mindist = 1e10f;
 
-                    foreach (byte p; 0..5)
+                    static if (0)
                     {
-                        v.p = (side*4 + p) % 24;
-                        float px, py;
-                        to_float_coords(v, px, py);
-
-                        float dist = hypot(px - intersection[0], py - intersection[1]);
-                        if (dist < mindist)
+                        foreach (byte p; 0..5)
                         {
-                            //"RU расстояние от пересечения до вершины гексагона
-                            mindist = dist;
-                            op = v.p;
-                            //writefln("op %s, dist %s", op, dist);
+                            v.p = (side*4 + p) % 24;
+                            float px, py;
+                            to_float_coords(v, px, py);
+
+                            float dist = hypot(px - intersection[0], py - intersection[1]);
+                            if (dist < mindist)
+                            {
+                                //"RU расстояние от пересечения до вершины гексагона
+                                mindist = dist;
+                                op = v.p;
+                                //writefln("op %s, dist %s", op, dist);
+                            }
                         }
                     }
+                    else
+                    {
+                        v.p = (side*4 + 0) % 24;
+                        float px0, py0;
+                        to_float_coords(v, px0, py0);
+
+                        v.p = (side*4 + 4) % 24;
+                        float px1, py1;
+                        to_float_coords(v, px1, py1);
+
+                        float dist0 = hypot(px1 - px0, py1 - py0);
+                        float dist1 = hypot(intersection[0] - px0, intersection[1] - py0);
+
+                        float i0 = dist1/dist0;
+
+                        float i_f = 4.0f*i0;
+                        float d_f = 33.0f*i0;
+
+                        float i_roundf = round(i_f);
+                        float d_roundf = round(d_f);
+
+                        float i_n = i_roundf/4.0f;
+                        float d_n = d_roundf/33.0f;
+
+                        float i_diff = abs(i_n - i0);
+                        float d_diff = abs(d_n - i0);
+
+                        if (i_diff < d_diff + 1e-5)
+                        {
+                            op = (side*4 + cast(byte) i_roundf) % 24;
+                        }
+                        else
+                        {
+                            op = cast(byte)(60 + side*32 + cast(byte) d_roundf);
+                        }
+                    }                   
                 }
             }
 
