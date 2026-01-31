@@ -1020,7 +1020,7 @@ struct Vertex
         v.p = dot_by_line[doty][dotx];
         int vy_even = (v.y%2 == 0 ? 1 : 0);
 
-        if (dotx == 0 || dotx == dot_by_line[doty].length - 1)
+        if (doty%2 == 0 && (dotx == 0 || dotx == dot_by_line[doty].length - 1))
         {
             if (doty == 0)
             {
@@ -1036,6 +1036,7 @@ struct Vertex
 
                     float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                     float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                    writefln("0. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                     float dir = dir1;
 
@@ -1081,6 +1082,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("1. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
@@ -1124,6 +1126,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("2. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
@@ -1170,6 +1173,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("3. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
@@ -1207,6 +1211,7 @@ struct Vertex
 
                         float dir1 = atan2(-1.0f*pc0[1], 1.0f*pc0[0]);
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
+                        writefln("4. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
                         float dir = dir1;
 
@@ -1253,22 +1258,25 @@ struct Vertex
 
                         if (abs(dir1 - PI/2.0f) < 1e-5 || abs(dir1 + PI/2.0f) < 1e-5)
                         {
+                            writefln("using dir2");
                             dir = dir2;
                         }
 
                         if ( dir < PI/2.0f + 1e-5 && dir > -PI/2.0f - 1e-5 )
                         {
+                            writefln("branch 1");
                             vs ~= v;
                         }
                         else
                         {
-                            vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                            writefln("branch 2");
+                            vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][$-1 - dotx]);
                         }
                     }
                     else
                     {
                         vs ~= v;
-                        vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                        vs ~= Vertex(v.x-1, v.y, dot_by_line[doty][$-1 - dotx]);
                     }
                 }
                 else
@@ -1296,7 +1304,7 @@ struct Vertex
 
                         if ( dir < PI/2.0f + 1e-5 && dir > -PI/2.0f - 1e-5 )
                         {
-                            vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                            vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][$-1 - dotx]);
                         }
                         else
                         {
@@ -1306,7 +1314,7 @@ struct Vertex
                     else
                     {
                         vs ~= v;
-                        vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][dot_by_line[doty].length-1 - dotx]);
+                        vs ~= Vertex(v.x+1, v.y, dot_by_line[doty][$-1 - dotx]);
                     }
                 }
             }
@@ -1316,7 +1324,9 @@ struct Vertex
             vs ~= v;
         }
 
-        //writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s", gx, gy, vs);
+        auto back_gs = vs[0].to_global();
+        writefln("GlobalCoordsToHyper: gx = %s, gy = %s => %s, back_gs = %s", gx, gy, vs, back_gs);
+        //assert(back_gs[0] == gx && back_gs[1] == gy);
 
         return vs;
     }

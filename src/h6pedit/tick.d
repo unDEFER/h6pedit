@@ -470,6 +470,8 @@ void process_up_insert_key(SDL_Event event)
 
 void load_form_dots(bool manual = false)
 {
+    if (select.y >= picture.image.height || select.x >= picture.image.width) return;
+
     Pixel *p = picture.image.pixel(select.x, select.y);
     if (!manual)
     {
@@ -1110,9 +1112,11 @@ void apply_brush(in Brush b)
         uint[2] gc = v.to_global();
         uint[2][] gvertices;
         gvertices ~= gc;
+        writefln("i=%s gc = %s", i, gc);
 
         gc[0] += b.form[i].dx;
         gc[1] += b.form[i].dy;
+        writefln("i=%s next gc = %s", i, gc);
 
         gvertices ~= gc;
 
@@ -1191,8 +1195,8 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
         ubyte d11 = dots1[i11%$];
         ubyte d12 = dots1[(i11+1)%$];
 
-        int[2] f11 = Vertex(1, 1, d11).to_flat();
-        int[2] f12 = Vertex(1, 1, d12).to_flat();
+        int[2] f11 = Vertex(1, 1, to_point24(d11), d11).to_flat();
+        int[2] f12 = Vertex(1, 1, to_point24(d12), d12).to_flat();
 
         int[2] intersection;
         size_t iint;
@@ -1204,8 +1208,8 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             ubyte d21 = dots2[i21%$];
             ubyte d22 = dots2[(i21+1)%$];
 
-            int[2] f21 = Vertex(1, 1, d21).to_flat();
-            int[2] f22 = Vertex(1, 1, d22).to_flat();
+            int[2] f21 = Vertex(1, 1, to_point24(d21), d21).to_flat();
+            int[2] f22 = Vertex(1, 1, to_point24(d22), d22).to_flat();
 
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
