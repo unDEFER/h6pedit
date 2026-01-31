@@ -162,17 +162,8 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 
         float mindist, mincdist;
         Vertex vp = choose_op(vc, mindist, mincdist);
-        byte op = vp.p;
         if (mindist > max_err) max_err = mindist;
-        //writefln("op = %s", op);
-
-        byte pp1 = vc.p;
-        byte pp2 = op;
-
-        if (pp1 > pp2 && pp1 - pp2 < 12 || pp2 - pp1 > 12)
-        {
-            swap(pp1, pp2);
-        }
+        //writefln("vp = %s", vp);
 
         vxs ~= vc;
 
@@ -183,7 +174,7 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
             break;
         }
         
-        if (vc.p != op)
+        if (vc.p != vp.p)
             vxs ~= vp;
 
         // @H6PNeighbours
@@ -192,17 +183,17 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
         //float fxp, fyp; //DEBUG
         //to_float_coords(xc, yc, op, fxp, fyp); //DEBUG
 
-        if (op%4 == 0)
+        if (vp.pext < 24 && vp.p%4 == 0)
         {
-            auto ng1 = neigh[(op/4)%6];
-            Vertex nv1 = Vertex(ng1[0], ng1[1], ((op/4+2)%6*4)%24);
+            auto ng1 = neigh[(vp.p/4)%6];
+            Vertex nv1 = Vertex(ng1[0], ng1[1], ((vp.p/4+2)%6*4)%24);
 
             float mindist1, mincdist1;
             Vertex vp1 = choose_op(nv1, mindist1, mincdist1);
             byte op1 = vp1.p;
 
-            auto ng2 = neigh[(op/4 + 1)%6];
-            Vertex nv2 = Vertex(ng2[0], ng2[1], ((op/4+3)%6*4 + 4)%24);
+            auto ng2 = neigh[(vp.p/4 + 1)%6];
+            Vertex nv2 = Vertex(ng2[0], ng2[1], ((vp.p/4+3)%6*4 + 4)%24);
 
             float mindist2, mincdist2;
             Vertex vp2 = choose_op(nv2, mindist2, mincdist2);
@@ -254,8 +245,10 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
         }
         else
         {
-            auto n = neigh[(op/4 + 1)%6];
-            vc = Vertex(n[0], n[1], ((op/4+3)%6*4 + 4-op%4)%24);
+            auto n = neigh[(vp.p/4 + 1)%6];
+            ubyte op24 = cast(ubyte) (((vp.p/4+3)%6*4 + 4-vp.p%4)%24);
+            ubyte op = cast(ubyte) (vp.pext < 24 ? op24 : 61 + (((vp.pext-61)/32+3)%6*32 + 31-(vp.pext-61)%32)%(32*6));
+            vc = Vertex(n[0], n[1], op24, op);
         }
 
         //writefln("vc %s", vc);
