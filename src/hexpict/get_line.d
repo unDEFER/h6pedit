@@ -12,7 +12,7 @@ import hexpict.h6p;
 import hexpict.common;
 import hexpict.hyperpixel;
 
-Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
+Vertex[] get_line(Vertex v0, Vertex v1)
 {
     Vertex[] vxs;
     int[][] neigh = new int[][](6, 2);
@@ -28,7 +28,6 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 
     //writefln("v0 %s", v0);
 
-    max_err = 0.0f;
     Vertex vc = v0;
 
     while (true)
@@ -162,7 +161,6 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 
         float mindist, mincdist;
         Vertex vp = choose_op(vc, mindist, mincdist);
-        if (mindist > max_err) max_err = mindist;
         //writefln("vp = %s", vp);
 
         vxs ~= vc;
@@ -205,12 +203,10 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
             if (nv1.x == v1.x && nv1.y == v1.y)
             {
                 vc = nv1;
-                if (mindist1 > max_err) max_err = mindist1;
             }
             else if (nv2.x == v1.x && nv2.y == v1.y)
             {
                 vc = nv2;
-                if (mindist2 > max_err) max_err = mindist2;
             }
             else if (abs(mindist1 - mindist2) < 1e-1 && abs(mincdist1 - mincdist2) < 1e-1)
             {
@@ -224,23 +220,19 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
                 if (dist > 0.0f)
                 {
                     vc = nv1;
-                    if (mindist1 > max_err) max_err = mindist1;
                 }
                 else
                 {
                     vc = nv2;
-                    if (mindist2 > max_err) max_err = mindist2;
                 }
             }
             else if (mincdist1 < mincdist2)
             {
                 vc = nv1;
-                if (mindist1 > max_err) max_err = mindist1;
             }
             else
             {
                 vc = nv2;
-                if (mindist2 > max_err) max_err = mindist2;
             }
         }
         else

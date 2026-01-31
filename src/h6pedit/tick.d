@@ -912,15 +912,9 @@ void process_mask2_editor_keys(SDL_Event event)
         edited_form = cast(ubyte) p.forms.length;
         form_dots.length = 0;
 
-        float merr = apply_brush(brush, true);
-        if ( merr < 0.01 )
-        {
-            apply_brush(brush);
-        }
-
+        apply_brush(brush);
         join_forms();
 
-        writefln("%sx%s MERR = %s", select.x, select.y, merr);
         writefln("END PAINT BRUSH");
     }
 
@@ -961,25 +955,22 @@ void process_mask2_editor_keys(SDL_Event event)
     mask2_hint.changed = true;
 }
 
-float paint(Vertex v, bool preview = false)
+void paint(Vertex v)
 {
-    float max_err = 0.0f;
-
     if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
     {
         change_form24();
 
-        if (!preview) writefln("Return to last_v %sx%s %s", last_v.x, last_v.y, last_v.p);
+        writefln("Return to last_v %sx%s %s", last_v.x, last_v.y, last_v.p);
         select.x = last_v.x;
         select.y = last_v.y;
         dotx = dot_to_coords[last_v.p][0];
         doty = dot_to_coords[last_v.p][1];
-        if (!preview) writefln("D1 dotx = %s, doty = %s", dotx, doty);
+        writefln("D1 dotx = %s, doty = %s", dotx, doty);
 
         load_form_dots();
 
-        Vertex[] line = get_line(last_v, v, max_err);
-        if (preview) return max_err;
+        Vertex[] line = get_line(last_v, v);
 
         foreach(v2; line[1..$-1])
         {
@@ -1103,15 +1094,11 @@ float paint(Vertex v, bool preview = false)
 
     if (first_v.p == 100)
         first_v = v;
-
-    return max_err;
 }
 
-float apply_brush(in Brush b, bool preview = false)
+void apply_brush(in Brush b)
 {
     Vertex[] vertices;
-
-    float max_err = 0.0f;
 
     Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
     Vertex sv = v;
@@ -1172,8 +1159,7 @@ float apply_brush(in Brush b, bool preview = false)
 
         load_form_dots();
 
-        float merr = paint(v, preview);
-        if (merr > max_err) max_err = merr;
+        paint(v);
     }
 
     change_form24();
@@ -1185,8 +1171,6 @@ float apply_brush(in Brush b, bool preview = false)
     doty = dot_to_coords[sv.p][1];
 
     load_form_dots();
-
-    return max_err;
 }
 
 ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
