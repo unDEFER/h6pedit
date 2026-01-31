@@ -912,7 +912,7 @@ void process_mask2_editor_keys(SDL_Event event)
         edited_form = cast(ubyte) p.forms.length;
         form_dots.length = 0;
 
-        float merr = apply_brush(brush, true) < 0.01;
+        float merr = apply_brush(brush, true);
         if ( merr < 0.01 )
         {
             apply_brush(brush);
@@ -1135,6 +1135,7 @@ float apply_brush(in Brush b, bool preview = false)
         change_form24();
 
         v = vertices[(off + i)%$];
+        writefln("O %s, v=%s", (off + i)%vertices.length, v);
 
         select.x = v.x;
         select.y = v.y;

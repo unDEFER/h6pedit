@@ -665,7 +665,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
             Point dp = Point(p2.x-p1.x, p2.y-p1.y);
 
-            size_t i0 = 60 + 32*p;
+            size_t i0 = 61 + 32*p;
 
             foreach(o; 1..33)
             {

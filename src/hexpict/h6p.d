@@ -159,7 +159,7 @@ struct H6P
     {
         ubyte[] dots;
 
-        if (form > 19*4)
+        if (form >= 19*4)
         {
             foreach (d; forms[form - 19*4].dots)
             {
