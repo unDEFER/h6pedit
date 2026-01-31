@@ -122,23 +122,25 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
         int continued;
         foreach(i, f1; form)
         {
+            ubyte f1_24 = to_point24(f1);
             ubyte f2 = form[(i+1)%$];
+            ubyte f2_24 = to_point24(f2);
 
             Point p1 = points[f1];
             Point p2 = points[f2];
 
             if (fy >= p1.y && fy < p2.y || fy >= p2.y && fy < p1.y)
             {
-                if (f1 < 24 && f2 < 24)
+                if (f1_24 < 24 && f2_24 < 24)
                 {
-                    ubyte f41 = cast(ubyte) (f1 - f1%4);
-                    ubyte f42 = cast(ubyte) (f2 - f2%4);
+                    ubyte f41 = cast(ubyte) (f1_24 - f1_24%4);
+                    ubyte f42 = cast(ubyte) (f2_24 - f2_24%4);
 
-                    if (f41 == f42 || (f41+4)%24 == f42 && f2%4 == 0 || (f42+4)%24 == f41  && f1%4 == 0)
+                    if (f41 == f42 || (f41+4)%24 == f42 && f2_24%4 == 0 || (f42+4)%24 == f41  && f1_24%4 == 0)
                     {
                         if (y == debugy)
                         {
-                            writefln("continued %s-%s", f1, f2);
+                            writefln("continued %s-%s", f1_24, f2_24);
                         }
                         continued++;
                         continue;
@@ -355,6 +357,20 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     }
 }
 
+ubyte to_point24(ubyte p)
+{
+    ubyte dir = p;
+    if (dir > 61)
+    {
+        ubyte k = cast(ubyte)(dir - 61);
+        ubyte side = k/32;
+        ubyte pp = k%32;
+        dir = cast(ubyte)(side*4 + pp/8);
+        //writefln("to_point24 %s => p24 %s", p, dir);
+    }
+    return dir;
+}
+
 Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
 {
     if (form.length < 2) return tuple!("form", "rot")(form, cast(ubyte) 0);
@@ -431,28 +447,33 @@ Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
     for(size_t i = 0; i < form.length; i++)
     {
         ubyte dir = form[i];
-        if (dir < 24)
+        ubyte dir24 = to_point24(dir);
+
+        if (dir24 < 24)
         {
             size_t i2 = form2.length;
             size_t j, j2;
             ubyte dir2;
+            ubyte dir2_24;
             for(j = 1; j < form.length; j++)
             {
                 dir2 = form[(i+j)%$];
+                dir2_24 = to_point24(dir2);
 
-                if (!(dir2 < 24 && (dir/4 == dir2/4 ||
-                            dir%4 == 0 && dir2%4 == 0 && ((dir+4)%24 == dir2 || (dir2+4)%24 == dir))))
+                if (!(dir2_24 < 24 && (dir24/4 == dir2_24/4 ||
+                            dir24%4 == 0 && dir2_24%4 == 0 && ((dir24+4)%24 == dir2_24 || (dir2_24+4)%24 == dir24))))
                 {
                     break;
                 }
 
-                if (dir%4 == 0 || j == 1)
+                if (dir24%4 == 0 || j == 1)
                 {
                     form2 ~= dir;
                     j2++;
                 }
 
                 dir = dir2;
+                dir24 = dir2_24;
             }
 
             form2 ~= dir;
@@ -518,7 +539,12 @@ Tuple!(ubyte, "off", ubyte, "r") get_off_r(ubyte dir)
     {
         return tuple!("off", "r")(cast(ubyte) 54, cast(ubyte) 1);
     }
-    else return tuple!("off", "r")(cast(ubyte) 60, cast(ubyte) 0);
+    else if (dir < 61)
+    {
+        return tuple!("off", "r")(cast(ubyte) 60, cast(ubyte) 0);
+    }
+    else
+        return tuple!("off", "r")(cast(ubyte) 61, cast(ubyte) 32);
 }
 
 ubyte get_rot(ubyte dir)
@@ -547,35 +573,44 @@ ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
         form ~= f;
     }
 
-    if (form.length > 1 && form[0] < 24 && form[$-1] < 24)
+    if (form.length > 1)
     {
         ubyte f = form[$-1];
-        ubyte f4 = f%4;
-        f -= f4;
-
+        ubyte f24 = to_point24(f);
         ubyte fe = form[0];
-        fe = cast(ubyte)(fe - fe%4);
-        if (_debug) writefln("form %s, f=%s, fe=%s", form, f, fe);
-
-        if (f != fe || form[$-1] < form[0])
+        ubyte fe24 = to_point24(fe);
+        ubyte first24 = fe24;
+        ubyte last24 = f24;
+        if (f24 < 24 && fe24 < 24)
         {
-            fe = cast(ubyte)((fe + 4)%24);
-            if (f4 > 0)
-            {
-                form ~= f;
-            }
+            ubyte f4 = f24%4;
+            f24 -= f4;
 
-            while (f != fe)
+            fe24 = cast(ubyte)(fe24 - fe24%4);
+            if (_debug) writefln("form %s, f24=%s, fe24=%s", form, f24, fe24);
+
+            if (f24 != fe24 || last24 < first24)
             {
-                f = (f+20)%24;
-                if (f == form[0]) break;
-                form ~= f;
+                fe24 = cast(ubyte)((fe24 + 4)%24);
+                if (f4 > 0)
+                {
+                    form ~= f24;
+                    last24 = f24;
+                }
+
+                while (f24 != fe24)
+                {
+                    f24 = (f24+20)%24;
+                    if (f24 == first24) break;
+                    form ~= f24;
+                    last24 = f24;
+                }
             }
         }
-    }
 
-    if (form.length > 1 && form[0] == form[$-1])
-        form = form[0..$-1];
+        if (form[0] == form[$-1])
+            form = form[0..$-1];
+    }
 
     return form;
 }

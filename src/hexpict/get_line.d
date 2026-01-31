@@ -141,7 +141,7 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
                             px = px0 + d_n * (px1 - px0);
                             py = py0 + d_n * (py1 - py0);
 
-                            opext_ = cast(byte)(60 + side*32 + cast(byte) d_roundf);
+                            opext_ = cast(byte)(61 + side*32 + cast(byte) d_roundf);
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);

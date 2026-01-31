@@ -995,10 +995,75 @@ float paint(Vertex v, bool preview = false)
 
                 load_form_dots();
 
-                if (form_dots.length > 0 && form_dots[$-1] < 24 && v2.p < 24)
+                if (form_dots.length > 0)
                 {
-                    ubyte fe = v2.p;
-                    ubyte f = form_dots[$-1];
+                    ubyte p24 = form_dots[$-1];
+                    if (p24 > 61)
+                    {
+                        ubyte k = cast(ubyte)(p24 - 61);
+                        ubyte side = k/32;
+                        ubyte pp = k%32;
+                        p24 = cast(ubyte)(side*4 + pp/8);
+                        writefln("p %s => p24 %s", form_dots[$-1], p24);
+                    }
+
+                    if (p24 < 24 && v2.p < 24)
+                    {
+                        ubyte fe = v2.p;
+                        ubyte f = p24;
+                        if (lshift)
+                            f = (f+1)%24;
+                        else
+                            f = (f+23)%24;
+
+                        while (f != fe)
+                        {
+                            if (f%4 == 0)
+                            {
+                                form_dots ~= f;
+                                writefln("ADD2 f %s", f);
+                                form_changed = true;
+                            }
+                            if (lshift)
+                                f = (f+1)%24;
+                            else
+                                f = (f+23)%24;
+                        }
+                    }
+                }
+            }
+
+            form_dots ~= (v2.pext > 60 ? v2.pext : v2.p);
+            form_changed = true;
+            writefln("%sx%s Add2 %s", v2.x, v2.y, v2.pext);
+        }
+
+        if (select.x != v.x || select.y != v.y)
+        {
+            change_form24();
+
+            select.x = v.x;
+            select.y = v.y;
+            writefln("D3 dotx = %s, doty = %s", dotx, doty);
+
+            load_form_dots();
+
+            if (form_dots.length > 0)
+            {
+                ubyte p24 = form_dots[$-1];
+                if (p24 > 61)
+                {
+                    ubyte k = cast(ubyte)(p24 - 61);
+                    ubyte side = k/32;
+                    ubyte pp = k%32;
+                    p24 = cast(ubyte)(side*4 + pp/8);
+                    writefln("p %s => p24 %s", form_dots[$-1], p24);
+                }
+
+                if (p24 < 24 && v.p < 24)
+                {
+                    ubyte fe = v.p;
+                    ubyte f = p24;
                     if (lshift)
                         f = (f+1)%24;
                     else
@@ -1017,44 +1082,6 @@ float paint(Vertex v, bool preview = false)
                         else
                             f = (f+23)%24;
                     }
-                }
-            }
-
-            form_dots ~= v2.p;
-            form_changed = true;
-            writefln("%sx%s Add2 %s", v2.x, v2.y, v2.p);
-        }
-
-        if (select.x != v.x || select.y != v.y)
-        {
-            change_form24();
-
-            select.x = v.x;
-            select.y = v.y;
-            writefln("D3 dotx = %s, doty = %s", dotx, doty);
-
-            load_form_dots();
-
-            if (form_dots.length > 0 && form_dots[$-1] < 24 && v.p < 24)
-            {
-                ubyte fe = v.p;
-                ubyte f = form_dots[$-1];
-                if (lshift)
-                    f = (f+1)%24;
-                else
-                    f = (f+23)%24;
-
-                while (f != fe)
-                {
-                    if (f%4 == 0)
-                    {
-                        form_dots ~= f;
-                        form_changed = true;
-                    }
-                    if (lshift)
-                        f = (f+1)%24;
-                    else
-                        f = (f+23)%24;
                 }
             }
         }

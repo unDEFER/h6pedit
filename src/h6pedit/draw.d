@@ -380,6 +380,7 @@ void update_mask2_hint()
 
         foreach(d; form_dots)
         {
+            if (d > 60) continue;
             HPoint *hp = &hpoints[d];
             Pixel *px = mask2_hint.image.pixel(hp.x, hp.y);
             px.color = 3;
