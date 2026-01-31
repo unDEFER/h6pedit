@@ -670,7 +670,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
             foreach(o; 1..33)
             {
                 points[i0 + o-1] = Point(p1.x + dp.x*o/33.0f, p1.y + dp.y*o/33.0f);
-                writefln("points[%s] = %s", i0 + o-1, points[i0 + o-1]);
+                //writefln("points[%s] = %s", i0 + o-1, points[i0 + o-1]);
             }
         }
     }
@@ -895,6 +895,7 @@ struct Vertex
 {
     uint x, y;
     byte p;
+    ubyte pext;
 
     uint[2] to_global()
     {

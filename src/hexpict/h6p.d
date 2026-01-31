@@ -104,36 +104,15 @@ struct Form
         return hp[rotate];
     }
 
-    ubyte[9] encode()
+    ubyte[12] encode()
     {
-        ubyte[9] code;
-
-        for (int i = 0; i < 3; i++)
-        {
-            uint code24;
-            code24 |= (cast(uint) dots[4*i+0] & 0x3F) << 26;
-            code24 |= (cast(uint) dots[4*i+1] & 0x3F) << 20;
-            code24 |= (cast(uint) dots[4*i+2] & 0x3F) << 14;
-            code24 |= (cast(uint) dots[4*i+3] & 0x3F) << 8;
-            ubyte[4] be32_code = nativeToBigEndian(cast(uint) code24);
-            code[3*i .. 3*i+3] = be32_code[0..3];
-        }
-        return code;
+        return dots;
     }
 
     void decode(ubyte[] code)
     {
-        assert(code.length == 9);
-        for (int i = 0; i < 3; i++)
-        {
-            ubyte[4] be32_code;
-            be32_code[0..3] = code[3*i .. 3*i+3];
-            uint code24 = bigEndianToNative!uint(be32_code);
-            dots[4*i+0] = code24 >> 26;
-            dots[4*i+1] = (code24 >> 20) & 0x3F;
-            dots[4*i+2] = (code24 >> 14) & 0x3F;
-            dots[4*i+3] = (code24 >> 8) & 0x3F;
-        }
+        assert(code.length == 12);
+        dots[0..12] = code[0..12];
     }
 }
 
@@ -492,9 +471,9 @@ H6P *h6p_read(string h6p_file)
     h6p.forms.length = fcount;
     foreach (f, ref form; h6p.forms)
     {
-        form.decode(data[off..off+9]);
+        form.decode(data[off..off+12]);
         h6p.formsmap[form.dots] = cast(ushort) f;
-        off += 9;
+        off += 12;
     }
 
     h6p.raster.length = w*h;

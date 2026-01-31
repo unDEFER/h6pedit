@@ -33,13 +33,14 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
 
     while (true)
     {
-        byte choose_op(Vertex vc, out float mindist, out float mincdist)
+        Vertex choose_op(Vertex vc, out float mindist, out float mincdist)
         {
             byte op;
 
             mincdist = 1e10f;
 
             Vertex v = vc;
+            Vertex vr = vc;
             foreach (byte side; 0..6)
             {
                 //if (vc.p >= side*4 && (vc.p < (side+1)*4 || vc.p == ((side+1)*4)%24)) continue;
@@ -124,23 +125,44 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
                         float i_diff = abs(i_n - i0);
                         float d_diff = abs(d_n - i0);
 
+                        float px, py;
+
+                        px = px0 + i_n * (px1 - px0);
+                        py = py0 + i_n * (py1 - py0);
+
+                        byte op_ = (side*4 + cast(byte) i_roundf) % 24;
+                        ubyte opext_;
                         if (i_diff < d_diff + 1e-5)
                         {
-                            op = (side*4 + cast(byte) i_roundf) % 24;
+                            opext_ = op_;
                         }
                         else
                         {
-                            op = cast(byte)(60 + side*32 + cast(byte) d_roundf);
+                            px = px0 + d_n * (px1 - px0);
+                            py = py0 + d_n * (py1 - py0);
+
+                            opext_ = cast(byte)(60 + side*32 + cast(byte) d_roundf);
+                        }
+
+                        float dist = hypot(px - intersection[0], py - intersection[1]);
+                        if (dist < mindist)
+                        {
+                            //"RU расстояние от пересечения до вершины гексагона
+                            mindist = dist;
+                            vr.p = op_;
+                            vr.pext = opext_;
+                            //writefln("op %s, dist %s", op, dist);
                         }
                     }                   
                 }
             }
 
-            return op;
+            return vr;
         }
 
         float mindist, mincdist;
-        byte op = choose_op(vc, mindist, mincdist);
+        Vertex vp = choose_op(vc, mindist, mincdist);
+        byte op = vp.p;
         if (mindist > max_err) max_err = mindist;
         //writefln("op = %s", op);
 
@@ -162,7 +184,7 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
         }
         
         if (vc.p != op)
-            vxs ~= Vertex(vc.x, vc.y, op);
+            vxs ~= vp;
 
         // @H6PNeighbours
         neighbours(vc.x, vc.y, neigh);
@@ -176,13 +198,15 @@ Vertex[] get_line(Vertex v0, Vertex v1, out float max_err)
             Vertex nv1 = Vertex(ng1[0], ng1[1], ((op/4+2)%6*4)%24);
 
             float mindist1, mincdist1;
-            byte op1 = choose_op(nv1, mindist1, mincdist1);
+            Vertex vp1 = choose_op(nv1, mindist1, mincdist1);
+            byte op1 = vp1.p;
 
             auto ng2 = neigh[(op/4 + 1)%6];
             Vertex nv2 = Vertex(ng2[0], ng2[1], ((op/4+3)%6*4 + 4)%24);
 
             float mindist2, mincdist2;
-            byte op2 = choose_op(nv2, mindist2, mincdist2);
+            Vertex vp2 = choose_op(nv2, mindist2, mincdist2);
+            byte op2 = vp2.p;
 
             //writefln("nv1 %s mindist1 %s mincdist1 %s op1 %s, nv2 %s mindist2 %s mincdist2 %s op2 %s",
             //        nv1, mindist1, mincdist1, op1, nv2, mindist2, mincdist2, op2);
