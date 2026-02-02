@@ -1020,6 +1020,8 @@ struct Vertex
         v.p = dot_by_line[doty][dotx];
         int vy_even = (v.y%2 == 0 ? 1 : 0);
 
+        writefln("dotx=%s, doty=%s", dotx, doty);
+
         if (doty%2 == 0 && (dotx == 0 || dotx == dot_by_line[doty].length - 1))
         {
             if (doty == 0)
@@ -1066,7 +1068,7 @@ struct Vertex
                     vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
                 }
             }
-            if (doty == 4)
+            else if (doty == 4)
             {
                 if (dotx == 0)
                 {
@@ -1089,20 +1091,24 @@ struct Vertex
                         if (abs(dir1 + PI/2.0f) < 1e-5 || abs(dir1 - PI/4.0f) < 1e-5 ||
                                 abs(dir1 - PI*3.0f/4.0f) < 1e-5)
                         {
+                            writefln("dir2");
                             dir = dir2;
                         }
 
                         if ( dir > -PI/2.0f - 1e-5 && dir < PI/4.0f + 1e-5 )
                         {
+                            writefln("branch 1");
                             vs ~= v;
                         }
                         else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
                         {
+                            writefln("branch 2");
                             vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
                         }
                         else
                         {
-                            vs ~= Vertex(v.x - 1, v.y, dot_by_line[12][4]);
+                            writefln("branch 3");
+                            vs ~= Vertex(v.x - 1, v.y, dot_by_line[4][4]);
                         }
                     }
                     else
