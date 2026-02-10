@@ -57,7 +57,7 @@ struct Point
 }
 
 // @PointsOfHexagon
-Point[61 + 32*6] points;
+Point[61 + 28*6] points;
 int pw = 0;
 
 BitArray*[6][19*4] hp19_4;
@@ -363,8 +363,8 @@ ubyte to_point24(ubyte p)
     if (dir > 61)
     {
         ubyte k = cast(ubyte)(dir - 61);
-        ubyte side = k/32;
-        ubyte pp = k%32;
+        ubyte side = k/28;
+        ubyte pp = k%28;
         dir = cast(ubyte)(side*4 + pp/8);
         //writefln("to_point24 %s => p24 %s", p, dir);
     }
@@ -544,7 +544,7 @@ Tuple!(ubyte, "off", ubyte, "r") get_off_r(ubyte dir)
         return tuple!("off", "r")(cast(ubyte) 60, cast(ubyte) 0);
     }
     else
-        return tuple!("off", "r")(cast(ubyte) 61, cast(ubyte) 32);
+        return tuple!("off", "r")(cast(ubyte) 61, cast(ubyte) 28);
 }
 
 ubyte get_rot(ubyte dir)
@@ -695,17 +695,20 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 
         foreach(p; 0..6)
         {
-            Point p1 = points[4*p];
-            Point p2 = points[4*(p+1)%24];
-
-            Point dp = Point(p2.x-p1.x, p2.y-p1.y);
-
-            size_t i0 = 61 + 32*p;
-
-            foreach(o; 1..33)
+            foreach(z; 0..4)
             {
-                points[i0 + o-1] = Point(p1.x + dp.x*o/33.0f, p1.y + dp.y*o/33.0f);
-                //writefln("points[%s] = %s", i0 + o-1, points[i0 + o-1]);
+                Point p1 = points[4*p+z];
+                Point p2 = points[(4*p+z+1)%24];
+
+                Point dp = Point(p2.x-p1.x, p2.y-p1.y);
+
+                size_t i0 = 61 + 28*p + 7*z;
+
+                foreach(o; 1..8)
+                {
+                    points[i0 + o-1] = Point(p1.x + dp.x*o/8.0f, p1.y + dp.y*o/8.0f);
+                    //writefln("points[%s] = %s", i0 + o-1, points[i0 + o-1]);
+                }
             }
         }
     }

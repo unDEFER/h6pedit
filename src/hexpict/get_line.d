@@ -113,13 +113,13 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         float i0 = dist1/dist0;
 
                         float i_f = 4.0f*i0;
-                        float d_f = 33.0f*i0;
+                        float d_f = 32.0f*i0;
 
                         float i_roundf = round(i_f);
                         float d_roundf = round(d_f);
 
                         float i_n = i_roundf/4.0f;
-                        float d_n = d_roundf/33.0f;
+                        float d_n = d_roundf/32.0f;
 
                         float i_diff = abs(i_n - i0);
                         float d_diff = abs(d_n - i0);
@@ -139,8 +139,12 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         {
                             px = px0 + d_n * (px1 - px0);
                             py = py0 + d_n * (py1 - py0);
+                            byte d_round = cast(byte) d_roundf;
+                            byte q = d_round/8;
+                            byte k = d_round%8;
+                            assert(k != 0);
 
-                            opext_ = cast(byte)(61 + side*32 + cast(byte) d_roundf);
+                            opext_ = cast(byte)(61 + side*28 + 7*q + k-1);
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);
@@ -239,7 +243,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
         {
             auto n = neigh[(vp.p/4 + 1)%6];
             ubyte op24 = cast(ubyte) (((vp.p/4+3)%6*4 + 4-vp.p%4)%24);
-            ubyte op = cast(ubyte) (vp.pext < 24 ? op24 : 61 + (((vp.pext-61)/32+3)%6*32 + 31-(vp.pext-61)%32)%(32*6));
+            ubyte op = cast(ubyte) (vp.pext < 24 ? op24 : 61 + (((vp.pext-61)/28+3)%6*28 + 27-(vp.pext-61)%28)%(28*6));
             vc = Vertex(n[0], n[1], op24, op);
         }
 
