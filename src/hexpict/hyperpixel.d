@@ -365,7 +365,7 @@ ubyte to_point24(ubyte p)
         ubyte k = cast(ubyte)(dir - 61);
         ubyte side = k/28;
         ubyte pp = k%28;
-        dir = cast(ubyte)(side*4 + pp/8);
+        dir = cast(ubyte)(side*4 + pp/7);
         //writefln("to_point24 %s => p24 %s", p, dir);
     }
     return dir;
@@ -555,24 +555,8 @@ ubyte get_rot(ubyte dir)
     return cast(ubyte) ((dir-o.off)/o.r);
 }
 
-ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
+ubyte[] adopt_form(ubyte[] form, bool _debug = false)
 {
-    ubyte[] form;
-    foreach (f; form12)
-    {
-        if (f == 0) break;
-        f--;
-
-        if (rotate > 0)
-        {
-            auto o = get_off_r(f);
-            if (o.r != 0)
-                f = cast(ubyte) (o.off + (f - o.off + o.r*rotate)%(6*o.r));
-        }
-
-        form ~= f;
-    }
-
     if (form.length > 1)
     {
         ubyte f = form[$-1];
@@ -611,6 +595,29 @@ ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
         if (form[0] == form[$-1])
             form = form[0..$-1];
     }
+
+    return form;
+}
+
+ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
+{
+    ubyte[] form;
+    foreach (f; form12)
+    {
+        if (f == 0) break;
+        f--;
+
+        if (rotate > 0)
+        {
+            auto o = get_off_r(f);
+            if (o.r != 0)
+                f = cast(ubyte) (o.off + (f - o.off + o.r*rotate)%(6*o.r));
+        }
+
+        form ~= f;
+    }
+
+    form = adopt_form(form, _debug);
 
     return form;
 }
@@ -1117,8 +1124,8 @@ struct Vertex
                     else
                     {
                         vs ~= v;
-                        vs ~= Vertex(v.x - 1, v.y, dot_by_line[12][4]);
-                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                        vs ~= Vertex(v.x - 1, v.y, dot_by_line[4][4]);
+                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[16][0]);
                     }
                 }
                 else

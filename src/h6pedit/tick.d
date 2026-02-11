@@ -1212,6 +1212,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
+            writefln("r=%s, [%s, %s], [%s, %s], inter=%s", r, f11, f12, f21, f22, inter);
 
             if (r == 1)
             {
@@ -1235,10 +1236,14 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
         if (num_bias_intersections%2 == 0)
         {
             iok = true;
+            writefln("add d11=%s", d11);
             new_dots ~= d11;
         }
         else if (!iok)
+        {
             ioff++;
+            assert(ioff < dots1.length);
+        }
 
         if (num_intersections > 0 && num_bias_intersections%2 == 0)
         {
@@ -1260,7 +1265,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
                 }
                 assert(found, "Vertex(1, 1) not found in intersection result");
 
-                new_dots ~= nv.p;
+                if (new_dots[$-1] != nv.p)
+                {
+                    writefln("add nv.p=%s", nv.p);
+                    new_dots ~= nv.p;
+                }
             }
             else
                 writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
@@ -1269,7 +1278,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             ii[dotsnum] = i11+1;
             i11 = iint;
             dotsnum = (dotsnum+1)%2;
-            if (i11 < ii[dotsnum]) break;
+            if (i11 < ii[dotsnum])
+            {
+                writefln("Finish on i11=%s < ii[%s]=%s", i11, dotsnum, ii[dotsnum]);
+                break;
+            }
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
         }
@@ -1312,8 +1325,12 @@ void join_forms()
                 ubyte rotate2 = p.forms[e].rotation;
                 ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
+                dots1 = adopt_form(dots1);
+                dots2 = adopt_form(dots2);
+
                 form_dots = join_dots(dots1, dots2);
                 edited_form = cast(ubyte) e;
+                form_changed = true;
                 p.forms = p.forms[0..f] ~ p.forms[f+1..$];
 
                 change_form24();
