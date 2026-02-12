@@ -30,6 +30,7 @@ import std.stdio;
 import std.math;
 import std.container: DList;
 import std.bitmanip;
+import std.range;
 import bindbc.sdl;
 
 // @Tick
@@ -1214,30 +1215,40 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
             writefln("r=%s, [%s, %s], [%s, %s], inter=%s", r, f11, f12, f21, f22, inter);
 
-            if (r == 1)
+            if (inter != f21)
             {
-                if ( (num_intersections == 0 || between2(inter, f11, intersection)) && intersection != f22 )
+                if (r == 1)
                 {
-                    iint = i21;
-                    intersection[0..2] = inter[0..2];
-                }
+                    if ( (num_intersections == 0 || between2(inter, f11, intersection)) && intersection != f22 )
+                    {
+                        iint = i21;
+                        intersection[0..2] = inter[0..2];
+                    }
 
-                num_intersections++;
-                num_bias_intersections++;
-            }
-            else if (r == -1)
-            {
-                num_bias_intersections++;
+                    num_intersections++;
+                    num_bias_intersections++;
+                }
+                else if (r == -1)
+                {
+                    num_bias_intersections++;
+                }
             }
         }
 
         writefln("S %s-%s, num_intersections %s, num_bias_intersections %s", d11, d12, num_intersections, num_bias_intersections);
 
-        if (num_bias_intersections%2 == 0)
+        if (num_bias_intersections%2 == 0 || iok)
         {
             iok = true;
-            writefln("add d11=%s", d11);
-            new_dots ~= d11;
+            
+            if (new_dots.length > 1 && new_dots[0] == d11)
+                break;
+
+            if (new_dots.empty || new_dots[$-1] != d11)
+            {
+                writefln("add d11=%s", d11);
+                new_dots ~= d11;
+            }
         }
         else if (!iok)
         {
@@ -1265,6 +1276,9 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
                 }
                 assert(found, "Vertex(1, 1) not found in intersection result");
 
+                if (new_dots.length > 1 && new_dots[0] == nv.p)
+                    break;
+
                 if (new_dots[$-1] != nv.p)
                 {
                     writefln("add nv.p=%s", nv.p);
@@ -1278,11 +1292,6 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             ii[dotsnum] = i11+1;
             i11 = iint;
             dotsnum = (dotsnum+1)%2;
-            if (i11 < ii[dotsnum])
-            {
-                writefln("Finish on i11=%s < ii[%s]=%s", i11, dotsnum, ii[dotsnum]);
-                break;
-            }
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
         }
@@ -1317,6 +1326,11 @@ void join_forms()
             {
                 writefln("Join forms %s and %s in point %s", e, f, pt);
 
+                select.x = pt[0];
+                select.y = pt[1];
+                edited_form = cast(ubyte) e;
+                load_form_dots();
+
                 ushort form1 = p.forms[f].form;
                 ubyte rotate1 = p.forms[f].rotation;
                 ubyte[] dots1 = picture.image.get_rotated_form(form1, rotate1);
@@ -1329,7 +1343,6 @@ void join_forms()
                 dots2 = adopt_form(dots2);
 
                 form_dots = join_dots(dots1, dots2);
-                edited_form = cast(ubyte) e;
                 form_changed = true;
                 p.forms = p.forms[0..f] ~ p.forms[f+1..$];
 
