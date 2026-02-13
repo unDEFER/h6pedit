@@ -991,15 +991,7 @@ void paint(Vertex v)
 
                 if (form_dots.length > 0)
                 {
-                    ubyte p24 = form_dots[$-1];
-                    if (p24 > 61)
-                    {
-                        ubyte k = cast(ubyte)(p24 - 61);
-                        ubyte side = k/32;
-                        ubyte pp = k%32;
-                        p24 = cast(ubyte)(side*4 + pp/8);
-                        writefln("p %s => p24 %s", form_dots[$-1], p24);
-                    }
+                    ubyte p24 = to_point24(form_dots[$-1]);
 
                     if (p24 < 24 && v2.p < 24)
                     {
@@ -1044,15 +1036,7 @@ void paint(Vertex v)
 
             if (form_dots.length > 0)
             {
-                ubyte p24 = form_dots[$-1];
-                if (p24 > 61)
-                {
-                    ubyte k = cast(ubyte)(p24 - 61);
-                    ubyte side = k/32;
-                    ubyte pp = k%32;
-                    p24 = cast(ubyte)(side*4 + pp/8);
-                    writefln("p %s => p24 %s", form_dots[$-1], p24);
-                }
+                ubyte p24 = to_point24(form_dots[$-1]);
 
                 if (p24 < 24 && v.p < 24)
                 {
@@ -1286,7 +1270,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
                 }
             }
             else
+            {
                 writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
+                new_dots = null;
+                break;
+            }
 
             assert(ii[dotsnum] != i11+1, "Oops!");
             ii[dotsnum] = i11+1;
@@ -1315,6 +1303,8 @@ unittest
 
 void join_forms()
 {
+    Vertex sv = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+
     foreach (pt, f; edited_forms_by_coords)
     {
         Pixel *p = picture.image.pixel(pt[0], pt[1]);
@@ -1328,8 +1318,6 @@ void join_forms()
 
                 select.x = pt[0];
                 select.y = pt[1];
-                edited_form = cast(ubyte) e;
-                load_form_dots();
 
                 ushort form1 = p.forms[f].form;
                 ubyte rotate1 = p.forms[f].rotation;
@@ -1342,16 +1330,48 @@ void join_forms()
                 dots1 = adopt_form(dots1);
                 dots2 = adopt_form(dots2);
 
-                form_dots = join_dots(dots1, dots2);
-                form_changed = true;
-                p.forms = p.forms[0..f] ~ p.forms[f+1..$];
+                ubyte[] joined_dots = join_dots(dots1, dots2);
+                if (!joined_dots.empty)
+                {
+                    if (form1 >= 19*4)
+                    {
+                        if (picture.image.forms[form1 - 19*4].used == 1)
+                        {
+                            picture.image.formsmap.remove(picture.image.forms[form1 - 19*4].dots);
+                            picture.image.forms[form1 - 19*4].used--;
+                        }
+                        else
+                        {
+                            picture.image.forms[form1 - 19*4].used--;
+                        }
+                    }
 
-                change_form24();
+                    p.forms = p.forms[0..f] ~ p.forms[f+1..$];
+                    if (e > f) e--;
 
-                break;
+                    edited_form = cast(ubyte) e;
+                    load_form_dots(true);
+                    form_dots = joined_dots;
+                    form_changed = true;
+
+                    change_form24();
+                    break;
+                }
+                else
+                {
+                    writefln("Unjoinable. Search next candidate to join.");
+                }
             }
         }
     }
+
+    select.x = sv.x;
+    select.y = sv.y;
+
+    dotx = dot_to_coords[sv.p][0];
+    doty = dot_to_coords[sv.p][1];
+
+    load_form_dots();
 }
 
 // @EditMask24
