@@ -496,6 +496,7 @@ void draw_cursor()
     }
 }
 
+SDL_Rect drect;
 // @BrushPreview
 void draw_brush_preview()
 {
@@ -518,8 +519,15 @@ void draw_brush_preview()
         int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
         int hh = cast(int) floor(h/4.0);
 
-        brush_preview.rect.x = (select.x - picture.offx) * scales[scale];
-        brush_preview.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
+        int yl = cast(int) dot_by_line[doty].length;
+        bool y_odd = (doty%2 == 1);
+        brush_preview.rect.x = (select.x - picture.offx - 1) * scales[scale] + (2 + dotx - yl/2)*scales[scale]/4 + (y_odd ? scales[scale]/8 : 0);
+        brush_preview.rect.y = (select.y - picture.offy) * (h - hh) / scaledown + (cast(int) doty-4)*(h - hh) / cast(int) scaledown / 12;
+        if (drect != brush_preview.rect)
+        {
+            writefln("%s + %s", (select.y - picture.offy) * (h - hh) / scaledown, (cast(int) doty-4)*(h - hh) / cast(int) scaledown / 12);
+            drect = brush_preview.rect;
+        }
 
         if (select.y%2 == 1) brush_preview.rect.x += scales[scale]/2;
 

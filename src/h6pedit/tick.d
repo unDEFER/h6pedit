@@ -1970,6 +1970,9 @@ void brush_preview_init(Brush b)
 
     Vertex[] vs = Vertex.from_global(gvertices);
 
+    auto oselect = select;
+    auto odotx = dotx;
+    auto odoty = doty;
     select.x = vs[0].x;
     select.y = vs[0].y;
 
@@ -1989,4 +1992,8 @@ void brush_preview_init(Brush b)
 
     swap(pictures[pict], brush_preview);
     color = ocolor;
+
+    select = oselect;
+    dotx = odotx;
+    doty = odoty;
 }
