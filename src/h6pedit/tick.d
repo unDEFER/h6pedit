@@ -1441,8 +1441,8 @@ void process_choose_color_keys(SDL_Event event)
                 }
             }
 
-            brush_preview.image.palette[0][0] = picture.image.palette[0][color];
-            brush_preview.image.cpalette[0][0] = picture.image.cpalette[0][color];
+            brush_preview.image.palette[0][1] = picture.image.palette[0][color];
+            brush_preview.image.cpalette[0][1] = picture.image.cpalette[0][color];
             brush_preview.changed = true;
         }
     }
@@ -1955,7 +1955,13 @@ void brush_preview_init(Brush b)
 
     brush_preview = new RenderedH6P(w, h, iw, ih);
     brush_preview.autosize = true;
+    brush_preview.image.cpalette[0].length = 2;
+    brush_preview.image.palette[0].length = brush_preview.image.cpalette[0].length*8;
+    brush_preview.image.palette[0][1] = picture.image.palette[0][color];
+    brush_preview.image.cpalette[0][1] = picture.image.cpalette[0][color];
 
+    auto ocolor = color;
+    color = 1;
     swap(pictures[pict], brush_preview);
 
     uint[2] gc = [-left+8, -top + 4];
@@ -1982,4 +1988,5 @@ void brush_preview_init(Brush b)
     join_forms();
 
     swap(pictures[pict], brush_preview);
+    color = ocolor;
 }
