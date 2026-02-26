@@ -28,6 +28,7 @@ class RenderedH6P
     int offx, offy;
     int scale = 4;
     int iw, ih;
+    bool autosize;
     SDL_Rect rect;
 
     bool changed = true;
@@ -45,8 +46,6 @@ class RenderedH6P
 
     this(int w, int h, int iw, int ih, ColorSpace *space)
     {
-        ubyte[] imgdata = new ubyte[w*h*4];
-
         image = h6p_create(space, w, h);
 
         this(iw, ih);
@@ -54,8 +53,6 @@ class RenderedH6P
 
     this(int w, int h, int iw, int ih)
     {
-        ubyte[] imgdata = new ubyte[w*h*4];
-
         ColorSpace *ITP = new ColorSpace;
         *ITP = ITP_SPACE;
         Bounds bb = new double[][](2,3);
@@ -274,6 +271,18 @@ skip:
         if (changed)
         {
             if (texture) SDL_DestroyTexture(texture);
+
+            if (autosize)
+            {
+                int hw = scale;
+                int hh = cast(int) round(hw * 2.0 / sqrt(3.0));
+                int hhh = cast(int) floor(hh/4.0);
+
+                iw = image.width * hw;
+                ih = image.height * (hh-hhh) + hhh;
+                rect.w = iw;
+                rect.h = ih;
+            }
 
             h2p(inv);
 

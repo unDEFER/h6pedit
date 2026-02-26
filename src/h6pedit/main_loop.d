@@ -48,6 +48,8 @@ void main_loop()
             (cast(float)drawtime)/frame);
     }
 
+    brush_preview_init(brush);
+
     // @FPSStabilizer
     /* The main Idea of rendering process:
        Splitting the actions which must be done on frame on 2:

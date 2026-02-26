@@ -467,7 +467,6 @@ private
         colors_init();
         hexwindow_init();
         tile_preview_init();
-        brush_preview_init(brush);
 
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 

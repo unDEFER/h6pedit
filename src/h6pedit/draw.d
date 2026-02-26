@@ -217,6 +217,17 @@ void update_colors()
     }
 }
 
+// @BrushPreview
+void update_brush_preview()
+{
+    if (brush_preview.scale != picture.scale)
+    {
+        brush_preview.scale = picture.scale;
+        brush_preview.changed = true;
+    }
+    brush_preview.update(renderer);
+}
+
 // @PictureView
 void draw_picture()
 {
@@ -485,6 +496,37 @@ void draw_cursor()
     }
 }
 
+// @BrushPreview
+void draw_brush_preview()
+{
+    if ((time/30)%2 == 1)
+    {
+        uint scalew = scales[scale];
+        uint scaledown = 1;
+
+        if (scalew == 4 || scalew == 2 || scalew == 1)
+        {
+            scaledown = 8/scalew;
+            scalew = 8;
+        }
+        /*else
+          {
+          scaledown = 2;
+          scalew *= 2;
+          }*/
+
+        int h = cast(int) round(scalew * 2.0 / sqrt(3.0));
+        int hh = cast(int) floor(h/4.0);
+
+        brush_preview.rect.x = (select.x - picture.offx) * scales[scale];
+        brush_preview.rect.y = (select.y - picture.offy) * (h - hh) / scaledown;
+
+        if (select.y%2 == 1) brush_preview.rect.x += scales[scale]/2;
+
+        brush_preview.draw(renderer);
+    }
+}
+
 // @DrawCoords
 void draw_coords()
 {
@@ -503,6 +545,7 @@ void draw_screen()
     update_view();
     update_selection();
     update_colors();
+    update_brush_preview();
 
     SDL_SetRenderDrawColor(renderer, 160, 120, 80, 255);
     SDL_RenderClear(renderer);
@@ -620,6 +663,7 @@ void draw_screen()
 
     draw_coords();
     if (mode != Mode.ExtendedFormEdit) draw_cursor();
+    draw_brush_preview();
 
     SDL_RenderPresent(renderer);
 }
