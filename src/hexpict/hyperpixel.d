@@ -1113,7 +1113,7 @@ struct Vertex
                         else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
                         {
                             writefln("branch 2");
-                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[16][0]);
                         }
                         else
                         {
