@@ -1110,7 +1110,7 @@ void apply_brush(in Brush b)
         gvertices ~= gc;
 
         Vertex[] vs = Vertex.from_global(gvertices);
-        vertices ~= vs[0];
+        vertices ~= vs;
 
         v = vs[0];
     }
@@ -1309,57 +1309,60 @@ void join_forms()
     {
         Pixel *p = picture.image.pixel(pt[0], pt[1]);
 
-        auto color = p.forms[f].extra_color;
-        foreach (e, form; p.forms)
+        if (p.forms.length >= 2)
         {
-            if (e != f && form.extra_color == color)
+            auto color = p.forms[f].extra_color;
+            foreach (e, form; p.forms)
             {
-                writefln("Join forms %s and %s in point %s", e, f, pt);
-
-                select.x = pt[0];
-                select.y = pt[1];
-
-                ushort form1 = p.forms[f].form;
-                ubyte rotate1 = p.forms[f].rotation;
-                ubyte[] dots1 = picture.image.get_rotated_form(form1, rotate1);
-
-                ushort form2 = p.forms[e].form;
-                ubyte rotate2 = p.forms[e].rotation;
-                ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
-
-                dots1 = adopt_form(dots1);
-                dots2 = adopt_form(dots2);
-
-                ubyte[] joined_dots = join_dots(dots1, dots2);
-                if (!joined_dots.empty)
+                if (e != f && form.extra_color == color)
                 {
-                    if (form1 >= 19*4)
+                    writefln("Join forms %s and %s in point %s", e, f, pt);
+
+                    select.x = pt[0];
+                    select.y = pt[1];
+
+                    ushort form1 = p.forms[f].form;
+                    ubyte rotate1 = p.forms[f].rotation;
+                    ubyte[] dots1 = picture.image.get_rotated_form(form1, rotate1);
+
+                    ushort form2 = p.forms[e].form;
+                    ubyte rotate2 = p.forms[e].rotation;
+                    ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
+
+                    dots1 = adopt_form(dots1);
+                    dots2 = adopt_form(dots2);
+
+                    ubyte[] joined_dots = join_dots(dots1, dots2);
+                    if (!joined_dots.empty)
                     {
-                        if (picture.image.forms[form1 - 19*4].used == 1)
+                        if (form1 >= 19*4)
                         {
-                            picture.image.formsmap.remove(picture.image.forms[form1 - 19*4].dots);
-                            picture.image.forms[form1 - 19*4].used--;
+                            if (picture.image.forms[form1 - 19*4].used == 1)
+                            {
+                                picture.image.formsmap.remove(picture.image.forms[form1 - 19*4].dots);
+                                picture.image.forms[form1 - 19*4].used--;
+                            }
+                            else
+                            {
+                                picture.image.forms[form1 - 19*4].used--;
+                            }
                         }
-                        else
-                        {
-                            picture.image.forms[form1 - 19*4].used--;
-                        }
+
+                        p.forms = p.forms[0..f] ~ p.forms[f+1..$];
+                        if (e > f) e--;
+
+                        edited_form = cast(ubyte) e;
+                        load_form_dots(true);
+                        form_dots = joined_dots;
+                        form_changed = true;
+
+                        change_form24();
+                        break;
                     }
-
-                    p.forms = p.forms[0..f] ~ p.forms[f+1..$];
-                    if (e > f) e--;
-
-                    edited_form = cast(ubyte) e;
-                    load_form_dots(true);
-                    form_dots = joined_dots;
-                    form_changed = true;
-
-                    change_form24();
-                    break;
-                }
-                else
-                {
-                    writefln("Unjoinable. Search next candidate to join.");
+                    else
+                    {
+                        writefln("Unjoinable. Search next candidate to join.");
+                    }
                 }
             }
         }
@@ -1943,7 +1946,7 @@ void brush_preview_init(Brush b)
     int gw = right - left;
     int gh = bottom - top + 4;
 
-    int w = gw / 8 + 1;
+    int w = gw / 8 + 2;
     int h = gh / 12 + 1;
 
     int hw = 8;

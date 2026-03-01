@@ -1096,30 +1096,29 @@ struct Vertex
                         float dir2 = atan2(-1.0f*pc2[1], 1.0f*pc2[0]);
                         writefln("1. dir1=%s, dir2=%s", dir1*180.0f/PI, dir2*180.0f/PI);
 
-                        float dir = dir1;
-
-                        if (abs(dir1 + PI/2.0f) < 1e-5 || abs(dir1 - PI/4.0f) < 1e-5 ||
-                                abs(dir1 - PI*3.0f/4.0f) < 1e-5)
+                        Vertex gv(float dir)
                         {
-                            writefln("dir2");
-                            dir = dir2;
+                            if ( dir > -PI/2.0f - 1e-5 && dir < PI/4.0f + 1e-5 )
+                            {
+                                writefln("branch 1");
+                                return v;
+                            }
+                            else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
+                            {
+                                writefln("branch 2");
+                                return Vertex(v.x - vy_even, v.y-1, dot_by_line[16][0]);
+                            }
+                            else
+                            {
+                                writefln("branch 3");
+                                return Vertex(v.x - 1, v.y, dot_by_line[4][4]);
+                            }
                         }
 
-                        if ( dir > -PI/2.0f - 1e-5 && dir < PI/4.0f + 1e-5 )
-                        {
-                            writefln("branch 1");
-                            vs ~= v;
-                        }
-                        else if ( dir > PI/4.0f && dir < PI*3.0f/4.0f + 1e-5 )
-                        {
-                            writefln("branch 2");
-                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[16][0]);
-                        }
-                        else
-                        {
-                            writefln("branch 3");
-                            vs ~= Vertex(v.x - 1, v.y, dot_by_line[4][4]);
-                        }
+                        Vertex v1 = gv(dir1);
+                        Vertex v2 = gv(dir2);
+                        vs ~= v1;
+                        if (v2 != v1) vs ~= v2;
                     }
                     else
                     {
