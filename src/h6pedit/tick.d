@@ -1237,7 +1237,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
         else if (!iok)
         {
             ioff++;
-            assert(ioff < dots1.length);
+            if (ioff >= dots1.length) return [];
         }
 
         if (num_intersections > 0 && num_bias_intersections%2 == 0)
