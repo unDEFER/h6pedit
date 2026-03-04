@@ -130,6 +130,11 @@ bool between2(int[2] r, int[2] a, int[2] b)
     return between(r[0], a[0], b[0]) && between(r[1], a[1], b[1]);
 }
 
+float dist2(float[2] a, float[2] b)
+{
+    return hypot(a[0] - b[0], a[1] - b[1]);
+}
+
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
 {
     float[3] line_eq1;
@@ -148,11 +153,41 @@ byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2]
         if ( between2(seg2[0], seg1[0], seg1[1]) )
         {
             res = seg2[0];
+            if ( between2(seg1[0], seg2[0], seg2[1]) && is_same_point(seg1[0], seg2[0]) )
+            {
+                if ( is_same_point(seg1[1], seg2[1]) )
+                    return 5; // Отрезки совпадают
+                else
+                    return 6; // Лежат на одной прямой и касаются друг друга одной вершиной
+            }
+            else if ( between2(seg1[1], seg2[0], seg2[1]) && is_same_point(seg1[1], seg2[0]) )
+            {
+                if ( is_same_point(seg1[0], seg2[1]) )
+                    return 5; // Отрезки совпадают
+                else
+                    return 6; // Лежат на одной прямой и касаются друг друга одной вершиной
+            }
+
             return 2; // Лежат на одной прямой и пересекаются
         }
         else if ( between2(seg2[1], seg1[0], seg1[1]) )
         {
             res = seg2[1];
+            if ( between2(seg1[0], seg2[0], seg2[1]) && is_same_point(seg1[0], seg2[1]) )
+            {
+                if ( is_same_point(seg1[1], seg2[0]) )
+                    return 5; // Отрезки совпадают
+                else
+                    return 6; // Лежат на одной прямой и касаются друг друга одной вершиной
+            }
+            else if ( between2(seg1[1], seg2[0], seg2[1]) && is_same_point(seg1[1], seg2[1]) )
+            {
+                if ( is_same_point(seg1[0], seg2[0]) )
+                    return 5; // Отрезки совпадают
+                else
+                    return 6; // Лежат на одной прямой и касаются друг друга одной вершиной
+            }
+
             return 3; // Лежат на одной прямой и пересекаются
         }
         else if ( between2(seg1[0], seg2[0], seg2[1]) )

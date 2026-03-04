@@ -1172,7 +1172,9 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     bool iok;
 
     ubyte[] new_dots;
-    bool bad;
+    ptrdiff_t j11 = -1;
+    ptrdiff_t j21 = -1;
+    bool done;
 
     for(size_t i11 = 0; dotsnum != 0 || i11 < ioff + dots1.length; i11++)
     {
@@ -1197,9 +1199,14 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
-            writefln("r=%s, [%s, %s], [%s, %s], inter=%s", r, f11, f12, f21, f22, inter);
+            writefln("r=%s, %s-%s [%s, %s], [%s, %s], inter=%s", r, d21, d22, f11, f12, f21, f22, inter);
 
-            if (inter != f21)
+            if (r >= 2 && r <= 5)
+            {
+                j11 = i11%dots1.length;
+                j21 = i21%dots2.length;
+            }
+            else if (inter != f21)
             {
                 if (r == 1)
                 {
@@ -1237,11 +1244,12 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
         else if (!iok)
         {
             ioff++;
-            if (ioff >= dots1.length) return [];
+            if (ioff >= dots1.length) break;
         }
 
         if (num_intersections > 0 && num_bias_intersections%2 == 0)
         {
+            done = true;
             iok = true;
             Vertex[] iv = Vertex.from_flat([intersection]);
             if (iv.length > 0)
@@ -1272,8 +1280,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             else
             {
                 writefln("Intersection %s-%s & %s is %s [NO POINT IN THE GRID]", d11, d12, dots2, intersection);
-                new_dots = null;
-                break;
+                return null;
             }
 
             assert(ii[dotsnum] != i11+1, "Oops!");
@@ -1282,6 +1289,61 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             dotsnum = (dotsnum+1)%2;
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
+        }
+    }
+
+    if (!done)
+    {
+        writefln("j11=%s, j21=%s", j11, j21);
+        new_dots = null;
+
+        if (j11 >= 0)
+        {
+            ptrdiff_t j12 = (j11+1)%dots1.length;
+            ptrdiff_t j22 = (j21+1)%dots2.length;
+            ubyte d11 = dots1[j11];
+            ubyte d12 = dots1[j12];
+
+            int[2] f11 = Vertex(1, 1, to_point24(d11), d11).to_flat();
+            int[2] f12 = Vertex(1, 1, to_point24(d12), d12).to_flat();
+
+            float[2] p1 = [cast(float) f11[0], cast(float) f11[1]];
+            float[2] p2 = [cast(float) f12[0], cast(float) f12[1]];
+            float[3] eq;
+            line_equation(p1, p2, eq);
+
+            bool is_on_line(ubyte d)
+            {
+                int[2] f = Vertex(1, 1, to_point24(d), d).to_flat();
+                float[2] p = [cast(float) f[0], cast(float) f[1]];
+
+                float dist = dist_point_to_line(p, eq);
+                return dist < 1e-5;
+            }
+
+            while ( is_on_line(dots1[(j11+$-1)%$]) )
+                j11 = (j11 + dots1.length - 1) % dots1.length;
+
+            while ( is_on_line(dots1[(j12+1)%$]) )
+                j12 = (j12 + 1) % dots1.length;
+
+            while ( is_on_line(dots2[(j21+$-1)%$]) )
+                j21 = (j21 + dots2.length - 1) % dots2.length;
+
+            while ( is_on_line(dots2[(j22+1)%$]) )
+                j22 = (j22 + 1) % dots2.length;
+
+            writefln("Touching %s-%s, %s-%s", j11, j12, j21, j22);
+
+            for(size_t i11 = j12; i11 != j11; i11 = (i11+1)%dots1.length)
+            {
+                new_dots ~= dots1[i11];
+            }
+
+            for(size_t i21 = j22; i21 != j21; i21 = (i21+1)%dots2.length)
+            {
+                new_dots ~= dots2[i21];
+            }
         }
     }
 
