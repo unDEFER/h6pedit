@@ -160,8 +160,8 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                     x2 = cast(int) round(p1.x);
                 }
                 
-                if (x1 >= w) x1 = w-1;
-                if (x2 >= w) x2 = w-1;
+                if (x1 > w) x1 = w;
+                if (x2 > w) x2 = w;
 
                 float xc = p1.x;
                 float yc = (p1.y + p2.y)/2.0f;
@@ -332,12 +332,12 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                 writefln("yinter = %s, sx = %s", yinter, sx);
             }
 
-            foreach (x; sx .. yinter.x2+1)
+            foreach (x; sx .. yinter.x2)
             {
                 hpdata[y*w + x] = true;
             }
 
-            xp = yinter.x2+1;
+            xp = yinter.x2;
             ydirp = yinter.ydir;
         }
 
