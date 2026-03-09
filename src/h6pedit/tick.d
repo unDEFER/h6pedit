@@ -1176,7 +1176,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     ptrdiff_t j21 = -1;
     bool done;
 
-    for(size_t i11 = 0; dotsnum == 0 ? i11 < ioff + dots1.length : i11 < ioff + dots2.length; i11++)
+    for(size_t i11 = 0; i11 < ioff + dots1.length; i11++)
     {
         ubyte d11 = dots1[i11%$];
         ubyte d12 = dots1[(i11+1)%$];
@@ -1364,23 +1364,28 @@ unittest
     assert(jdots == expected);
 }
 
+bool is_one_side(ubyte d1, ubyte d2)
+{
+    ubyte p24 = to_point24(d1);
+    ubyte p24_2 = to_point24(d2);
+    ubyte p = p24/4;
+    ubyte p2 = p24_2/4;
+
+    //writefln("p24=%s, p24_2=%s, p=%s, p2=%s", p24, p24_2, p, p2);
+    //writefln("c1 %s c2 %s c3 %s c4 %s", p24 >= 24 || p24_2 >= 24, p != p2 && (p2+1)%6 != p, p == p2 && p24_2 > p24, (p2+1)%6 == p && p24%4 > 0);
+    if (p24 >= 24 || p24_2 >= 24) return false;
+    if (p != p2 && (p2+1)%6 != p) return false;
+    if (p == p2 && p24_2 > p24) return false;
+    if ((p2+1)%6 == p && p24%4 > 0) return false;
+    return true;
+}
+
 bool is_full_hexagon(ubyte[] dots)
 {
     foreach (i, d; dots)
     {
         ubyte nd = dots[(i+1)%$];
-
-        ubyte p24 = to_point24(d);
-        ubyte p24_2 = to_point24(nd);
-        ubyte p = p24/4;
-        ubyte p2 = p24_2/4;
-
-        //writefln("p24=%s, p24_2=%s, p=%s, p2=%s", p24, p24_2, p, p2);
-        //writefln("c1 %s c2 %s c3 %s c4 %s", p24 >= 24 || p24_2 >= 24, p != p2 && (p2+1)%6 != p, p == p2 && p24_2 > p24, (p2+1)%6 == p && p24%4 > 0);
-        if (p24 >= 24 || p24_2 >= 24) return false;
-        if (p != p2 && (p2+1)%6 != p) return false;
-        if (p == p2 && p24_2 > p24) return false;
-        if ((p2+1)%6 == p && p24%4 > 0) return false;
+        if ( !is_one_side(d, nd) ) return false;
     }
 
     return true;
