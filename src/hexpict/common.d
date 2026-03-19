@@ -135,6 +135,66 @@ float dist2(float[2] a, float[2] b)
     return hypot(a[0] - b[0], a[1] - b[1]);
 }
 
+byte point_to_vector_position(float[2] point, float[2][2] vector)
+{
+    if ( is_same_point(point, vector[0]) ) return -1; // Начало вектора, точка A
+    if ( is_same_point(point, vector[1]) ) return  1; // Конец вектора, точка B
+
+    float[3] line_eq;
+    line_equation(vector[0], vector[1], line_eq);
+
+    float dist = signed_dist_point_to_line(point, line_eq);
+
+    if (abs(dist) < 1e-5)
+    {
+        if ( between2(point, vector[0], vector[1]) ) return 0; // На векторе
+        if ( between2(vector[0], point, vector[1]) ) return -2; // На линии вектора в обратном направлении
+        return 2; // На линии вектора в прямом направлении
+    }
+    if (dist > 0) return 3;
+    return -3;
+}
+
+byte[3] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
+{
+    byte[3] res;
+    res[0] = point_to_vector_position(vec1[0], vec2);
+    res[2] = point_to_vector_position(vec1[1], vec2);
+
+    if (res[0] == 3 && res[2] == -3 || res[0] == -3 && res[2] == 3)
+    {
+        float[3] line_eq1;
+        line_equation(vec1[0], vec1[1], line_eq1);
+
+        float[3] line_eq2;
+        line_equation(vec2[0], vec2[1], line_eq2);
+
+        float[2] inter;
+        intersection_by_equation(line_eq1, line_eq2, inter);
+
+        res[1] = point_to_vector_position(inter, vec2);
+    }
+
+    return res;
+}
+
+byte[3] vectors_intersection(int[2][2] vec1, int[2][2] vec2)
+{
+    float[2][2] fvec1;
+    float[2][2] fvec2;
+
+    foreach (j; 0..2)
+    {
+        foreach (i; 0..2)
+        {
+            fvec1[j][i] = vec1[j][i];
+            fvec2[j][i] = vec2[j][i];
+        }
+    }
+
+    return vectors_intersection(fvec1, fvec2);
+}
+
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
 {
     float[3] line_eq1;

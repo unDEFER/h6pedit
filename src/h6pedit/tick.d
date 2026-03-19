@@ -1164,6 +1164,7 @@ void apply_brush(in Brush b)
 ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 {
     writefln("dots %s and %s", dots1, dots2);
+    swap(dots1, dots2);
 
     size_t[2] ii = [0, 0];
     ubyte dotsnum = 0;
@@ -1197,9 +1198,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             int[2] f21 = Vertex(1, 1, to_point24(d21), d21).to_flat();
             int[2] f22 = Vertex(1, 1, to_point24(d22), d22).to_flat();
 
+            byte[3] vi = vectors_intersection([f11, f12], [f21, f22]);
+
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
-            writefln("r=%s, %s-%s [%s, %s], [%s, %s], inter=%s", r, d21, d22, f11, f12, f21, f22, inter);
+            writefln("r=%s, %s-%s [%s, %s], [%s, %s], inter=%s, vi = %s", r, d21, d22, f11, f12, f21, f22, inter, vi);
 
             if (r >= 2 && r <= 5)
             {
