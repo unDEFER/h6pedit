@@ -155,13 +155,13 @@ byte point_to_vector_position(float[2] point, float[2][2] vector)
     return -3;
 }
 
-byte[3] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
+byte[2] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
 {
-    byte[3] res;
+    byte[2] res;
     res[0] = point_to_vector_position(vec1[0], vec2);
-    res[2] = point_to_vector_position(vec1[1], vec2);
+    res[1] = point_to_vector_position(vec1[1], vec2);
 
-    if (res[0] == 3 && res[2] == -3 || res[0] == -3 && res[2] == 3)
+    if (abs(res[1]) == 3)
     {
         float[3] line_eq1;
         line_equation(vec1[0], vec1[1], line_eq1);
@@ -170,15 +170,15 @@ byte[3] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
         line_equation(vec2[0], vec2[1], line_eq2);
 
         float[2] inter;
-        intersection_by_equation(line_eq1, line_eq2, inter);
-
-        res[1] = point_to_vector_position(inter, vec2);
+        byte ri = intersection_by_equation(line_eq1, line_eq2, inter);
+        if (ri > 0 && !between2(vec1[0], inter, vec1[1]))
+            res[1] = point_to_vector_position(inter, vec2);
     }
 
     return res;
 }
 
-byte[3] vectors_intersection(int[2][2] vec1, int[2][2] vec2)
+byte[2] vectors_intersection(int[2][2] vec1, int[2][2] vec2)
 {
     float[2][2] fvec1;
     float[2][2] fvec2;
@@ -193,6 +193,44 @@ byte[3] vectors_intersection(int[2][2] vec1, int[2][2] vec2)
     }
 
     return vectors_intersection(fvec1, fvec2);
+}
+
+byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon)
+{
+    int intersections;
+    size_t imax = polygon.length;
+    for (size_t i; i < imax; i++)
+    {
+        float[2] p1 = polygon[i];
+        float[2] p2 = polygon[(i+1)%$];
+        float[2][2] vec2 = [p1, p2];
+
+        byte[2] r = vectors_intersection(vec, vec2);
+        if ( abs(r[0]) == 3 )
+        {
+            if (r[1] == 0) intersections++;
+            else if (r[1] == -1)
+            {
+                float[2] p0 = polygon[(i+$-1)%$];
+                float[2][2] vec1 = [p0, p1];
+                byte r2 = point_to_vector_position(vec[0], vec1);
+                if (r2 == r[0]) intersections++;
+                if (i == 0) imax--;
+            }
+            else if (r[1] == 1)
+            {
+                float[2] p3 = polygon[(i+2)%$];
+                float[2][2] vec3 = [p2, p3];
+                byte r2 = point_to_vector_position(vec[0], vec3);
+                if (r2 == r[0]) intersections++;
+                i++;
+            }
+        }
+        else if (abs(r[0]) <= 1)
+            return abs(r[0]);
+    }
+
+    return (intersections%2 == 0) ? -3 : 3;
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)

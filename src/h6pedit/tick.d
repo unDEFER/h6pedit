@@ -1177,6 +1177,16 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     ptrdiff_t j21 = -1;
     bool done;
 
+    float[2][] polygon;
+
+    for(size_t i = 0; i < dots2.length; i++)
+    {
+        ubyte d = dots2[i];
+        int[2] f = Vertex(1, 1, to_point24(d), d).to_flat();
+        float[2] p = [cast(float) f[0], cast(float) f[1]];
+        polygon ~= p;
+    }
+
     for(size_t i11 = 0; i11 < ioff + dots1.length; i11++)
     {
         ubyte d11 = dots1[i11%$];
@@ -1184,6 +1194,13 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
         int[2] f11 = Vertex(1, 1, to_point24(d11), d11).to_flat();
         int[2] f12 = Vertex(1, 1, to_point24(d12), d12).to_flat();
+
+        float[2] p11 = [cast(float) f11[0], cast(float) f11[1]];
+        float[2] p12 = [cast(float) f12[0], cast(float) f12[1]];
+        float[2][2] vecA = [p11, p12];
+        float[2][2] vecB = [p12, p11];
+        byte vpA = vector_in_polygon_position(vecA, polygon);
+        byte vpB = vector_in_polygon_position(vecB, polygon);
 
         int[2] intersection;
         size_t iint;
@@ -1198,7 +1215,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             int[2] f21 = Vertex(1, 1, to_point24(d21), d21).to_flat();
             int[2] f22 = Vertex(1, 1, to_point24(d22), d22).to_flat();
 
-            byte[3] vi = vectors_intersection([f11, f12], [f21, f22]);
+            byte[2] vi = vectors_intersection([f11, f12], [f21, f22]);
 
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
@@ -1229,7 +1246,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             }
         }
 
-        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s", d11, d12, num_intersections, num_bias_intersections);
+        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s, vp=[%s, %s]", d11, d12, num_intersections, num_bias_intersections, vpA, vpB);
 
         if (num_bias_intersections%2 == 0 || iok)
         {
