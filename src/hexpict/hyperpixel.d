@@ -1246,13 +1246,13 @@ struct Vertex
                         }
                         else
                         {
-                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                            vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12+doty][0]);
                         }
                     }
                     else
                     {
                         vs ~= v;
-                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12][0]);
+                        vs ~= Vertex(v.x - vy_even, v.y-1, dot_by_line[12+doty][0]);
                     }
                 }
                 else
@@ -1280,7 +1280,7 @@ struct Vertex
 
                         if ( dir < PI*3.0f/4.0f + 1e-5 && dir > -PI/4.0f - 1e-5 )
                         {
-                            vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                            vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12+doty][0]);
                         }
                         else
                         {
@@ -1290,7 +1290,7 @@ struct Vertex
                     else
                     {
                         vs ~= v;
-                        vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12][0]);
+                        vs ~= Vertex(v.x - vy_even + 1, v.y-1, dot_by_line[12+doty][0]);
                     }
                 }
             }

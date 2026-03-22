@@ -1177,16 +1177,27 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     ptrdiff_t j21 = -1;
     bool done;
 
-    float[2][] polygon;
+    float[2][] polygon1;
+    float[2][] polygon2;
+
+    for(size_t i = 0; i < dots1.length; i++)
+    {
+        ubyte d = dots1[i];
+        polygon1 ~= pext2flat(d);
+    }
 
     for(size_t i = 0; i < dots2.length; i++)
     {
         ubyte d = dots2[i];
-        int[2] f = Vertex(1, 1, to_point24(d), d).to_flat();
-        float[2] p = [cast(float) f[0], cast(float) f[1]];
-        polygon ~= p;
+        polygon2 ~= pext2flat(d);
     }
 
+    writefln("polygon1 = %s", polygon1);
+    writefln("polygon2 = %s", polygon2);
+    float[2][] joined_polygon = join_polygons(polygon1, polygon2);
+    writefln("joined_polygon = %s", joined_polygon);
+
+    /+
     for(size_t i11 = 0; i11 < ioff + dots1.length; i11++)
     {
         ubyte d11 = dots1[i11%$];
@@ -1197,10 +1208,6 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
         float[2] p11 = [cast(float) f11[0], cast(float) f11[1]];
         float[2] p12 = [cast(float) f12[0], cast(float) f12[1]];
-        float[2][2] vec = [p11, p12];
-        float[2] interr;
-        size_t side;
-        byte[3] vp = vector_in_polygon_position(vec, polygon, interr, side);
 
         int[2] intersection;
         size_t iint;
@@ -1244,7 +1251,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             }
         }
 
-        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s, vp=%s, interr=%s", d11, d12, num_intersections, num_bias_intersections, vp, interr);
+        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s", d11, d12, num_intersections, num_bias_intersections);
 
         if (num_bias_intersections%2 == 0 || iok)
         {
@@ -1308,15 +1315,6 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             dotsnum = (dotsnum+1)%2;
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
-
-            polygon.length = 0;
-            for(size_t i = 0; i < dots2.length; i++)
-            {
-                ubyte d = dots2[i];
-                int[2] f = Vertex(1, 1, to_point24(d), d).to_flat();
-                float[2] p = [cast(float) f[0], cast(float) f[1]];
-                polygon ~= p;
-            }
         }
     }
 
@@ -1376,6 +1374,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     }
 
     writefln("new_dots %s", new_dots);
+    +/
 
     return new_dots;
 }

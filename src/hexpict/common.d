@@ -1,6 +1,7 @@
 module hexpict.common;
 import bindbc.sdl;
 import std.math;
+import std.algorithm;
 
 void SdlGetPixel(SDL_Surface *image, int x, int y, out ubyte r, out ubyte g, out ubyte b, out ubyte a)
 {
@@ -260,6 +261,54 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
     if (res[2] == -3)
         res[2] = (seg_intersections%2 == 0) ? res[0] : cast(byte) -res[0];
     return res;
+}
+
+float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
+{
+    float[2][] jp;
+
+    for (size_t i=0; ; i++)
+    {
+        float[2] p1 = polygon1[i%$];
+        float[2] p2 = polygon1[(i+1)%$];
+
+        if (jp.length > 0 && p1 == jp[0]) break;
+
+        float[2][2] vec = [p1, p2];
+        float[2] inter;
+        size_t side;
+        byte[3] r = vector_in_polygon_position(vec, polygon2, inter, side);
+
+        import std.stdio;
+        writefln("J+:+ jp.$=%s vec=%s, polygon=%s, inter=%s, side=%s, r=%s", jp.length, vec, polygon2, inter, side, r);
+        if (r[0] == 3)
+        {
+            assert(jp.length == 0);
+            if (i >= polygon1.length-1) break;
+            continue;
+        }
+        
+        if (r[0] == 0 && abs(r[1]) == 3 && r[2] == 0)
+        {
+            writefln("J: 0 SWITCH");
+            i = side;
+            swap(polygon1, polygon2);
+            continue;
+        }
+
+        jp ~= p1;
+        if (r[0] == -3 && r[1] != -3)
+        {
+            writefln("J: SWITCH");
+            jp ~= inter;
+            i = side;
+            swap(polygon1, polygon2);
+        }
+        
+        assert(jp.length <= polygon1.length + polygon2.length);
+    }
+    
+    return jp;
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
