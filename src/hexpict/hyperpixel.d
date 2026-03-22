@@ -936,6 +936,49 @@ ubyte[2][61] dot_to_coords = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4],
                               [2, 8]
 ];
 
+float[2] pext2flat(ubyte p)
+{
+    ubyte p1, p2, o;
+    if (p > 61)
+    {
+        ubyte k = cast(ubyte)(p - 61);
+        ubyte side = k/28;
+        ubyte pp = k%28;
+        p1 = cast(ubyte)(side*4 + pp/7);
+        p2 = cast(ubyte)(side*4 + pp/7 + 1);
+        o = 1+pp%7;
+        //writefln("to_point24 %s => p24 %s", p, dir);
+    }
+    else
+    {
+        p1 = p;
+    }
+
+    ubyte dotx = dot_to_coords[p1][0];
+    ubyte doty = dot_to_coords[p1][1];
+
+    ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+    uint gx = (doty%2) + dotx_*2;
+    uint gy = doty;
+
+    float[2] res = [cast(float) gx, cast(float) gy];
+    if (p > 61)
+    {
+        dotx = dot_to_coords[p2][0];
+        doty = dot_to_coords[p2][1];
+
+        dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+        gx = (doty%2) + dotx_*2;
+        gy = doty;
+
+        float[2] res2 = [cast(float) gx, cast(float) gy];
+        float[2] dr = [res2[0] - res[0], res2[1] - res[1]];
+        res = [res[0] + dr[0]*o/8.0f, res[1] + dr[1]*o/8.0f];
+    }
+
+    return res;
+}
+
 struct Vertex
 {
     uint x, y;

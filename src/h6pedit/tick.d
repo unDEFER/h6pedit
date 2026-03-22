@@ -1197,10 +1197,10 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
         float[2] p11 = [cast(float) f11[0], cast(float) f11[1]];
         float[2] p12 = [cast(float) f12[0], cast(float) f12[1]];
-        float[2][2] vecA = [p11, p12];
-        float[2][2] vecB = [p12, p11];
-        byte vpA = vector_in_polygon_position(vecA, polygon);
-        byte vpB = vector_in_polygon_position(vecB, polygon);
+        float[2][2] vec = [p11, p12];
+        float[2] interr;
+        size_t side;
+        byte[3] vp = vector_in_polygon_position(vec, polygon, interr, side);
 
         int[2] intersection;
         size_t iint;
@@ -1215,11 +1215,9 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             int[2] f21 = Vertex(1, 1, to_point24(d21), d21).to_flat();
             int[2] f22 = Vertex(1, 1, to_point24(d22), d22).to_flat();
 
-            byte[2] vi = vectors_intersection([f11, f12], [f21, f22]);
-
             int[2] inter;
             byte r = line_segments_intersection([f11, f12], [f21, f22], inter);
-            writefln("r=%s, %s-%s [%s, %s], [%s, %s], inter=%s, vi = %s", r, d21, d22, f11, f12, f21, f22, inter, vi);
+            writefln("r=%s, %s-%s [%s, %s], [%s, %s], inter=%s", r, d21, d22, f11, f12, f21, f22, inter);
 
             if (r >= 2 && r <= 5)
             {
@@ -1246,7 +1244,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             }
         }
 
-        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s, vp=[%s, %s]", d11, d12, num_intersections, num_bias_intersections, vpA, vpB);
+        writefln("S %s-%s, num_intersections %s, num_bias_intersections %s, vp=%s, interr=%s", d11, d12, num_intersections, num_bias_intersections, vp, interr);
 
         if (num_bias_intersections%2 == 0 || iok)
         {
@@ -1310,6 +1308,15 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
             dotsnum = (dotsnum+1)%2;
             swap(dots1, dots2);
             writefln("SWAP ii %s, dotsnum %s", ii, dotsnum);
+
+            polygon.length = 0;
+            for(size_t i = 0; i < dots2.length; i++)
+            {
+                ubyte d = dots2[i];
+                int[2] f = Vertex(1, 1, to_point24(d), d).to_flat();
+                float[2] p = [cast(float) f[0], cast(float) f[1]];
+                polygon ~= p;
+            }
         }
     }
 

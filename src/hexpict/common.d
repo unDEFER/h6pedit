@@ -155,13 +155,14 @@ byte point_to_vector_position(float[2] point, float[2][2] vector)
     return -3;
 }
 
-byte[2] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
+byte[3] vectors_intersection(float[2][2] vec1, float[2][2] vec2, ref float[2] inter)
 {
-    byte[2] res;
+    byte[3] res;
     res[0] = point_to_vector_position(vec1[0], vec2);
-    res[1] = point_to_vector_position(vec1[1], vec2);
+    res[2] = point_to_vector_position(vec1[1], vec2);
+    res[1] = res[2];
 
-    if (abs(res[1]) == 3)
+    if (abs(res[2]) == 3)
     {
         float[3] line_eq1;
         line_equation(vec1[0], vec1[1], line_eq1);
@@ -169,7 +170,6 @@ byte[2] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
         float[3] line_eq2;
         line_equation(vec2[0], vec2[1], line_eq2);
 
-        float[2] inter;
         byte ri = intersection_by_equation(line_eq1, line_eq2, inter);
         if (ri > 0 && !between2(vec1[0], inter, vec1[1]))
             res[1] = point_to_vector_position(inter, vec2);
@@ -178,26 +178,11 @@ byte[2] vectors_intersection(float[2][2] vec1, float[2][2] vec2)
     return res;
 }
 
-byte[2] vectors_intersection(int[2][2] vec1, int[2][2] vec2)
+byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref float[2] inter, ref size_t side)
 {
-    float[2][2] fvec1;
-    float[2][2] fvec2;
-
-    foreach (j; 0..2)
-    {
-        foreach (i; 0..2)
-        {
-            fvec1[j][i] = vec1[j][i];
-            fvec2[j][i] = vec2[j][i];
-        }
-    }
-
-    return vectors_intersection(fvec1, fvec2);
-}
-
-byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon)
-{
-    int intersections;
+    float dist = float.max;
+    byte[3] res = [-4, -3, -3];
+    int intersections, seg_intersections;
     size_t imax = polygon.length;
     for (size_t i; i < imax; i++)
     {
@@ -205,32 +190,76 @@ byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon)
         float[2] p2 = polygon[(i+1)%$];
         float[2][2] vec2 = [p1, p2];
 
-        byte[2] r = vectors_intersection(vec, vec2);
+        float[2] vinter;
+        byte[3] r = vectors_intersection(vec, vec2, vinter);
         if ( abs(r[0]) == 3 )
         {
-            if (r[1] == 0) intersections++;
+            bool is_inter;
+            if (r[1] == 0) is_inter = true;
             else if (r[1] == -1)
             {
                 float[2] p0 = polygon[(i+$-1)%$];
                 float[2][2] vec1 = [p0, p1];
                 byte r2 = point_to_vector_position(vec[0], vec1);
-                if (r2 == r[0]) intersections++;
-                if (i == 0) imax--;
+                if (r2 == r[0]) is_inter = true;
+                if (abs(r2) == 3 && i == 0) imax--;
             }
             else if (r[1] == 1)
             {
                 float[2] p3 = polygon[(i+2)%$];
                 float[2][2] vec3 = [p2, p3];
                 byte r2 = point_to_vector_position(vec[0], vec3);
-                if (r2 == r[0]) intersections++;
-                i++;
+                if (r2 == r[0]) is_inter = true;
+                if (abs(r2) == 3) i++;
+            }
+
+            import std.stdio;
+            writefln("vec=%s, vec2=%s, vinter=%s, r=%s, is_inter=%s", vec, vec2, vinter, r, is_inter);
+            if (is_inter)
+            {
+                intersections++;
+                if (abs(r[2]) == 3 && r[0] != r[2]) seg_intersections++;
+
+                float d = dist2(vec[0], vinter);
+                if (d < dist)
+                {
+                    dist = d;
+                    inter = vinter;
+                    side = i;
+                    res[1] = r[1];
+                }
             }
         }
         else if (abs(r[0]) <= 1)
-            return abs(r[0]);
+        {
+            import std.stdio;
+            writefln("!vec=%s, vec2=%s, vinter=%s, r=%s", vec, vec2, vinter, r);
+            dist = 0;
+            inter = vec[0];
+            side = i;
+            res[0..2] = r[0..2];
+        }
+
+        if (abs(r[2]) <= 1)
+        {
+            import std.stdio;
+            writefln("@vec=%s, vec2=%s, vinter=%s, r=%s", vec, vec2, vinter, r);
+            float d = dist2(vec[0], vec[1]);
+            if (d < dist)
+            {
+                dist = d;
+                inter = vec[1];
+                side = i;
+                res[2] = r[2];
+            }
+        }
     }
 
-    return (intersections%2 == 0) ? -3 : 3;
+    if (res[0] == -4)
+        res[0] = (intersections%2 == 0) ? -3 : 3;
+    if (res[2] == -3)
+        res[2] = (seg_intersections%2 == 0) ? res[0] : cast(byte) -res[0];
+    return res;
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
