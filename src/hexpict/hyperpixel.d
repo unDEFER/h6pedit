@@ -979,6 +979,28 @@ float[2] pext2flat(ubyte p)
     return res;
 }
 
+ubyte flat2pext(float[2] flat)
+{
+    uint[2] fc = [cast(uint) round(flat[0]), cast(uint) round(flat[1])];
+
+    int fx = fc[0];
+    int fy = fc[1];
+
+    int gx = fx/2;
+    int gy = fy;
+    if ((fx%2 + fy%2)%2 != 0) return 255;
+
+    writefln("flat=%s gx=%s, gy=%s", flat, gx, gy);
+
+    ubyte doty = cast(ubyte) gy;
+    ubyte dotx_ = cast(ubyte) (gx - doty%2);
+    ubyte dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
+
+    writefln("dotx_=%s, dotx=%s, doty=%s", dotx_, dotx, doty);
+
+    return dot_by_line[doty][dotx];
+}
+
 struct Vertex
 {
     uint x, y;
