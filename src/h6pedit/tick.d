@@ -958,6 +958,58 @@ void process_mask2_editor_keys(SDL_Event event)
     mask2_hint.changed = true;
 }
 
+void paint(Vertex[] line)
+{
+    foreach(v2; line)
+    {
+        if (select.x != v2.x || select.y != v2.y)
+        {
+            change_form24();
+
+            select.x = v2.x;
+            select.y = v2.y;
+            dotx = dot_to_coords[v2.p][0];
+            doty = dot_to_coords[v2.p][1];
+            writefln("D2 dotx = %s, doty = %s", dotx, doty);
+
+            load_form_dots();
+
+            if (form_dots.length > 0)
+            {
+                ubyte p24 = to_point24(form_dots[$-1]);
+
+                if (p24 < 24 && v2.p < 24)
+                {
+                    ubyte fe = v2.p;
+                    ubyte f = p24;
+                    if (lshift)
+                        f = (f+1)%24;
+                    else
+                        f = (f+23)%24;
+
+                    while (f != fe)
+                    {
+                        if (f%4 == 0)
+                        {
+                            form_dots ~= f;
+                            writefln("ADD2 f %s", f);
+                            form_changed = true;
+                        }
+                        if (lshift)
+                            f = (f+1)%24;
+                        else
+                            f = (f+23)%24;
+                    }
+                }
+            }
+        }
+
+        form_dots ~= (v2.pext > 60 ? v2.pext : v2.p);
+        form_changed = true;
+        writefln("%sx%s Add2 %s", v2.x, v2.y, v2.pext);
+    }
+}
+
 void paint(Vertex v)
 {
     if (last_v.p <= 60 && (v.x != last_v.x || v.y != last_v.y))
@@ -975,54 +1027,7 @@ void paint(Vertex v)
 
         Vertex[] line = get_line(last_v, v);
 
-        foreach(v2; line[1..$-1])
-        {
-            if (select.x != v2.x || select.y != v2.y)
-            {
-                change_form24();
-
-                select.x = v2.x;
-                select.y = v2.y;
-                dotx = dot_to_coords[v2.p][0];
-                doty = dot_to_coords[v2.p][1];
-                writefln("D2 dotx = %s, doty = %s", dotx, doty);
-
-                load_form_dots();
-
-                if (form_dots.length > 0)
-                {
-                    ubyte p24 = to_point24(form_dots[$-1]);
-
-                    if (p24 < 24 && v2.p < 24)
-                    {
-                        ubyte fe = v2.p;
-                        ubyte f = p24;
-                        if (lshift)
-                            f = (f+1)%24;
-                        else
-                            f = (f+23)%24;
-
-                        while (f != fe)
-                        {
-                            if (f%4 == 0)
-                            {
-                                form_dots ~= f;
-                                writefln("ADD2 f %s", f);
-                                form_changed = true;
-                            }
-                            if (lshift)
-                                f = (f+1)%24;
-                            else
-                                f = (f+23)%24;
-                        }
-                    }
-                }
-            }
-
-            form_dots ~= (v2.pext > 60 ? v2.pext : v2.p);
-            form_changed = true;
-            writefln("%sx%s Add2 %s", v2.x, v2.y, v2.pext);
-        }
+        paint(line[1..$-1]);
 
         if (select.x != v.x || select.y != v.y)
         {
@@ -1106,6 +1111,7 @@ void apply_brush(in Brush b)
 
         gc[0] += b.form[(i+1)%$].dx;
         gc[1] += b.form[(i+1)%$].dy;
+        writefln("i=%s next2 gc = %s", i, gc);
 
         gvertices ~= gc;
 
@@ -1115,13 +1121,22 @@ void apply_brush(in Brush b)
         v = vs[0];
     }
 
+    Vertex[] vertices2;
+    foreach(i, v1; vertices)
+    {
+        Vertex v2 = vertices[(i+1)%$];
+        Vertex[] line = get_line(v1, v2);
+
+        vertices2 ~= line[0..$-1];
+    }
+
     ptrdiff_t off;
 
-    for(off = 0; off < vertices.length; off++)
+    for(off = 0; off < vertices2.length; off++)
     {
-        v = vertices[off];
-        size_t pi = (off - 1 + vertices.length)%vertices.length;
-        Vertex pv = vertices[pi];
+        v = vertices2[off];
+        size_t pi = (off - 1 + vertices2.length)%vertices2.length;
+        Vertex pv = vertices2[pi];
 
         writefln("Off %s, v = %s, pv = %s", off, v, pv);
         if (pv.x != v.x || pv.y != v.y)
@@ -1130,25 +1145,9 @@ void apply_brush(in Brush b)
         }
     }
 
-    writefln("Offset is %s, vertices.length = %s", off, vertices.length);
+    writefln("Offset is %s, vertices2.length = %s", off, vertices2.length);
 
-    for(size_t i = 0; i <= vertices.length; i++)
-    {
-        change_form24();
-
-        v = vertices[(off + i)%$];
-        writefln("O %s, v=%s", (off + i)%vertices.length, v);
-
-        select.x = v.x;
-        select.y = v.y;
-
-        dotx = dot_to_coords[v.p][0];
-        doty = dot_to_coords[v.p][1];
-
-        load_form_dots();
-
-        paint(v);
-    }
+    paint(vertices2[off..$] ~ vertices2[0..off]);
 
     change_form24();
 
