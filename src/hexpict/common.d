@@ -260,6 +260,8 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
         res[0] = (intersections%2 == 0) ? -3 : 3;
     if (res[2] == -3)
         res[2] = (seg_intersections%2 == 0) ? res[0] : cast(byte) -res[0];
+    if (abs(res[0]) <= 1 && abs(res[2]) <= 1)
+        res[1] = (intersections%2 == 0) ? -3 : 3;
     return res;
 }
 
@@ -288,7 +290,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             continue;
         }
         
-        if (r[0] == 0 && abs(r[1]) == 3 && r[2] == 0)
+        if (abs(r[0]) <= 1 && r[1] == 3 && abs(r[2]) <= 1)
         {
             writefln("J: 0 SWITCH");
             i = side;
