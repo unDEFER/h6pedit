@@ -2,6 +2,7 @@ module hexpict.common;
 import bindbc.sdl;
 import std.math;
 import std.algorithm;
+import std.stdio;
 
 void SdlGetPixel(SDL_Surface *image, int x, int y, out ubyte r, out ubyte g, out ubyte b, out ubyte a)
 {
@@ -161,7 +162,7 @@ byte[3] vectors_intersection(float[2][2] vec1, float[2][2] vec2, ref float[2] in
     byte[3] res;
     res[0] = point_to_vector_position(vec1[0], vec2);
     res[2] = point_to_vector_position(vec1[1], vec2);
-    res[1] = res[2];
+    res[1] = abs(res[0]) == 1 ? res[0] : res[2];
 
     if (abs(res[2]) == 3)
     {
@@ -214,8 +215,6 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
                 if (abs(r2) == 3) i++;
             }
 
-            import std.stdio;
-            writefln("vec=%s, vec2=%s, vinter=%s, r=%s, is_inter=%s", vec, vec2, vinter, r, is_inter);
             if (is_inter)
             {
                 intersections++;
@@ -230,39 +229,207 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
                     res[1] = r[1];
                 }
             }
+            else if (abs(r[1]) == 1 && abs(res[1]) > abs(r[1]))
+                res[1] = r[1];
+            writefln("vec=%s, vec2=%s, vinter=%s, r=%s, is_inter=%s, res=%s", vec, vec2, vinter, r, is_inter, res);
         }
         else if (abs(r[0]) <= 1)
         {
-            import std.stdio;
-            writefln("!vec=%s, vec2=%s, vinter=%s, r=%s", vec, vec2, vinter, r);
             dist = 0;
             inter = vec[0];
             side = i;
-            res[0..2] = r[0..2];
+            if (abs(r[0]) == 0 && abs(r[2]) == 3) intersections++;
+            if (abs(r[0]) < abs(res[0]))
+                res[0] = r[0];
+            if (abs(r[2]) <= 2 && abs(r[2]) < abs(res[2]))
+                res[2] = r[2];
+            writefln("!vec=%s, vec2=%s, vinter=%s, r=%s, res=%s", vec, vec2, vinter, r, res);
+        }
+        else if (abs(r[0]) == 2 && abs(r[2]) == 2 && r[0] != r[2])
+        {
+            if (r[0] == -2)
+            {
+                float d = dist2(vec[0], vec2[0]);
+                if (d < dist)
+                {
+                    dist = d;
+                    inter = vec2[0];
+                    side = i;
+                }
+            }
+            else
+            {
+                float d = dist2(vec[0], vec2[1]);
+                if (d < dist)
+                {
+                    dist = d;
+                    inter = vec2[1];
+                    side = i;
+                }
+            }
+
+            res = [r[0], 0, r[2]];
+            writefln("Ivec=%s, vec2=%s, vinter=%s, r=%s, res=%s", vec, vec2, vinter, r, res);
         }
 
         if (abs(r[2]) <= 1)
         {
-            import std.stdio;
-            writefln("@vec=%s, vec2=%s, vinter=%s, r=%s", vec, vec2, vinter, r);
             float d = dist2(vec[0], vec[1]);
             if (d < dist)
             {
                 dist = d;
                 inter = vec[1];
                 side = i;
+            }
+
+            if (abs(r[2]) <= abs(res[2]) && abs(r[0]) <= 2 && abs(r[0]) <= abs(res[0]))
+            {
+                res[0] = r[0];
                 res[2] = r[2];
             }
+            else
+            {
+                if (abs(r[2]) < abs(res[2]))
+                    res[2] = r[2];
+                if (abs(r[0]) <= 2 && abs(r[0]) < abs(res[0]))
+                    res[0] = r[0];
+            }
+            writefln("@vec=%s, vec2=%s, vinter=%s, r=%s, res=%s", vec, vec2, vinter, r, res);
         }
+
+        if (abs(r[0]) <= 1 && abs(r[2]) <= 1)
+            res[1] = 0;
     }
 
     if (res[0] == -4)
         res[0] = (intersections%2 == 0) ? -3 : 3;
     if (res[2] == -3)
-        res[2] = (seg_intersections%2 == 0) ? res[0] : cast(byte) -res[0];
-    if (abs(res[0]) <= 1 && abs(res[2]) <= 1)
+        res[2] = (seg_intersections%2 == intersections%2) ? -3 : 3;
+    if (abs(res[0]) <= 1 && abs(res[2]) <= 1 && abs(res[1]) == 3)
         res[1] = (intersections%2 == 0) ? -3 : 3;
+    if (res[1] == -3 && (abs(res[0]) <= 1 && res[2] == 3 || abs(res[2]) <= 1 && res[0] == 3))
+        res[1] = 3;
     return res;
+}
+
+unittest
+{
+    float[2][] polygon = [[7.0f, 0.0f], [5.0f, 2.0f], [5.0f, 6.0f], [7.0f, 8.0f], [9.0f, 6.0f], [9.0f, 2.0f]];
+    float[2][2] vec = [[0.0f, 4.0f], [2.0f, 4.0f]];
+    float[2] inter;
+    size_t side;
+    byte[3] res = vector_in_polygon_position(vec, polygon, inter, side);
+    byte[3] expected = [-3, 0, -3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[0.0f, 4.0f], [0.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, -3, -3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[4.0f, 4.5f], [6.0f, 7.5f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, 1, -3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[4.0f, 4.0f], [6.0f, 4.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, 0, 3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[4.0f, 4.0f], [5.0f, 4.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, -3, 0];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[4.0f, 4.0f], [5.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, 1, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 3.0f], [5.0f, 4.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [0, 0, 0];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+    
+    vec = [[5.0f, 3.0f], [5.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [0, 0, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+    
+    vec = [[5.0f, 3.0f], [5.0f, 7.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [0, -1, 2];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 2.0f], [5.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-1, 0, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 1.0f], [5.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-2, 1, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 1.0f], [5.0f, 7.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-2, 0, 2];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 7.0f], [5.0f, 1.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [2, 0, -2];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 1.0f], [5.0f, 4.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-2, 1, 0];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 2.0f], [5.0f, 6.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-1, 0, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 6.0f], [5.0f, 2.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [1, 0, -1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 2.0f], [9.0f, 2.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [1, 3, 1];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[5.0f, 2.0f], [7.0f, 2.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [1, 3, 3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
+
+    vec = [[4.0f, 2.0f], [6.0f, 2.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [-3, 1, 3];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
 }
 
 float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
@@ -290,11 +457,12 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             continue;
         }
         
-        if (abs(r[0]) <= 1 && r[1] == 3 && abs(r[2]) <= 1)
+        if (abs(r[0]) <= 1 && (r[1] == 3 || r[1] == -1) && abs(r[2]) <= 1)
         {
             writefln("J: 0 SWITCH");
             i = side;
             swap(polygon1, polygon2);
+            if (r[1] == -1) jp ~= p1;
             continue;
         }
 
