@@ -309,6 +309,8 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
         res[1] = (intersections%2 == 0) ? -3 : 3;
     if (res[1] == -3 && (abs(res[0]) <= 1 && res[2] == 3 || abs(res[2]) <= 1 && res[0] == 3))
         res[1] = 3;
+    if (res[1] == -3)
+        writefln("intersections=%s, seg_intersections=%s, inter=%s", intersections, seg_intersections, inter);
     return res;
 }
 
@@ -430,10 +432,17 @@ unittest
     expected = [-3, 1, 3];
     writefln("res=%s, expected=%s", res, expected);
     assert(res == expected);
+
+    vec = [[5.0f, 4.0f], [9.0f, 4.0f]];
+    res = vector_in_polygon_position(vec, polygon, inter, side);
+    expected = [0, -3, 0];
+    writefln("res=%s, expected=%s", res, expected);
+    assert(res == expected);
 }
 
 float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
 {
+    writefln("join_polygons: %s & %s", polygon1, polygon2);
     float[2][] jp;
 
     for (size_t i=0; ; i++)
@@ -448,25 +457,35 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
         size_t side;
         byte[3] r = vector_in_polygon_position(vec, polygon2, inter, side);
 
-        import std.stdio;
         writefln("J+:+ jp.$=%s vec=%s, polygon=%s, inter=%s, side=%s, r=%s", jp.length, vec, polygon2, inter, side, r);
         if (r[0] == 3)
         {
             assert(jp.length == 0);
-            if (i >= polygon1.length-1) break;
+            if (i >= polygon1.length-1)
+            {
+                writefln("J: SWITCH ON END");
+                i = -1;
+                swap(polygon1, polygon2);
+            }
             continue;
         }
         
-        if (abs(r[0]) <= 1 && (r[1] == 3 || r[1] == -1) && abs(r[2]) <= 1)
+        if (r[0] >= 0 && r[0] <= 2 && r[2] <= 0 && r[2] >= -2)
         {
             writefln("J: 0 SWITCH");
             i = side;
             swap(polygon1, polygon2);
-            if (r[1] == -1) jp ~= p1;
+            if (r[0] == 2 && r[1] == 0)
+            {
+                jp ~= p1;
+                jp ~= inter;
+            }
             continue;
         }
 
-        jp ~= p1;
+        if ( jp.length == 0 || point_to_vector_position(p1, [jp[$-1], p2]) != 0 )
+            jp ~= p1;
+
         if (r[0] == -3 && r[1] != -3)
         {
             writefln("J: SWITCH");
@@ -475,10 +494,53 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             swap(polygon1, polygon2);
         }
         
-        assert(jp.length <= polygon1.length + polygon2.length);
+        assert(jp.length <= 2*(polygon1.length + polygon2.length));
     }
     
     return jp;
+}
+
+unittest
+{
+    float[2][] polygon1 = [[0.0f, 3.0f], [5.0f, 3.0f], [5.0f, 2.0f], [0.0f, 2.0f]];
+    float[2][] polygon2 = [[2.0f, 0.0f], [2.0f, 5.0f], [3.0f, 5.0f], [3.0f, 0.0f]];
+    float[2][] joined = join_polygons(polygon1, polygon2);
+    float[2][] expected = [[0.0f, 3.0f], [2.0f, 3.0f], [2.0f, 5.0f], [3.0f, 5.0f], [3.0f, 3.0f], [5.0f, 3.0f], [5.0f, 2.0f], [3.0f, 2.0f], [3.0f, 0.0f], [2.0f, 0.0f], [2.0f, 2.0f], [0.0f, 2.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
+
+    polygon1 = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    polygon2 = [[0.0f, 2.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 2.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[0.0f, 0.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
+
+    polygon1 = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    polygon2 = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
+
+    polygon1 = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    polygon2 = [[0.0f, 0.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[0.0f, 0.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
+
+    polygon1 = [[1.0f, 1.0f], [1.0f, 3.0f], [3.0f, 3.0f], [3.0f, 1.0f]];
+    polygon2 = [[0.0f, 0.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[0.0f, 0.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
