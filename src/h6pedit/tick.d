@@ -1212,7 +1212,7 @@ unittest
     ubyte[] dots1 = [60, 12, 8, 6];
 
     ubyte[] jdots = join_dots(dots1, dots2);
-    ubyte[] expected = [20, 17, 57, 12, 7, 4];
+    ubyte[] expected = [20, 17, 57, 12, 8, 4];
     writefln("expected %s", expected);
     assert(jdots == expected);
 }

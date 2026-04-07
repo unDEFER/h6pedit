@@ -238,7 +238,7 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
             dist = 0;
             inter = vec[0];
             side = i;
-            if (abs(r[0]) == 0 && abs(r[2]) == 3) intersections++;
+            //if (abs(r[0]) == 0 && abs(r[2]) == 3) intersections++;
             if (abs(r[0]) < abs(res[0]))
                 res[0] = r[0];
             if (abs(r[2]) <= 2 && abs(r[2]) < abs(res[2]))
@@ -309,7 +309,7 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
         res[1] = (intersections%2 == 0) ? -3 : 3;
     if (res[1] == -3 && (abs(res[0]) <= 1 && res[2] == 3 || abs(res[2]) <= 1 && res[0] == 3))
         res[1] = 3;
-    if (res[1] == -3)
+    if (res[1] == -3 || res[2] == -3)
         writefln("intersections=%s, seg_intersections=%s, inter=%s", intersections, seg_intersections, inter);
     return res;
 }
@@ -435,7 +435,7 @@ unittest
 
     vec = [[5.0f, 4.0f], [9.0f, 4.0f]];
     res = vector_in_polygon_position(vec, polygon, inter, side);
-    expected = [0, -3, 0];
+    expected = [0, 3, 0];
     writefln("res=%s, expected=%s", res, expected);
     assert(res == expected);
 }
@@ -470,7 +470,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             continue;
         }
         
-        if (r[0] >= 0 && r[0] <= 2 && r[2] <= 0 && r[2] >= -2)
+        if (r[0] >= 0 && r[0] <= 2 && (r[2] <= 0 && r[2] >= -2 || r[2] == 3))
         {
             writefln("J: 0 SWITCH");
             i = side;
