@@ -1163,7 +1163,8 @@ void apply_brush(in Brush b)
 ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 {
     writefln("dots %s and %s", dots1, dots2);
-    swap(dots1, dots2);
+    dots1 = adopt_form(dots1);
+    dots2 = adopt_form(dots2);
 
     size_t[2] ii = [0, 0];
     ubyte dotsnum = 0;
@@ -1208,11 +1209,11 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
 unittest
 {
-    ubyte[] dots2 = [20, 17, 7, 4];
-    ubyte[] dots1 = [60, 12, 8, 6];
+    ubyte[] dots1 = [20, 17, 7, 4];
+    ubyte[] dots2 = [60, 12, 8, 6];
 
     ubyte[] jdots = join_dots(dots1, dots2);
-    ubyte[] expected = [20, 17, 57, 12, 8, 4];
+    ubyte[] expected = [20, 17, 57, 12, 8, 4, 0];
     writefln("expected %s", expected);
     assert(jdots == expected);
 }
