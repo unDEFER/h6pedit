@@ -229,7 +229,7 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
                     res[1] = r[1];
                 }
             }
-            else if (abs(r[1]) == 1 && abs(res[1]) > abs(r[1]))
+            else if (abs(r[1]) == 1 && abs(res[1]) > abs(r[1]) && r[0] != r[2])
                 res[1] = r[1];
             writefln("vec=%s, vec2=%s, vinter=%s, r=%s, is_inter=%s, res=%s", vec, vec2, vinter, r, is_inter, res);
         }
@@ -552,6 +552,13 @@ unittest
     writefln("expected=%s", expected);
     assert(joined == expected);
 
+    polygon1 = [[2.0f, 2.0f], [2.0f, 12.0f], [8.0f, 12.0f], [8.0f, 4.0f], [4.0f, 0.0f]];
+    polygon2 = [[4.0f, 14.0f], [4.0f, 16.0f], [6.0f, 14.0f], [8.0f, 12.0f], [8.0f, 4.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[2.0f, 2.0f], [2.0f, 12.0f], [4.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f], [4.0f, 0.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
