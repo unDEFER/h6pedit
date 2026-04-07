@@ -1202,6 +1202,7 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
         new_dots ~= flat2pext(v);
     }
 
+    new_dots = back_adopt_form(new_dots);
     writefln("new_dots %s", new_dots);
 
     return new_dots;
@@ -1213,36 +1214,9 @@ unittest
     ubyte[] dots2 = [60, 12, 8, 6];
 
     ubyte[] jdots = join_dots(dots1, dots2);
-    ubyte[] expected = [20, 17, 57, 12, 8, 4, 0];
+    ubyte[] expected = [17, 57, 12];
     writefln("expected %s", expected);
     assert(jdots == expected);
-}
-
-bool is_one_side(ubyte d1, ubyte d2)
-{
-    ubyte p24 = to_point24(d1);
-    ubyte p24_2 = to_point24(d2);
-    ubyte p = p24/4;
-    ubyte p2 = p24_2/4;
-
-    //writefln("p24=%s, p24_2=%s, p=%s, p2=%s", p24, p24_2, p, p2);
-    //writefln("c1 %s c2 %s c3 %s c4 %s", p24 >= 24 || p24_2 >= 24, p != p2 && (p2+1)%6 != p, p == p2 && p24_2 > p24, (p2+1)%6 == p && p24%4 > 0);
-    if (p24 >= 24 || p24_2 >= 24) return false;
-    if (p != p2 && (p2+1)%6 != p) return false;
-    if (p == p2 && p24_2 > p24) return false;
-    if ((p2+1)%6 == p && p24%4 > 0) return false;
-    return true;
-}
-
-bool is_full_hexagon(ubyte[] dots)
-{
-    foreach (i, d; dots)
-    {
-        ubyte nd = dots[(i+1)%$];
-        if ( !is_one_side(d, nd) ) return false;
-    }
-
-    return true;
 }
 
 void join_forms()

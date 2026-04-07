@@ -599,6 +599,73 @@ ubyte[] adopt_form(ubyte[] form, bool _debug = false)
     return form;
 }
 
+bool is_one_side(ubyte d1, ubyte d2)
+{
+    ubyte p24 = to_point24(d1);
+    ubyte p24_2 = to_point24(d2);
+    ubyte p = p24/4;
+    ubyte p2 = p24_2/4;
+
+    //writefln("p24=%s, p24_2=%s, p=%s, p2=%s", p24, p24_2, p, p2);
+    //writefln("c1 %s c2 %s c3 %s c4 %s", p24 >= 24 || p24_2 >= 24, p != p2 && (p2+1)%6 != p, p == p2 && p24_2 > p24, (p2+1)%6 == p && p24%4 > 0);
+    if (p24 >= 24 || p24_2 >= 24) return false;
+    if (p != p2 && (p2+1)%6 != p) return false;
+    if (p == p2 && p24_2 > p24) return false;
+    if ((p2+1)%6 == p && p24%4 > 0) return false;
+    return true;
+}
+
+bool is_full_hexagon(ubyte[] dots)
+{
+    foreach (i, d; dots)
+    {
+        ubyte nd = dots[(i+1)%$];
+        if ( !is_one_side(d, nd) ) return false;
+    }
+
+    return true;
+}
+
+ubyte[] back_adopt_form(ubyte[] form, bool _debug = false)
+{
+    ptrdiff_t f1 = -1;
+    ptrdiff_t f2 = -1;
+
+    ptrdiff_t m1 = -1;
+    ptrdiff_t m2 = -1;
+
+    foreach (i, d; form~form)
+    {
+        ubyte nd = form[(i+1)%$];
+        if (is_one_side(d, nd))
+        {
+            if (f1 == -1) f1 = i;
+            f2 = i+1;
+        }
+        else if (f1 >= 0)
+        {
+            if (f2-f1 > m2-m1)
+            {
+                m1 = f1;
+                m2 = f2;
+            }
+
+            f1 = -1;
+            f2 = -1;
+        }
+    }
+
+    if (m2 - m1 > 1)
+    {
+        m1 = m1%form.length;
+        m2 = m2%form.length;
+
+        return m2 > m1 ? form[m2..$] ~ form[0..m1+1] : form[m2..m1+1];
+    }
+
+    return form;
+}
+
 ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
 {
     ubyte[] form;
