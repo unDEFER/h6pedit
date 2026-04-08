@@ -307,7 +307,7 @@ byte[3] vector_in_polygon_position(float[2][2] vec, float[2][] polygon, ref floa
         res[2] = (seg_intersections%2 == intersections%2) ? -3 : 3;
     if (abs(res[0]) <= 1 && abs(res[2]) <= 1 && abs(res[1]) == 3)
         res[1] = (intersections%2 == 0) ? -3 : 3;
-    if (res[1] == -3 && (abs(res[0]) <= 1 && res[2] == 3 || abs(res[2]) <= 1 && res[0] == 3))
+    if (res[1] == -3 && (abs(res[0]) <= 1 && res[2] == 3 || abs(res[2]) <= 1 && res[0] == 3 || seg_intersections > 0))
         res[1] = 3;
     if (res[1] == -3 || res[2] == -3)
         writefln("intersections=%s, seg_intersections=%s, inter=%s", intersections, seg_intersections, inter);
@@ -470,7 +470,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             continue;
         }
         
-        if (r[0] >= 0 && r[0] <= 2 && (r[2] <= 0 && r[2] >= -2 || r[2] == 3 || r[2] == -3 && r[1] == 0))
+        if (r[0] >= 0 && r[0] <= 2 && (r[2] <= 0 && r[2] >= -2 || r[1] == 3 || r[2] == 3 || r[2] == -3 && r[1] == 0))
         {
             writefln("J: 0 SWITCH");
             i = side;
@@ -559,6 +559,15 @@ unittest
     writefln("  joined=%s", joined);
     writefln("expected=%s", expected);
     assert(joined == expected);
+
+    polygon1 = [[8.0f, 12.0f], [0.0f, 12.0f], [4.0f, 16.0f]];
+    polygon2 = [[4.0f, 14.0f], [4.0f, 16.0f], [6.0f, 14.0f], [8.0f, 12.0f], [8.0f, 4.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[8.0f, 4.0f], [4.0f, 0.0f], [4.0f, 12.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    assert(joined == expected);
+
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
