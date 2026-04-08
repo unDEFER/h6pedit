@@ -1003,16 +1003,29 @@ ubyte[2][61] dot_to_coords = [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4],
                               [2, 8]
 ];
 
+float[2] p2flat(ubyte p)
+{
+    ubyte dotx = dot_to_coords[p][0];
+    ubyte doty = dot_to_coords[p][1];
+
+    ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
+    uint gx = (doty%2) + dotx_*2;
+    uint gy = doty;
+
+    float[2] res = [cast(float) gx, cast(float) gy];
+    return res;
+}
+
 float[2] pext2flat(ubyte p)
 {
     ubyte p1, p2, o;
-    if (p > 61)
+    if (p >= 61)
     {
         ubyte k = cast(ubyte)(p - 61);
         ubyte side = k/28;
         ubyte pp = k%28;
         p1 = cast(ubyte)(side*4 + pp/7);
-        p2 = cast(ubyte)(side*4 + pp/7 + 1);
+        p2 = cast(ubyte)(side*4 + pp/7 + 1)%24;
         o = 1+pp%7;
         //writefln("to_point24 %s => p24 %s", p, dir);
     }
@@ -1021,24 +1034,10 @@ float[2] pext2flat(ubyte p)
         p1 = p;
     }
 
-    ubyte dotx = dot_to_coords[p1][0];
-    ubyte doty = dot_to_coords[p1][1];
-
-    ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-    uint gx = (doty%2) + dotx_*2;
-    uint gy = doty;
-
-    float[2] res = [cast(float) gx, cast(float) gy];
-    if (p > 61)
+    float[2] res = p2flat(p1);
+    if (p >= 61)
     {
-        dotx = dot_to_coords[p2][0];
-        doty = dot_to_coords[p2][1];
-
-        dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
-        gx = (doty%2) + dotx_*2;
-        gy = doty;
-
-        float[2] res2 = [cast(float) gx, cast(float) gy];
+        float[2] res2 = p2flat(p2);
         float[2] dr = [res2[0] - res[0], res2[1] - res[1]];
         res = [res[0] + dr[0]*o/8.0f, res[1] + dr[1]*o/8.0f];
     }
@@ -1050,22 +1049,61 @@ ubyte flat2pext(float[2] flat)
 {
     uint[2] fc = [cast(uint) round(flat[0]), cast(uint) round(flat[1])];
 
-    int fx = fc[0];
-    int fy = fc[1];
-
-    int gx = fx/2;
-    int gy = fy;
-    if ((fx%2 + fy%2)%2 != 0) return 255;
+    int gx = fc[0];
+    int gy = fc[1];
 
     writefln("flat=%s gx=%s, gy=%s", flat, gx, gy);
 
+    if (gy%2 != gx%2 || abs(flat[0] - gx) > 0.01 || abs(flat[1] - gy) > 0.01)
+    {
+        for (ubyte i=0; i < 6; i++)
+        {
+            ubyte p1 = cast(ubyte)(4*i);
+            ubyte p2 = cast(ubyte)(4*((i+1)%6));
+
+            float[2] f1 = p2flat(p1);
+            float[2] f2 = p2flat(p2);
+
+            byte r = point_to_vector_position(flat, [f1, f2]);
+            
+            //writefln("i=%s, f1=%s, f2=%s, r=%s", i, f1, f2, r);
+            if (abs(r) <= 1)
+            {
+                float d1 = dist2(f1, flat);
+                float d2 = dist2(f1, f2);
+
+                int o = cast(int) round(d1/(d2/32.0f));
+                assert(o%8 != 0);
+                ubyte a = cast(ubyte)(o/8);
+                ubyte b = cast(ubyte)(o%8-1);
+                ubyte pp = cast(ubyte)(a*7 + b);
+                ubyte side = i;
+                ubyte k = cast(ubyte)(side*28 + pp);
+                return cast(ubyte)(61+k);
+            }
+        }
+
+        assert(false);
+    }
+
     ubyte doty = cast(ubyte) gy;
-    ubyte dotx_ = cast(ubyte) (gx - doty%2);
+    ubyte dotx_ = cast(ubyte) (gx - doty%2)/2;
     ubyte dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
 
     writefln("dotx_=%s, dotx=%s, doty=%s", dotx_, dotx, doty);
 
     return dot_by_line[doty][dotx];
+}
+
+unittest
+{
+    for (ubyte p = 0; p < 61+28*6; p++)
+    {
+        float[2] flat = pext2flat(p);
+        ubyte bp = flat2pext(flat);
+        writefln("%s => %s", p, bp);
+        assert(p == bp);
+    }
 }
 
 struct Vertex
