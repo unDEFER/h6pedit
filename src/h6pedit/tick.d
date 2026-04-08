@@ -1199,7 +1199,9 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
 
     foreach (v; joined_polygon)
     {
-        new_dots ~= flat2pext(v);
+        ubyte pext = flat2pext(v);
+        if (pext == 255) return [];
+        new_dots ~= pext;
     }
 
     new_dots = back_adopt_form(new_dots);

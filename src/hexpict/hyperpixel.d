@@ -1083,7 +1083,7 @@ ubyte flat2pext(float[2] flat)
             }
         }
 
-        assert(false);
+        return 255;
     }
 
     ubyte doty = cast(ubyte) gy;
