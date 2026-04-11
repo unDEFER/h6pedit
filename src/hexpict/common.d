@@ -719,7 +719,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2, bool dont_che
         if (r <= 1 && !inter[0].isNaN && !inter[1].isNaN)
         {
             writefln("J: SWITCH");
-            if (dist2(inter, p1) > 1e-5)
+            if (jp.length == 0 || dist2(inter, jp[$-1]) > 1e-5)
             {
                 writefln("Add inter %s", inter);
                 jp ~= inter;
@@ -743,7 +743,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2, bool dont_che
 
 unittest
 {
-    int total = 12;
+    int total = 13;
     int test;
     int success;
 
@@ -916,7 +916,22 @@ unittest
     polygon1 = [[8.0f, 8.0f], [4.0f, 8.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
     polygon2 = [[4.0f, 16.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f]];
     joined = join_polygons(polygon1, polygon2);
-    expected = [[8.0f, 8.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    expected = [[8.0f, 8.0f], [4.0f, 8.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    if (joined == expected)
+    {
+        success++;
+        writefln("SUCCESS");
+    }
+    else
+        writefln("FAILED");
+
+    writefln("TEST %s/%s", ++test, total);
+    polygon1 = [[4.0f, 0.0f], [4.0f, 4.0f], [8.0f, 4.0f]];
+    polygon2 = [[8.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[4.0f, 0.0f], [4.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f]];
     writefln("  joined=%s", joined);
     writefln("expected=%s", expected);
     if (joined == expected)
@@ -929,7 +944,6 @@ unittest
 
     writefln("Success %s/%s", success, total);
     assert(success == total);
-
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
