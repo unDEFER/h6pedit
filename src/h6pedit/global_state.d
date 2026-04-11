@@ -54,6 +54,7 @@ enum Mode
     Edit = 0,
     SimpleFormEdit,
     ExtendedFormEdit,
+    BrushFormEdit,
     ColorPicker
 }
 

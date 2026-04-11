@@ -146,8 +146,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                             int x0 = ix + dx;
                             int y0 = iy + dy;
 
-                            int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
-                            int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
+                            int sx0 = cast(int) floor((six + dx)/scaleupx/scaledown);
+                            int sy0 = cast(int) floor((siy + dy)/scaleupy/scaledown);
 
                             assert(sx0 >= 0 && sy0 >=0);
 
@@ -211,8 +211,8 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                         int x0 = ix + dx;
                         int y0 = iy + dy;
 
-                        int sx0 = cast(int) round((six + dx)/scaleupx/scaledown);
-                        int sy0 = cast(int) round((siy + dy)/scaleupy/scaledown);
+                        int sx0 = cast(int) floor((six + dx)/scaleupx/scaledown);
+                        int sy0 = cast(int) floor((siy + dy)/scaleupy/scaledown);
 
                         assert(sx0 >= 0 && sy0 >=0);
 

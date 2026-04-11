@@ -168,28 +168,31 @@ void process_change_view_keys(SDL_Event event)
         selection.changed = true;
     }
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+    if (lshift)
     {
-        picture.offy--;
-        if (picture.offy < 0) picture.offy = 0;
-        picture.changed = true;
-    }
-    if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-    {
-        picture.offy++;
-        picture.changed = true;
-    }
+        if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+        {
+            picture.offy--;
+            if (picture.offy < 0) picture.offy = 0;
+            picture.changed = true;
+        }
+        if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+        {
+            picture.offy++;
+            picture.changed = true;
+        }
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-    {
-        picture.offx--;
-        if (picture.offx < 0) picture.offx = 0;
-        picture.changed = true;
-    }
-    if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
-    {
-        picture.offx++;
-        picture.changed = true;
+        if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+        {
+            picture.offx--;
+            if (picture.offx < 0) picture.offx = 0;
+            picture.changed = true;
+        }
+        if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+        {
+            picture.offx++;
+            picture.changed = true;
+        }
     }
 }
 
@@ -530,6 +533,22 @@ void process_mask_mode_key(SDL_Event event)
         }
     }
 
+    if (event.key.keysym.scancode == SDL_SCANCODE_K)
+    {
+        if (mode == Mode.BrushFormEdit)
+        {
+            mode = Mode.Edit;
+            form_dots.length = 0;
+        }
+        else
+        {
+            first_v.p = 100;
+            last_v.p = 100;
+            edited_forms_by_coords.clear();
+            mode = Mode.BrushFormEdit;
+        }
+    }
+
     if (event.key.keysym.scancode == SDL_SCANCODE_C)
     {
         if (mode == Mode.ExtendedFormEdit)
@@ -796,7 +815,7 @@ void process_mask_editor_keys24(SDL_Event event)
     }
 }
 
-void process_mask2_editor_keys(SDL_Event event)
+void process_triangle_navigation_keys(SDL_Event event)
 {
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
     byte[6] dx = [0, 1, 1, 0, 0, 0];
@@ -901,26 +920,15 @@ void process_mask2_editor_keys(SDL_Event event)
         }
     }
 
+}
+
+void process_mask2_editor_keys(SDL_Event event)
+{
+    process_triangle_navigation_keys(event);
+
     bool loop;
     Vertex ov = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
     
-    if (event.key.keysym.scancode == SDL_SCANCODE_K)
-    {
-        writefln("START PAINT BRUSH");
-        first_v.p = 100;
-        last_v.p = 100;
-        edited_forms_by_coords.clear();
-
-        Pixel *p = picture.image.pixel(select.x, select.y);
-        edited_form = cast(ubyte) p.forms.length;
-        form_dots.length = 0;
-
-        apply_brush(brush);
-        join_forms();
-
-        writefln("END PAINT BRUSH");
-    }
-
     if (event.key.keysym.scancode == SDL_SCANCODE_L)
     {
         if (first_v.p <= 60 && (select.x != first_v.x || select.y != first_v.y))
@@ -956,6 +964,55 @@ void process_mask2_editor_keys(SDL_Event event)
     }
 
     mask2_hint.changed = true;
+}
+
+void process_brush_mode_keys(SDL_Event event)
+{
+    process_triangle_navigation_keys(event);
+
+    int[4] keys = [SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, SDL_SCANCODE_UP, SDL_SCANCODE_DOWN];
+    byte[4] dx = [-8, 8, 0, 0];
+    byte[4] dy = [0, 0, -14, 14];
+
+    foreach (i, k; keys)
+    {
+        if (event.key.keysym.scancode == k)
+        {
+            Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+            uint[2] gc = v.to_global();
+
+            gc[0] += dx[i];
+            gc[1] += dy[i];
+
+            Vertex[] vs = Vertex.from_global([gc]);
+
+            change_form24();
+
+            select.x = vs[0].x;
+            select.y = vs[0].y;
+            dotx = dot_to_coords[vs[0].p][0];
+            doty = dot_to_coords[vs[0].p][1];
+
+            load_form_dots();
+        }
+    }
+
+    if (event.key.keysym.scancode == SDL_SCANCODE_H)
+    {
+        writefln("START PAINT BRUSH");
+        first_v.p = 100;
+        last_v.p = 100;
+        edited_forms_by_coords.clear();
+
+        Pixel *p = picture.image.pixel(select.x, select.y);
+        edited_form = cast(ubyte) p.forms.length;
+        form_dots.length = 0;
+
+        apply_brush(brush);
+        join_forms();
+
+        writefln("END PAINT BRUSH");
+    }
 }
 
 void paint(Vertex[] line)
@@ -1774,6 +1831,9 @@ void process_events()
                     process_mask2_editor_keys(event);
                     process_choose_edited_form(event);
                     process_invert_form(event);
+                    break;
+                case Mode.BrushFormEdit:
+                    process_brush_mode_keys(event);
                     break;
                 case Mode.ColorPicker:
                     process_color_picker_navigation_keys(event);

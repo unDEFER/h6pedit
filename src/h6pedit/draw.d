@@ -237,7 +237,7 @@ void draw_picture()
 // @Palette
 void draw_palette()
 {
-    if (mode == Mode.Edit || mode == Mode.ColorPicker)
+    if (mode == Mode.Edit || mode == Mode.ColorPicker || mode == Mode.BrushFormEdit)
     {
         foreach(i, t; palette_textures)
         {
@@ -664,8 +664,8 @@ void draw_screen()
     }
 
     draw_coords();
-    if (mode != Mode.ExtendedFormEdit) draw_cursor();
-    draw_brush_preview();
+    if (mode == Mode.BrushFormEdit) draw_brush_preview();
+    else if (mode != Mode.ExtendedFormEdit) draw_cursor();
 
     SDL_RenderPresent(renderer);
 }
