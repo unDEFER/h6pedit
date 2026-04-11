@@ -26,7 +26,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
     float[3] eq;
     line_equation([fx0, fy0], [fx1, fy1], eq);
 
-    //writefln("v0 %s", v0);
+    writefln("get_line: v0 %s, v1 %s", v0, v1);
 
     Vertex vc = v0;
 
@@ -74,10 +74,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                 if (between(intersection[0], sx1, sx2) && between(intersection[1], sy1, sy2) && cdist < mincdist)
                 {
                     //"RU расстояние от пересечения со стороной гексагона до конечной точки
-                    mincdist = cdist;
-                    //writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
-
-                    mindist = 1e10f;
+                    writefln("side %s cdist %s, side_eq %s", side, cdist, [sx1, sy1, sx2, sy2]);
 
                     static if (0)
                     {
@@ -99,16 +96,8 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                     }
                     else
                     {
-                        v.p = (side*4 + 0) % 24;
-                        float px0, py0;
-                        to_float_coords(v, px0, py0);
-
-                        v.p = (side*4 + 4) % 24;
-                        float px1, py1;
-                        to_float_coords(v, px1, py1);
-
-                        float dist0 = hypot(px1 - px0, py1 - py0);
-                        float dist1 = hypot(intersection[0] - px0, intersection[1] - py0);
+                        float dist0 = hypot(sx2 - sx1, sy2 - sy1);
+                        float dist1 = hypot(intersection[0] - sx1, intersection[1] - sy1);
 
                         float i0 = dist1/dist0;
 
@@ -126,19 +115,20 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
                         float px, py;
 
-                        px = px0 + i_n * (px1 - px0);
-                        py = py0 + i_n * (py1 - py0);
+                        px = sx1 + i_n * (sx2 - sx1);
+                        py = sy1 + i_n * (sy2 - sy1);
 
                         byte op_ = (side*4 + cast(byte) i_roundf) % 24;
                         ubyte opext_;
                         if (i_diff < d_diff + 1e-5)
                         {
                             opext_ = op_;
+                            writefln("get_line: opext_ = op_ = %s", op_);
                         }
                         else
                         {
-                            px = px0 + d_n * (px1 - px0);
-                            py = py0 + d_n * (py1 - py0);
+                            px = sx1 + d_n * (sx2 - sx1);
+                            py = sy1 + d_n * (sy2 - sy1);
                             byte d_round = cast(byte) d_roundf;
                             byte q = d_round/8;
                             byte k = d_round%8;
@@ -150,13 +140,16 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);
-                        if (dist < mindist)
+
+                        if (dist < 1e-2)
                         {
                             //"RU расстояние от пересечения до вершины гексагона
                             mindist = dist;
+                            mincdist = cdist;
                             vr.p = op_;
                             vr.pext = opext_;
-                            //writefln("op %s, dist %s", op, dist);
+                            writefln("get_line: [%s, %s], intersection %s", px, py, intersection);
+                            writefln("get_line: op_ %s, dist %s", op_, dist);
                         }
                     }                   
                 }
@@ -247,10 +240,11 @@ Vertex[] get_line(Vertex v0, Vertex v1)
             auto n = (vp.pext < 24 ? n24 : neigh[((vp.pext-61)/28 + 1)%6]);
             ubyte op24 = cast(ubyte) (((vp.p/4+3)%6*4 + 4-vp.p%4)%24);
             ubyte op = cast(ubyte) (vp.pext < 24 ? op24 : 61 + (((vp.pext-61)/28+3)%6*28 + 27-(vp.pext-61)%28)%(28*6));
+            writefln("get_line: vp %s, n24=%s, n=%s, op24=%s, op=%s", vp, n24, n, op24, op);
             vc = (vp.pext < 24 ? Vertex(n24[0], n24[1], op24, op24) : Vertex(n[0], n[1], to_point24(op), op));
         }
 
-        //writefln("vc %s", vc);
+        writefln("vc %s", vc);
 
         //to_float_coords(xc, yc, nc, fxc, fyc); //DEBUG
         //assert(hypot(fxc-fxp, fyc-fyp) < 1e-2); //DEBUG

@@ -665,7 +665,7 @@ unittest
     assert(success == total);
 }
 
-float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
+float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2, bool dont_check_intersection = false)
 {
     writefln("join_polygons: %s & %s", polygon1, polygon2);
     size_t last_switch_jp_length;
@@ -716,7 +716,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
             jp ~= p1;
         }
 
-        if (r < 0 && !inter[0].isNaN && !inter[1].isNaN)
+        if (r <= 1 && !inter[0].isNaN && !inter[1].isNaN)
         {
             writefln("J: SWITCH");
             if (dist2(inter, p1) > 1e-5)
@@ -734,13 +734,16 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
         
         assert(jp.length <= 2*(polygon1.length + polygon2.length));
     }
+
+    if (!dont_check_intersection && jp == polygon1 && polygon1 != polygon2 && join_polygons(polygon2, polygon1, true) == polygon2)
+        return null;
     
     return jp;
 }
 
 unittest
 {
-    int total = 10;
+    int total = 12;
     int test;
     int success;
 
@@ -894,8 +897,39 @@ unittest
     else
         writefln("FAILED");
 
+    writefln("TEST %s/%s", ++test, total);
+    polygon1 = [[0.0f, 0.0f], [0.0f, 2.0f], [4.0f, 2.0f], [4.0f, 0.0f]];
+    polygon2 = [[0.0f, 3.0f], [0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 3.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    if (joined == expected)
+    {
+        success++;
+        writefln("SUCCESS");
+    }
+    else
+        writefln("FAILED");
+    
+    writefln("TEST %s/%s", ++test, total);
+    polygon1 = [[8.0f, 8.0f], [4.0f, 8.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    polygon2 = [[4.0f, 16.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[8.0f, 8.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    if (joined == expected)
+    {
+        success++;
+        writefln("SUCCESS");
+    }
+    else
+        writefln("FAILED");
+
     writefln("Success %s/%s", success, total);
     assert(success == total);
+
 }
 
 byte line_segments_intersection(float[2][2] seg1, float[2][2] seg2, ref float[2] res)
