@@ -676,7 +676,18 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
         float[2] p1 = polygon1[i%$];
         float[2] p2 = polygon1[(i+1)%$];
 
-        if (jp.length > 0 && p1 == jp[0]) break;
+        float[2][] fe = jp.find(p1);
+        if (fe.length > 1)
+        {
+            size_t off = fe.ptr - jp.ptr;
+            while (off > 0 && jp.length >= 2 && abs(point_to_vector_position(jp[0], [p1, jp[$-1]])) <= 1)
+            {
+                jp = jp[1..$];
+                off--;
+            }
+            writefln("off=%s fe=%s, p1=%s", fe.ptr-jp.ptr, fe, p1);
+            break;
+        }
 
         float[2][2] vec = [p1, p2];
         float[2] inter;
@@ -729,7 +740,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2)
 
 unittest
 {
-    int total = 9;
+    int total = 10;
     int test;
     int success;
 
@@ -858,6 +869,21 @@ unittest
     polygon2 = [[0.0f, 4.0f], [4.0f, 4.0f], [4.0f, 0.0f]];
     joined = join_polygons(polygon1, polygon2);
     expected = [[4.0f, 16.0f], [4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    if (joined == expected)
+    {
+        success++;
+        writefln("SUCCESS");
+    }
+    else
+        writefln("FAILED");
+
+    writefln("TEST %s/%s", ++test, total);
+    polygon1 = [[5.0f, 1.0f], [5.0f, 13.0f], [7.5f, 12.5f], [8.0f, 4.0f]];
+    polygon2 = [[2.0f, 2.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f], [6.0f, 2.0f], [4.0f, 0.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[4.0f, 0.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f]];
     writefln("  joined=%s", joined);
     writefln("expected=%s", expected);
     if (joined == expected)
