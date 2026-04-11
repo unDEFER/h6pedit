@@ -1146,6 +1146,7 @@ void apply_brush(in Brush b)
     }
 
     writefln("Offset is %s, vertices2.length = %s", off, vertices2.length);
+    writefln("vertices2 = %s", vertices2);
 
     paint(vertices2[off..$] ~ vertices2[0..off]);
 
@@ -1165,6 +1166,9 @@ ubyte[] join_dots(ubyte[] dots1, ubyte[] dots2)
     writefln("dots %s and %s", dots1, dots2);
     dots1 = adopt_form(dots1);
     dots2 = adopt_form(dots2);
+    writefln("adopted dots %s and %s", dots1, dots2);
+
+    if (dots1.length < 2 || dots2.length < 2) return [];
 
     size_t[2] ii = [0, 0];
     ubyte dotsnum = 0;
@@ -1253,7 +1257,11 @@ void join_forms()
                     dots2 = adopt_form(dots2);
 
                     ubyte[] joined_dots = join_dots(dots1, dots2);
-                    if ( is_full_hexagon(joined_dots) )
+                    if (joined_dots.empty)
+                    {
+                        writefln("Unjoinable. Search next candidate to join.");
+                    }
+                    else if ( is_full_hexagon(joined_dots) )
                     {
                         writefln("FULL HEXAGON");
                         foreach (pform; p.forms)
@@ -1275,7 +1283,7 @@ void join_forms()
                         p.color = color;
                         break;
                     }
-                    else if (!joined_dots.empty)
+                    else
                     {
                         if (form1 >= 19*4)
                         {
@@ -1300,10 +1308,6 @@ void join_forms()
 
                         change_form24();
                         break;
-                    }
-                    else
-                    {
-                        writefln("Unjoinable. Search next candidate to join.");
                     }
                 }
             }

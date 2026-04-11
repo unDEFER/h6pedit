@@ -145,6 +145,8 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                             assert(k != 0);
 
                             opext_ = cast(byte)(61 + side*28 + 7*q + k-1);
+                            writefln("get_line: opext_=%s, op_=%s, to_point24(opext_)=%s", opext_, op_, to_point24(opext_));
+                            assert(abs(to_point24(opext_) - op_) <= 1);
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);
@@ -241,10 +243,11 @@ Vertex[] get_line(Vertex v0, Vertex v1)
         }
         else
         {
-            auto n = neigh[(vp.p/4 + 1)%6];
+            auto n24 = neigh[(vp.p/4 + 1)%6];
+            auto n = (vp.pext < 24 ? n24 : neigh[((vp.pext-61)/28 + 1)%6]);
             ubyte op24 = cast(ubyte) (((vp.p/4+3)%6*4 + 4-vp.p%4)%24);
             ubyte op = cast(ubyte) (vp.pext < 24 ? op24 : 61 + (((vp.pext-61)/28+3)%6*28 + 27-(vp.pext-61)%28)%(28*6));
-            vc = Vertex(n[0], n[1], op24, op);
+            vc = (vp.pext < 24 ? Vertex(n24[0], n24[1], op24, op24) : Vertex(n[0], n[1], to_point24(op), op));
         }
 
         //writefln("vc %s", vc);

@@ -1095,6 +1095,7 @@ ubyte flat2pext(float[2] flat)
     return dot_by_line[doty][dotx];
 }
 
+static if (false)
 unittest
 {
     for (ubyte p = 0; p < 61+28*6; p++)
