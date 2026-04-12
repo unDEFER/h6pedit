@@ -104,7 +104,8 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     if (area == 0) return;
 
     int debugy = -1;
-    if (_debug) debugy = 18;
+    if (form[0] == 119) _debug = true;
+    if (_debug) debugy = 50;
 
     if (debugy >= 0)
     {
@@ -122,25 +123,24 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
         int continued;
         foreach(i, f1; form)
         {
-            ubyte f1_24 = to_point24(f1);
+            ubyte f1_side, f1_pp;
+            bool f1_on = to_point_side(f1, f1_side, f1_pp);
             ubyte f2 = form[(i+1)%$];
-            ubyte f2_24 = to_point24(f2);
+            ubyte f2_side, f2_pp;
+            bool f2_on = to_point_side(f2, f2_side, f2_pp);
 
             Point p1 = points[f1];
             Point p2 = points[f2];
 
             if (fy >= p1.y && fy < p2.y || fy >= p2.y && fy < p1.y)
             {
-                if (f1_24 < 24 && f2_24 < 24)
+                if (f1_on && f2_on)
                 {
-                    ubyte f41 = cast(ubyte) (f1_24 - f1_24%4);
-                    ubyte f42 = cast(ubyte) (f2_24 - f2_24%4);
-
-                    if (f41 == f42 || (f41+4)%24 == f42 && f2_24%4 == 0 || (f42+4)%24 == f41  && f1_24%4 == 0)
+                    if (f1_side == f2_side || (f1_side+1)%6 == f2_side && f2_pp == 0 || (f2_side+1)%6 == f1_side  && f1_pp == 0)
                     {
                         if (y == debugy)
                         {
-                            writefln("continued %s-%s", f1_24, f2_24);
+                            writefln("continued %s-%s", f1, f2);
                         }
                         continued++;
                         continue;
@@ -357,10 +357,30 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     }
 }
 
+bool to_point_side(ubyte p, out ubyte side, out ubyte pp)
+{
+    ubyte dir = p;
+    if (dir < 24)
+    {
+        side = dir/4;
+        pp = 8*(dir%4);
+        return true;
+    }
+    else if (dir >= 61)
+    {
+        ubyte k = cast(ubyte)(dir - 61);
+        side = k/28;
+        pp = k%28;
+        pp = cast(ubyte)(8*(pp/7) + pp%7 + 1);
+        return true;
+    }
+    return false;
+}
+
 ubyte to_point24(ubyte p, out ubyte side, out ubyte pp)
 {
     ubyte dir = p;
-    if (dir > 61)
+    if (dir >= 61)
     {
         ubyte k = cast(ubyte)(dir - 61);
         side = k/28;
@@ -719,7 +739,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 {
     ubyte[] form = form12toform(form12, rotate, _debug);
 
-    //writefln("form=%s", form);
+    writefln("form=%s", form);
 
     int h = cast(int) round(w * 2.0 / sqrt(3.0));
     int hh = cast(int) ceil(h/4.0);
