@@ -739,7 +739,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
 {
     ubyte[] form = form12toform(form12, rotate, _debug);
 
-    writefln("form=%s", form);
+    //writefln("form=%s", form);
 
     int h = cast(int) round(w * 2.0 / sqrt(3.0));
     int hh = cast(int) ceil(h/4.0);
