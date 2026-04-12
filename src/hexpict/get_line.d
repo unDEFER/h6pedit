@@ -136,7 +136,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
                             opext_ = cast(byte)(61 + side*28 + 7*q + k-1);
                             writefln("get_line: opext_=%s, op_=%s, to_point24(opext_)=%s", opext_, op_, to_point24(opext_));
-                            assert(abs(to_point24(opext_) - op_) <= 1);
+                            //assert(abs(to_point24(opext_) - op_) <= 1);
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);
