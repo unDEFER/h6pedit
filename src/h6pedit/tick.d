@@ -559,7 +559,7 @@ void process_mask_mode_key(SDL_Event event)
             {
                 Pixel *p = picture.image.pixel(select.x, select.y);
                 p.forms = p.forms[0..edited_form] ~ p.forms[edited_form+1..$];
-                mode = Mode.Edit;
+                mode = Mode.SimpleFormEdit;
             }
         }
     }
