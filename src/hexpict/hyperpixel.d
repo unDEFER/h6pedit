@@ -610,6 +610,16 @@ ubyte[] adopt_form(ubyte[] form, bool _debug = false)
     return form;
 }
 
+unittest
+{
+    ubyte[] form = [119, 7];
+    ubyte[] res = adopt_form(form);
+    ubyte[] expected = [119, 7, 4, 0, 20, 16, 12];
+    writefln("adopt_form form = %s", form);
+    writefln("res = %s, expected = %s", res, expected);
+    assert(res == expected);
+}
+
 bool is_one_side(ubyte d1, ubyte d2)
 {
     ubyte p24 = to_point24(d1);
