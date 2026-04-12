@@ -584,7 +584,7 @@ ubyte[] adopt_form(ubyte[] form, bool _debug = false)
 
             if (f24 != fe24 || last24 < first24)
             {
-                if (fe < 61 || fepp <= 21)
+                if (fe < 61 || fepp >= 7)
                     fe24 = cast(ubyte)((fe24 + 4)%24);
 
                 if (f4 > 0 || f >= 61 && fpp < 7)
