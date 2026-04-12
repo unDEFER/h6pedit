@@ -1940,10 +1940,8 @@ void process_events()
     }
 }
 
-void brush_preview_init(Brush b)
+void brush_preview_init(ref Brush b)
 {
-    int left, right;
-    int top, bottom;
     int x, y;
 
     for (size_t i = 0; i < b.form.length; i++)
@@ -1951,14 +1949,14 @@ void brush_preview_init(Brush b)
         x += b.form[i].dx;
         y += b.form[i].dy;
 
-        if (x < left) left = x;
-        if (x > right) right = x;
-        if (y < top) top = y;
-        if (y > bottom) bottom = y;
+        if (x < b.left) b.left = x;
+        if (x > b.right) b.right = x;
+        if (y < b.top) b.top = y;
+        if (y > b.bottom) b.bottom = y;
     }
 
-    int gw = right - left;
-    int gh = bottom - top + 4;
+    int gw = b.right - b.left;
+    int gh = b.bottom - b.top + 4;
 
     int w = gw / 8 + 2;
     int h = gh / 12 + 1;
@@ -1981,7 +1979,7 @@ void brush_preview_init(Brush b)
     color = 1;
     swap(pictures[pict], brush_preview);
 
-    uint[2] gc = [-left+8, -top + 4];
+    uint[2] gc = [-b.left+8, -b.top + 4];
     uint[2][] gvertices;
     gvertices ~= gc;
 

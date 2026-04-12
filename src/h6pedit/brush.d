@@ -11,6 +11,7 @@ struct Vector
 struct Brush
 {
     Vector[] form;
+    int left, right, top, bottom;
 }
 
 

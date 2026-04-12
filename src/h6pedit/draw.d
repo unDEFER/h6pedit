@@ -520,8 +520,8 @@ void draw_brush_preview()
 
         int yl = cast(int) dot_by_line[doty].length;
         bool y_odd = (doty%2 == 1);
-        brush_preview.rect.x = (select.x - picture.offx - 1) * scales[scale] + (2 + dotx - yl/2)*scales[scale]/4 + (y_odd ? scales[scale]/8 : 0);
-        brush_preview.rect.y = (select.y - picture.offy) * (h - hh) / scaledown + (cast(int) doty-4)*(h - hh) / cast(int) scaledown / 12;
+        brush_preview.rect.x = (select.x - picture.offx - 1) * scales[scale] + (2 + dotx - yl/2)*scales[scale]/4 + brush.left*scales[scale]/8 + (y_odd ? scales[scale]/8 : 0);
+        brush_preview.rect.y = (select.y - picture.offy) * (h - hh) / scaledown + ((cast(int) doty-4)*(h - hh) + brush.top) / cast(int) scaledown / 12;
 
         if (select.y%2 == 1) brush_preview.rect.x += scales[scale]/2;
 
