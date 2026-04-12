@@ -357,18 +357,25 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     }
 }
 
-ubyte to_point24(ubyte p)
+ubyte to_point24(ubyte p, out ubyte side, out ubyte pp)
 {
     ubyte dir = p;
     if (dir > 61)
     {
         ubyte k = cast(ubyte)(dir - 61);
-        ubyte side = k/28;
-        ubyte pp = k%28;
+        side = k/28;
+        pp = k%28;
         dir = cast(ubyte)(side*4 + pp/7);
         //writefln("to_point24 %s => p24 %s", p, dir);
     }
     return dir;
+}
+
+ubyte to_point24(ubyte p)
+{
+    ubyte side;
+    ubyte pp;
+    return to_point24(p, side, pp);
 }
 
 Tuple!(ubyte[], "form", ubyte, "rot") normalize_form(ubyte[] form)
@@ -559,10 +566,11 @@ ubyte[] adopt_form(ubyte[] form, bool _debug = false)
 {
     if (form.length > 1)
     {
+        ubyte fside, fpp, feside, fepp;
         ubyte f = form[$-1];
-        ubyte f24 = to_point24(f);
+        ubyte f24 = to_point24(f, fside, fpp);
         ubyte fe = form[0];
-        ubyte fe24 = to_point24(fe);
+        ubyte fe24 = to_point24(fe, feside, fepp);
         ubyte first24 = fe24;
         ubyte last24 = f24;
         if (f24 < 24 && fe24 < 24)
@@ -570,13 +578,14 @@ ubyte[] adopt_form(ubyte[] form, bool _debug = false)
             ubyte f4 = f24%4;
             f24 -= f4;
 
-            fe24 = cast(ubyte)(fe24 - fe24%4);
+            ubyte fe4 = fe24%4;
+            fe24 -= fe4;
             if (_debug) writefln("form %s, f24=%s, fe24=%s", form, f24, fe24);
 
             if (f24 != fe24 || last24 < first24)
             {
                 fe24 = cast(ubyte)((fe24 + 4)%24);
-                if (f4 > 0)
+                if (f4 > 0 || f >= 61 && fpp < 7)
                 {
                     form ~= f24;
                     last24 = f24;

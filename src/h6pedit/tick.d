@@ -553,7 +553,13 @@ void process_mask_mode_key(SDL_Event event)
     {
         if (mode == Mode.ExtendedFormEdit)
         {
-            form_dots.length = 0;
+            if (form_dots.length > 0)
+                form_dots.length = 0;
+            else
+            {
+                Pixel *p = picture.image.pixel(select.x, select.y);
+                p.forms = p.forms[0..edited_form] ~ p.forms[edited_form+1..$-1];
+            }
         }
     }
 }
@@ -916,10 +922,9 @@ void process_triangle_navigation_keys(SDL_Event event)
                     d = dot_by_line[doty][dotx];
                 }
             }
-            while ( !(d<24 && (d%2 == 0 || scalew >= 32) || scalew >= 64) );
+            while ( !(d<24 && (d%2 == 0 || scalew >= 32) || scalew >= 64 || mode == Mode.BrushFormEdit) );
         }
     }
-
 }
 
 void process_mask2_editor_keys(SDL_Event event)
@@ -974,26 +979,29 @@ void process_brush_mode_keys(SDL_Event event)
     byte[4] dx = [-8, 8, 0, 0];
     byte[4] dy = [0, 0, -14, 14];
 
-    foreach (i, k; keys)
+    if (!lshift)
     {
-        if (event.key.keysym.scancode == k)
+        foreach (i, k; keys)
         {
-            Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
-            uint[2] gc = v.to_global();
+            if (event.key.keysym.scancode == k)
+            {
+                Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+                uint[2] gc = v.to_global();
 
-            gc[0] += dx[i];
-            gc[1] += dy[i];
+                gc[0] += dx[i];
+                gc[1] += dy[i];
 
-            Vertex[] vs = Vertex.from_global([gc]);
+                Vertex[] vs = Vertex.from_global([gc]);
 
-            change_form24();
+                change_form24();
 
-            select.x = vs[0].x;
-            select.y = vs[0].y;
-            dotx = dot_to_coords[vs[0].p][0];
-            doty = dot_to_coords[vs[0].p][1];
+                select.x = vs[0].x;
+                select.y = vs[0].y;
+                dotx = dot_to_coords[vs[0].p][0];
+                doty = dot_to_coords[vs[0].p][1];
 
-            load_form_dots();
+                load_form_dots();
+            }
         }
     }
 
