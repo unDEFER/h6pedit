@@ -914,7 +914,6 @@ void process_triangle_navigation_keys(SDL_Event event)
                     }
                     dotx = cast(ubyte) (dotx_ - (5-dot_by_line[doty].length)/2);
 
-                    mode = Mode.ExtendedFormEdit;
                     mask2_hint.changed = true;
                     load_form_dots();
                 }
