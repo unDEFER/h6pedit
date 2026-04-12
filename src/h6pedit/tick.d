@@ -1023,6 +1023,50 @@ void process_brush_mode_keys(SDL_Event event)
     }
 }
 
+void add_bound_points(ubyte p, Vertex v)
+{
+    ubyte fside, fpp;
+    ubyte p24 = to_point24(p, fside, fpp);
+
+    if (p24 < 24 && v.p < 24)
+    {
+        ubyte fe = v.p;
+        ubyte f = p24;
+        if (lshift)
+        {
+            if (f%4 == 0 && form_dots[$-1] >= 61 && fpp >= 21)
+            {
+                form_dots ~= f;
+                writefln("_ADD f %s", f);
+            }
+            f = (f+1)%24;
+        }
+        else
+        {
+            if (f%4 == 0 && form_dots[$-1] >= 61 && fpp < 7)
+            {
+                form_dots ~= f;
+                writefln("_ADD f %s", f);
+            }
+            f = (f+23)%24;
+        }
+
+        while (f != fe)
+        {
+            if (f%4 == 0)
+            {
+                form_dots ~= f;
+                writefln("ADD f %s", f);
+                form_changed = true;
+            }
+            if (lshift)
+                f = (f+1)%24;
+            else
+                f = (f+23)%24;
+        }
+    }
+}
+
 void paint(Vertex[] line)
 {
     foreach(v2; line)
@@ -1041,31 +1085,7 @@ void paint(Vertex[] line)
 
             if (form_dots.length > 0)
             {
-                ubyte p24 = to_point24(form_dots[$-1]);
-
-                if (p24 < 24 && v2.p < 24)
-                {
-                    ubyte fe = v2.p;
-                    ubyte f = p24;
-                    if (lshift)
-                        f = (f+1)%24;
-                    else
-                        f = (f+23)%24;
-
-                    while (f != fe)
-                    {
-                        if (f%4 == 0)
-                        {
-                            form_dots ~= f;
-                            writefln("ADD2 f %s", f);
-                            form_changed = true;
-                        }
-                        if (lshift)
-                            f = (f+1)%24;
-                        else
-                            f = (f+23)%24;
-                    }
-                }
+                add_bound_points(form_dots[$-1], v2);
             }
         }
 
@@ -1106,31 +1126,7 @@ void paint(Vertex v)
 
             if (form_dots.length > 0)
             {
-                ubyte p24 = to_point24(form_dots[$-1]);
-
-                if (p24 < 24 && v.p < 24)
-                {
-                    ubyte fe = v.p;
-                    ubyte f = p24;
-                    if (lshift)
-                        f = (f+1)%24;
-                    else
-                        f = (f+23)%24;
-
-                    while (f != fe)
-                    {
-                        if (f%4 == 0)
-                        {
-                            form_dots ~= f;
-                            writefln("ADD f %s", f);
-                            form_changed = true;
-                        }
-                        if (lshift)
-                            f = (f+1)%24;
-                        else
-                            f = (f+23)%24;
-                    }
-                }
+                add_bound_points(form_dots[$-1], v);
             }
         }
         else
