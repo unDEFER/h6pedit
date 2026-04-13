@@ -104,7 +104,6 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     if (area == 0) return;
 
     int debugy = -1;
-    if (form[0] == 119) _debug = true;
     if (_debug) debugy = 50;
 
     if (debugy >= 0)
