@@ -936,6 +936,7 @@ void process_triangle_navigation_keys(SDL_Event event)
 
             if (lshift && edit_d >= 0)
             {
+                writefln("Edit %s dot %s => %s", edit_d, form_dots[edit_d], d);
                 form_dots[edit_d] = d;
                 form_changed = true;
             }
@@ -970,6 +971,48 @@ void process_mask2_editor_keys(SDL_Event event)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
         paint(v);
+    }
+
+    ubyte p24 = dot_by_line[doty][dotx];
+    if (p24 < 24)
+    {
+        int[7] pkeys = [SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4,
+                        SDL_SCANCODE_5, SDL_SCANCODE_6, SDL_SCANCODE_7];
+
+        foreach (i, k; pkeys)
+        {
+            if (event.key.keysym.scancode == k)
+            {
+                if (lshift)
+                {
+                    ubyte side = p24/4;
+                    ubyte pp = p24%4;
+                    ubyte p = cast(ubyte)(61 + 28*side + 7*pp + i);
+                    Vertex v = Vertex(select.x, select.y, to_point24(p), p);
+                    paint(v);
+                }
+                else if (rshift)
+                {
+                    ptrdiff_t edit_d = -1;
+                    foreach(z, d; form_dots)
+                    {
+                        ubyte d24 = to_point24(d);
+                        if (p24 == d24) edit_d = z;
+                    }
+
+                    if (edit_d >= 0)
+                    {
+                        ubyte side = p24/4;
+                        ubyte pp = p24%4;
+                        ubyte p = cast(ubyte)(61 + 28*side + 7*pp + i);
+
+                        writefln("Edit %s dot %s => %s", edit_d, form_dots[edit_d], p);
+                        form_dots[edit_d] = p;
+                        form_changed = true;
+                    }
+                }
+            }
+        }
     }
 
     if (loop && !lshift && (select.x != ov.x || select.y != ov.y))
@@ -1491,6 +1534,7 @@ void process_choose_edited_form(SDL_Event event)
     int[7] pkeys = [SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4,
                     SDL_SCANCODE_5, SDL_SCANCODE_6, SDL_SCANCODE_7];
 
+    if (!lshift && !rshift)
     foreach (i, k; pkeys)
     {
         if (event.key.keysym.scancode == k)
