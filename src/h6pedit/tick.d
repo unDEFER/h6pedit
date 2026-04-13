@@ -836,6 +836,16 @@ void process_triangle_navigation_keys(SDL_Event event)
             uint scalew = scales[scale];
             d = dot_by_line[doty][dotx];
 
+            ptrdiff_t edit_d = -1;
+            if (lshift)
+            {
+                foreach(z, p; form_dots)
+                {
+                    ubyte p24 = to_point24(p);
+                    if (d == p24) edit_d = z;
+                }
+            }
+
             do
             {
                 ubyte dotx_ = cast(ubyte) (dotx + (5-dot_by_line[doty].length)/2);
@@ -923,6 +933,12 @@ void process_triangle_navigation_keys(SDL_Event event)
                 }
             }
             while ( !(d<24 && (d%2 == 0 || scalew >= 32) || scalew >= 64 || mode == Mode.BrushFormEdit) );
+
+            if (lshift && edit_d >= 0)
+            {
+                form_dots[edit_d] = d;
+                form_changed = true;
+            }
         }
     }
 }
