@@ -375,12 +375,13 @@ void update_mask2_hint()
 {
     if (mask2_hint.changed)
     {
-        mask2_hint.image.cpalette[0].length = 4;
+        mask2_hint.image.cpalette[0].length = 5;
         mask2_hint.image.forms.length = 7;
 
         mask2_hint.image.cpalette[0][1] = Color([0.0f, 0.0f, 1.0f, 0.25f], false, &SRGB_SPACE);
         mask2_hint.image.cpalette[0][2] = Color([1.0f, 1.0f, 0.0f, 1.0f], false, &SRGB_SPACE);
         mask2_hint.image.cpalette[0][3] = Color([0.5f, 0.5f, 0.5f, 1.0f], false, &SRGB_SPACE);
+        mask2_hint.image.cpalette[0][4] = Color([0.25f, 0.25f, 0.25f, 1.0f], false, &SRGB_SPACE);
 
         uint scalew = scales[scale];
         foreach(i, p; hpoints)
@@ -391,10 +392,11 @@ void update_mask2_hint()
 
         foreach(d; form_dots)
         {
-            if (d > 60) continue;
-            HPoint *hp = &hpoints[d];
+            ubyte p24 = to_point24(d);
+
+            HPoint *hp = &hpoints[p24];
             Pixel *px = mask2_hint.image.pixel(hp.x, hp.y);
-            px.color = 3;
+            px.color = (d >= 61 ? 4 : 3);
         }
 
         HPoint *hp = &hpoints[ dot_by_line[doty][dotx] ];
