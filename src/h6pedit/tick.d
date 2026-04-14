@@ -568,6 +568,12 @@ void process_mask_mode_key(SDL_Event event)
             }
         }
     }
+
+    if (lctrl && event.key.keysym.scancode == SDL_SCANCODE_J)
+    {
+        edited_forms_by_coords[[select.x, select.y]] = edited_form;
+        join_forms();
+    }
 }
 
 // @Cancel
@@ -625,6 +631,7 @@ void process_color_picker_navigation_keys(SDL_Event event)
     neighbours(colors_select.x, colors_select.y, neigh);
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
+    if (!lctrl)
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
@@ -708,6 +715,7 @@ void process_navigation_keys(SDL_Event event)
     }
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
+    if (!lctrl)
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
@@ -781,6 +789,7 @@ void process_mask_editor_keys24(SDL_Event event)
 {
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
+    if (!lctrl)
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
@@ -833,6 +842,7 @@ void process_triangle_navigation_keys(SDL_Event event)
     byte[6] dx = [0, 1, 1, 0, 0, 0];
     byte[6] dy = [-2, -1, 1, 2, 1, -1];
 
+    if (!lctrl)
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
@@ -1453,6 +1463,7 @@ void process_mask_editor_up_keys24(SDL_Event event)
 {
     int[6] keys = [SDL_SCANCODE_Y, SDL_SCANCODE_U, SDL_SCANCODE_J, SDL_SCANCODE_N, SDL_SCANCODE_B, SDL_SCANCODE_G];
 
+    if (!lctrl)
     foreach (i, k; keys)
     {
         if (event.key.keysym.scancode == k)
