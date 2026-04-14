@@ -130,7 +130,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                             px = sx1 + d_n * (sx2 - sx1);
                             py = sy1 + d_n * (sy2 - sy1);
                             byte d_round = cast(byte) d_roundf;
-                            byte q = d_round/8;
+                            byte q = (d_round/8)%4;
                             byte k = d_round%8;
                             assert(k != 0);
 
