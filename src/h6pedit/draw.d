@@ -535,11 +535,11 @@ void draw_brush_preview()
 void draw_coords()
 {
     print(format("%sx%s", select.x, select.y),
-            0, cast(int) ((screen.h - 30)/3.5),
+            0, cast(int) ((screen.h - 42)/3.5),
             [255, 255, 255]);
 
     print(format("%s", vertex),
-            90, cast(int) ((screen.h - 30)/3.5),
+            90, cast(int) ((screen.h - 42)/3.5),
             [255, 255, 255]);
 }
 

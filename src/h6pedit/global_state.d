@@ -435,12 +435,12 @@ private
     // @Font
     void createTextures()
     {
-        /*H6P *image = h6p_read("fonts/cp1251_6x10.h6p");
+        H6P *image = h6p_read("fonts/cp1251_8x12.h6p");
 
         auto surface = h6p_render(image, 4, 0, 0, 0, image.width*4, cast(int)(image.height*4* 1.5 / sqrt(3.0)));
 
         if (font) SDL_DestroyTexture(font);
-        font = SDL_CreateTextureFromSurface(renderer, surface);*/
+        font = SDL_CreateTextureFromSurface(renderer, surface);
     }
 
     // @SDLInit

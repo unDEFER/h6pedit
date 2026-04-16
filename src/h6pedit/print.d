@@ -45,8 +45,8 @@ void print_chr(wchar chr, int x, int y, ubyte[3] color = [255, 255, 255])
 
     SDL_Rect srcrect, dstrect;
 
-    srcrect.w = 24;
-    srcrect.h = 35;
+    srcrect.w = 32;
+    srcrect.h = 42;
 
     srcrect.x = col * srcrect.w;
     srcrect.y = row * srcrect.h;
