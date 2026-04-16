@@ -62,7 +62,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
                 bool between(float r, float a, float b)
                 {
-                    return b > a ? r >= a - 1e-1 && r <= b + 1e-1 : r >= b - 1e-1 && r <= a + 1e-1;
+                    return b > a ? r >= a - 1e-5 && r <= b + 1e-5 : r >= b - 1e-5 && r <= a + 1e-5;
                 }
 
                 float dx = intersection[0] - fx1;
@@ -100,6 +100,7 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                         float dist1 = hypot(intersection[0] - sx1, intersection[1] - sy1);
 
                         float i0 = dist1/dist0;
+                        //writefln("get_line: dist0 = %s, dist1=%s, i0=%s", dist0, dist1, i0);
 
                         float i_f = 4.0f*i0;
                         float d_f = 32.0f*i0;
@@ -130,13 +131,14 @@ Vertex[] get_line(Vertex v0, Vertex v1)
                             px = sx1 + d_n * (sx2 - sx1);
                             py = sy1 + d_n * (sy2 - sy1);
                             byte d_round = cast(byte) d_roundf;
-                            byte q = (d_round/8)%4;
+                            byte q = d_round/8;
                             byte k = d_round%8;
                             assert(k != 0);
 
                             opext_ = cast(byte)(61 + side*28 + 7*q + k-1);
+                            //writefln("get_line: side=%s, i_roundf=%s, d_roundf=%s, q=%s, k=%s", side, i_roundf, d_roundf, q, k);
                             writefln("get_line: opext_=%s, op_=%s, to_point24(opext_)=%s", opext_, op_, to_point24(opext_));
-                            //assert(abs(to_point24(opext_) - op_) <= 1);
+                            assert(opext_ < 61 + 6*28);
                         }
 
                         float dist = hypot(px - intersection[0], py - intersection[1]);
@@ -252,4 +254,3 @@ Vertex[] get_line(Vertex v0, Vertex v1)
 
     return vxs;
 }
-
