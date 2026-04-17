@@ -986,6 +986,7 @@ void process_mask2_editor_keys(SDL_Event event)
     {
         Vertex v = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
         paint(v);
+        if (loop) join_forms();
     }
 
     ubyte p24 = dot_by_line[doty][dotx];
