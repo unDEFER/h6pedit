@@ -1872,6 +1872,7 @@ void undo_form_changes()
         load_form_dots(true);
         form_dots = save_forms_by_coords[[select.x, select.y]];
         form_changed = true;
+        writefln("Restore dots %s for form %s at %sx%s", form_dots, f, select.x, select.y);
 
         change_form24();
     }
