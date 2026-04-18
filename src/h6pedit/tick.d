@@ -1765,7 +1765,7 @@ void change_form24()
     
     if ([select.x, select.y] !in save_forms_by_coords)
     {
-        if (edited_form <= p.forms.length)
+        if (edited_form >= p.forms.length)
             save_forms_by_coords[[select.x, select.y]] = [];
         else
         {
@@ -1773,9 +1773,26 @@ void change_form24()
             ubyte rotate1 = p.forms[edited_form].rotation;
             save_forms_by_coords[[select.x, select.y]] = picture.image.get_rotated_form(form1, rotate1);
         }
+        writefln("Save form at %sx%s: %s", select.x, select.y, save_forms_by_coords[[select.x, select.y]]);
     }
 
-    if (dform.length == 2 && dform[0] < 24 && dform[1] < 24)
+    if (dform.length == 0)
+    {
+        if (edited_form < p.forms.length)
+        {
+            if (p.forms[edited_form].form >= 19*4)
+            {
+                ushort form = p.forms[edited_form].form;
+                picture.image.forms[form - 19*4].used--;
+            }
+
+            p.forms = p.forms[0..edited_form] ~ p.forms[edited_form+1..$];
+
+            picture.changed = true;
+            selection.changed = true;
+        }
+    }
+    else if (dform.length == 2 && dform[0] < 24 && dform[1] < 24)
     {
         rotate = dform[0]/4;
         dform[0] %= 4;
