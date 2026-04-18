@@ -989,6 +989,11 @@ void process_mask2_editor_keys(SDL_Event event)
         if (loop) join_forms();
     }
 
+    if (lctrl && event.key.keysym.scancode == SDL_SCANCODE_U)
+    {
+        undo_form_changes();
+    }
+
     ubyte p24 = dot_by_line[doty][dotx];
     if (p24 < 24)
     {
@@ -1389,9 +1394,6 @@ void join_forms()
                     ubyte rotate2 = p.forms[e].rotation;
                     ubyte[] dots2 = picture.image.get_rotated_form(form2, rotate2);
 
-                    dots1 = adopt_form(dots1);
-                    dots2 = adopt_form(dots2);
-
                     ubyte[] joined_dots = join_dots(dots1, dots2);
                     if (joined_dots.empty)
                     {
@@ -1760,6 +1762,18 @@ void change_form24()
     /*auto r = normalize_form(dform);
     dform = r.form;
     rotate = r.rot;*/
+    
+    if ([select.x, select.y] !in save_forms_by_coords)
+    {
+        if (edited_form <= p.forms.length)
+            save_forms_by_coords[[select.x, select.y]] = [];
+        else
+        {
+            ushort form1 = p.forms[edited_form].form;
+            ubyte rotate1 = p.forms[edited_form].rotation;
+            save_forms_by_coords[[select.x, select.y]] = picture.image.get_rotated_form(form1, rotate1);
+        }
+    }
 
     if (dform.length == 2 && dform[0] < 24 && dform[1] < 24)
     {
@@ -1843,6 +1857,32 @@ void change_form24()
 
     mask_hint.changed = true;
     form_changed = false;
+}
+
+void undo_form_changes()
+{
+    Vertex sv = Vertex(select.x, select.y, dot_by_line[doty][dotx]);
+
+    foreach (pt, f; edited_forms_by_coords)
+    {
+        select.x = pt[0];
+        select.y = pt[1];
+
+        edited_form = cast(ubyte) f;
+        load_form_dots(true);
+        form_dots = save_forms_by_coords[[select.x, select.y]];
+        form_changed = true;
+
+        change_form24();
+    }
+
+    select.x = sv.x;
+    select.y = sv.y;
+
+    dotx = dot_to_coords[sv.p][0];
+    doty = dot_to_coords[sv.p][1];
+
+    load_form_dots();
 }
 
 void make_screenshot() {

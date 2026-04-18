@@ -148,6 +148,7 @@ package
     Vertex last_v = Vertex(uint.max, uint.max, 100);
     Vertex first_v = Vertex(uint.max, uint.max, 100);
     ubyte[uint[2]] edited_forms_by_coords;
+    ubyte[][uint[2]] save_forms_by_coords;
     Brush brush = Brush([Vector(0, 14), Vector(8, 0), Vector(0, -14), Vector(-8, 0)]);
     //Brush brush = Brush([Vector(-4, 4), Vector(0, 8), Vector(4, 4), Vector(4, -4), Vector(0, -8), Vector(-4, -4)]);
 
