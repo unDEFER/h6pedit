@@ -248,7 +248,7 @@ byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon, out float[2
 
             if (is_inter)
             {
-                intersections++;
+                if (intersections >= 0) intersections++;
 
                 if (!vinter[0].isNaN && !vinter[1].isNaN && r[2] != 0)
                 {
@@ -282,8 +282,8 @@ byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon, out float[2
 
             if (res == 0) res--;
             if (res == 2) res = -2;
+            intersections = -1;
             writefln("@vec=%s, vec2=%s, vinter=%s, r=%s, res=%s", vec, vec2, vinter, r, res);
-            return res;
         }
         else
         {
@@ -308,7 +308,7 @@ byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon, out float[2
 
             if (!vinter[0].isNaN && !vinter[1].isNaN && is_inter)
             {
-                intersections++;
+                if (intersections >= 0) intersections++;
 
                 float d = dist2(vec[0], vinter);
                 if (d < dist)
@@ -325,7 +325,7 @@ byte vector_in_polygon_position(float[2][2] vec, float[2][] polygon, out float[2
 
     if (res == 0) res++;
     if (res == 2) res = -2;
-    else if (res > 0 && intersections%2 == 0)
+    else if (res > 0 && intersections >= 0 && intersections%2 == 0)
         res = cast(byte)(-res);
     return res;
 }
@@ -743,7 +743,7 @@ float[2][] join_polygons(float[2][] polygon1, float[2][] polygon2, bool dont_che
 
 unittest
 {
-    int total = 13;
+    int total = 14;
     int test;
     int success;
 
@@ -932,6 +932,21 @@ unittest
     polygon2 = [[8.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f]];
     joined = join_polygons(polygon1, polygon2);
     expected = [[4.0f, 0.0f], [4.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f]];
+    writefln("  joined=%s", joined);
+    writefln("expected=%s", expected);
+    if (joined == expected)
+    {
+        success++;
+        writefln("SUCCESS");
+    }
+    else
+        writefln("FAILED");
+
+    writefln("TEST %s/%s", ++test, total);
+    polygon1 = [[4.0f, 16.0f], [4.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f]];
+    polygon2 = [[4.0f, 0.0f], [4.0f, 10.0f], [0.0f, 10.0f], [0.0f, 12.0f], [4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f]];
+    joined = join_polygons(polygon1, polygon2);
+    expected = [[4.0f, 16.0f], [8.0f, 12.0f], [8.0f, 4.0f], [4.0f, 0.0f], [4.0f, 4.0f], [0.0f, 4.0f], [0.0f, 12.0f]];
     writefln("  joined=%s", joined);
     writefln("expected=%s", expected);
     if (joined == expected)
