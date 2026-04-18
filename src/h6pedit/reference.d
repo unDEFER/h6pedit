@@ -94,6 +94,8 @@ class Reference
 
                 oldx = select.x;
                 oldy = select.y;
+                oldoffx = picture.offx;
+                oldoffy = picture.offx;
                 oldpixwnum = scales[.scale];
             }
 
