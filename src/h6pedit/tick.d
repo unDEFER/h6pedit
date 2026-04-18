@@ -523,6 +523,7 @@ void process_mask_mode_key(SDL_Event event)
             first_v.p = 100;
             last_v.p = 100;
             edited_forms_by_coords.clear();
+            save_forms_by_coords.clear();
             mode = Mode.ExtendedFormEdit;
             mask2_hint.changed = true;
         }
@@ -545,6 +546,7 @@ void process_mask_mode_key(SDL_Event event)
             first_v.p = 100;
             last_v.p = 100;
             edited_forms_by_coords.clear();
+            save_forms_by_coords.clear();
             mode = Mode.BrushFormEdit;
         }
     }
@@ -1091,6 +1093,7 @@ void process_brush_mode_keys(SDL_Event event)
         first_v.p = 100;
         last_v.p = 100;
         edited_forms_by_coords.clear();
+        save_forms_by_coords.clear();
 
         Pixel *p = picture.image.pixel(select.x, select.y);
         edited_form = cast(ubyte) p.forms.length;
@@ -1894,6 +1897,9 @@ void undo_form_changes()
         change_form24();
     }
 
+    edited_forms_by_coords.clear();
+    save_forms_by_coords.clear();
+
     select.x = sv.x;
     select.y = sv.y;
 
@@ -2128,6 +2134,7 @@ void brush_preview_init(ref Brush b)
     first_v.p = 100;
     last_v.p = 100;
     edited_forms_by_coords.clear();
+    save_forms_by_coords.clear();
 
     Pixel *p = picture.image.pixel(select.x, select.y);
     edited_form = cast(ubyte) p.forms.length;
