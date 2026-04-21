@@ -104,7 +104,8 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     if (area == 0) return;
 
     int debugy = -1;
-    if (_debug) debugy = 50;
+    //if (form.length >= 7 && form[0..7] == [8, 27, 2, 0, 20, 16, 12]) _debug = true;
+    if (_debug) debugy = 60;
 
     if (debugy >= 0)
     {
@@ -116,6 +117,9 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
 
     foreach(y; 0..h)
     {
+        bool fdebug = (debugy >= 0 && y >= debugy-5 && y <= debugy+5);
+        if (fdebug) writefln("debug %s", y);
+
         float fy = y + 0.5f;
         YInter[] yinters;
 
@@ -137,7 +141,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                 {
                     if (f1_side == f2_side || (f1_side+1)%6 == f2_side && f2_pp == 0 || (f2_side+1)%6 == f1_side  && f1_pp == 0)
                     {
-                        if (y == debugy)
+                        if (fdebug)
                         {
                             writefln("continued %s-%s", f1, f2);
                         }
@@ -200,7 +204,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
 
                     float xx1 = (yy1 - uy1)*dx/dy + ux1;
 
-                    if (y == debugy)
+                    if (fdebug)
                     {
                         writefln("xx0 = %s, xx1 = %s, p1.y = %s, p2.y = %s", xx0, xx1, p1.y, p2.y);
                     }
@@ -219,12 +223,13 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
 
                     int cx0 = cast(int) floor(minx);
                     int cx1 = cast(int) ceil(maxx);
+                    if (round(minx) == round(maxx)) cx0 = cx1 = cast(int) round(minx);
                     int ix0, ix1;
 
                     if (cx0 < 0) cx0 = 0;
                     if (cx1 > w) cx1 = w;
 
-                    if (y == debugy)
+                    if (fdebug)
                     {
                         writefln("cx0 = %s, cx1 = %s", cx0, cx1);
                     }
@@ -242,7 +247,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                             float fy0 = (fx0 - xx0)/(xx1-xx0) + yy0;
                             float fy1 = (fx1 - xx0)/(xx1-xx0) + yy0;
 
-                            if (y == debugy)
+                            if (fdebug)
                             {
                                 writefln(">> x = %s, fy0 = %s, fy1 = %s (<0.5 %s != %s)", x, fy0, fy1, (fy0+fy1)/2.0f < (yy0+yy1)/2.0f, p2.x > p1.x);
                             }
@@ -257,7 +262,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                         if (ix0 < cx0) ix0 = cx0;
                         if (ix1 < cx0) ix1 = cx1;
 
-                        if (y == debugy)
+                        if (fdebug)
                         {
                             writefln(">> x = %s-%s, ix = %s-%s", x1, x2, ix0, ix1);
                         }
@@ -275,7 +280,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                             float fy0 = (fx0 - xx0)/(xx1-xx0) + yy0;
                             float fy1 = (fx1 - xx0)/(xx1-xx0) + yy0;
 
-                            if (y == debugy)
+                            if (fdebug)
                             {
                                 writefln("<< x = %s, fy0 = %s, fy1 = %s (<0.5 %s != %s)", x, fy0, fy1, (fy0+fy1)/2.0f < (yy0+yy1)/2.0f, p2.x > p1.x);
                             }
@@ -290,7 +295,7 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
                         if (ix0 >= cx1) ix0 = cx0;
                         if (ix1 >= cx1) ix1 = cx1;
 
-                        if (y == debugy)
+                        if (fdebug)
                         {
                             writefln("<< x = %s-%s, ix = %s-%s", x1, x2, ix0, ix1);
                         }
