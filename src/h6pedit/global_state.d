@@ -183,6 +183,7 @@ package
         int ih = cast(int) round(scales[scale] * (select.h * 1.5 / sqrt(3.0) + 0.5 / sqrt(3.0)));
 
         selection = new RenderedH6P(iw, ih);
+        selection.hex_bound = true;
     }
 
     // @Palette

@@ -87,8 +87,10 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
     int oow = cast(int) ceil(1.0 * ow*scaledown / hpw);
     int ooh = cast(int) ceil(1.0 * oh*scaledown / (hph-hh));
 
-    int th = min(nh, offy+ooh-1);
-    int tw = min(nw, offx+oow);
+    int th = min(nh, offy+ooh);
+    int tw = min(nw, offx+oow+1);
+    int fromx = max(0, offx-1);
+    int fromy = max(0, offy-1);
 
     imgbuf = new ubyte[(ow*scaledown)*(oh*scaledown)*4];
     assert(imgbuf !is null);
@@ -105,12 +107,12 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     ColorSpace *rgbspace = get_rgbspace(space);
 
-    for (int y = offy; y < th; y++)
+    for (int y = fromy; y < th; y++)
     {
         int iy = (y-offy)*(hph-hh);
         int siy = y*(hph-hh);
 
-        for (int x = offx; x < tw; x++)
+        for (int x = fromx; x < tw; x++)
         {
             int ix;
             int six;
@@ -134,10 +136,12 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
                 int total, numdark;
                 for (int dy = 0; dy < hph; dy++)
                 {
+                    if (iy+dy < 0) { continue; }
                     if (iy+dy >= oh*scaledown) { break; }
 
                     for (int dx = 0; dx < hpw; dx++)
                     {
+                        if (ix+dx < 0) { continue; }
                         if (ix+dx >= ow*scaledown) { break; }
 
                         // @HyperMask
@@ -173,10 +177,12 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
             // @Pixel2HexAverage
             for (int dy = 0; dy < hph; dy++)
             {
+                if (iy+dy < 0) { continue; }
                 if (iy+dy >= oh*scaledown) { break; }
 
                 for (int dx = 0; dx < hpw; dx++)
                 {
+                    if (ix+dx < 0) { continue; }
                     if (ix+dx >= ow*scaledown) { break; }
 
                     bool bdr = (dx == 0 || dx == hpw-1);

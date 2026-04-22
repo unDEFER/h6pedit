@@ -28,7 +28,7 @@ import hexpict.hyperpixel;
 enum DBGX = -1;
 enum DBGY = -1;
 
-SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh)
+SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh, bool hexbound = false)
 {   
     // @Hex2PixelScaleDown
     uint scaledown = 1;
@@ -66,19 +66,32 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
     int oow = cast(int) ceil(1.0 * ow*scaledown / hpw);
     int ooh = cast(int) ceil(1.0 * oh*scaledown / (hph-hh));
 
-    int th = min(ih, offy+ooh-1);
-    int tw = min(iw, offx+oow);
+    int tw, th, fromx, fromy;
+    if (hexbound)
+    {
+        th = min(ih, offy+ooh-1);
+        tw = min(iw, offx+oow);
+        fromx = offx;
+        fromy = offy;
+    }
+    else
+    {
+        th = min(ih, offy+ooh);
+        tw = min(iw, offx+oow+1);
+        fromx = max(0, offx-1);
+        fromy = max(0, offy-1);
+    }
 
     imgbuf = new ubyte[(ow*scaledown)*(oh*scaledown) * 4];
     assert(imgbuf !is null);
 
     ColorSpace *rgbspace = get_rgbspace(image.space);
 
-    for (uint y = offy; y < th; y++)
+    for (int y = fromy; y < th; y++)
     {
-        uint iy = (y-offy)*(hph-hh);
+        int iy = (y-offy)*(hph-hh);
 
-        for (uint x = offx; x < tw; x++)
+        for (int x = fromx; x < tw; x++)
         {
             bool _debug = (cast(int) x == DBGX && cast(int) y == DBGY);
 
@@ -90,7 +103,7 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
             color_to_u8(&color, rgbspace, p, &err, ErrCorrection.ORDINARY);
 
             // @H6PCoordinates
-            uint ix;
+            int ix;
             if ((inv ? y - offy : y)%2 == 0)
             {
                 ix = hpw*(x-offx);
@@ -105,14 +118,16 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
                 writefln("%sx%s p=%s color=%s", x, y, p, h6p.color);
             }
 
-            for (uint dy = 0; dy < hph; dy++)
+            for (int dy = 0; dy < hph; dy++)
             {
+                if (iy+dy < 0) { continue; }
                 if (iy+dy >= oh*scaledown) { break; }
 
                 //int first_in_line = true;
 
-                for (uint dx = 0; dx < hpw; dx++)
+                for (int dx = 0; dx < hpw; dx++)
                 {
+                    if (ix+dx < 0) { continue; }
                     if (ix+dx >= ow*scaledown) { break; }
 
                     size_t hpos = dx + dy*hpw;
@@ -146,12 +161,14 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
                     get_simple_hyperpixel(subform.form, hpw, subform.rotation, hpw <= 16 && _debug) :
                     image.forms[subform.form - 19*4].get_hyperpixel(hpw, subform.rotation, hpw <= 16 && _debug);
 
-                for (uint dy = 0; dy < hph; dy++)
+                for (int dy = 0; dy < hph; dy++)
                 {
+                    if (iy+dy < 0) { continue; }
                     if (iy+dy >= oh*scaledown) { break; }
 
-                    for (uint dx = 0; dx < hpw; dx++)
+                    for (int dx = 0; dx < hpw; dx++)
                     {
+                        if (ix+dx < 0) { continue; }
                         if (ix+dx >= ow*scaledown) { break; }
 
                         size_t hpos = dx + dy*hpw;
