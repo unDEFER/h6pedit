@@ -361,6 +361,37 @@ void hypermask61(bool[] hpdata, int w, int h, ubyte[] form, bool _debug = false)
     }
 }
 
+void hp2bounds(bool[] hpdata, int w, int h)
+{
+    bool[] hpdata2 = new bool[hpdata.length];
+
+    foreach(y; 0..h)
+    {
+        foreach(x; 0..w)
+        {
+            bool b = hpdata[y*w + x];
+            foreach(dy; -1..2)
+            {
+                foreach(dx; -1..2)
+                {
+                    ptrdiff_t y2 = y + dy;
+                    ptrdiff_t x2 = x + dx;
+
+                    bool b2;
+                    if (x2 >= 0 && x2 < w &&
+                            y2 >= 0 && y2 < h)
+                        b2 = hpdata[y2*w + x2];
+
+                    if (b != b2)
+                        hpdata2[y*w + x] = true;
+                }
+            }
+        }
+    }
+
+    hpdata[0..$] = hpdata2[0..$];
+}
+
 bool to_point_side(ubyte p, out ubyte side, out ubyte pp)
 {
     ubyte dir = p;
@@ -739,7 +770,7 @@ ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
  * Returns false if wasn't generated.
  * @HyperPixel
  */
-BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
+BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false, bool bounds = true)
 {
     ubyte[] form = form12toform(form12, rotate, _debug);
 
@@ -892,6 +923,8 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false)
                 }
             }
         }
+
+        if (bounds) hp2bounds(hpdata, w, h);
 
         if (_debug)
         {
