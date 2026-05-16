@@ -60,19 +60,19 @@ struct Point
 Point[61 + 28*6] points;
 int pw = 0;
 
-BitArray*[6][19*4] hp19_4;
+BitArray*[2][6][19*4] hp19_4;
 
-BitArray* get_simple_hyperpixel(ushort form, int w, ubyte rotate, bool _debug = false)
+BitArray* get_simple_hyperpixel(ushort form, int w, ubyte rotate, bool bounds = false, bool _debug = false)
 {
-    if (hp19_4[form][rotate] is null)
+    if (hp19_4[form][rotate][bounds?0:1] is null)
     {
         ubyte[12] dots;
         dots[0] = cast(ubyte)((form-1)/19 + 1);
         dots[1] = cast(ubyte)((form-1)%19 + 6);
-        hp19_4[form][rotate] = hyperpixel(w, dots, rotate, _debug);
+        hp19_4[form][rotate][bounds?0:1] = hyperpixel(w, dots, rotate, bounds, _debug);
     }
 
-    return hp19_4[form][rotate];
+    return hp19_4[form][rotate][bounds?0:1];
 }
 
 /*
@@ -770,7 +770,7 @@ ubyte[] form12toform(ubyte[12] form12, ubyte rotate, bool _debug = false)
  * Returns false if wasn't generated.
  * @HyperPixel
  */
-BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false, bool bounds = true)
+BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool bounds = false, bool _debug = false)
 {
     ubyte[] form = form12toform(form12, rotate, _debug);
 
@@ -797,7 +797,7 @@ BitArray *hyperpixel(int w, ubyte[12] form12, ubyte rotate, bool _debug = false,
     // @PointsOfHexagon
     if (pw != w)
     {
-        hp19_4 = (BitArray*[6][19*4]).init;
+        hp19_4 = (BitArray*[2][6][19*4]).init;
         pw = w;
 
         points[0] = Point(w/2.0f, 0);

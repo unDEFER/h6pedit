@@ -604,8 +604,11 @@ void process_space_key(SDL_Event event)
     {
         if (reference)
         {
-            hide_picture = !hide_picture;
-            if (hide_reference && hide_picture)
+            draw_mode_picture = cast(DrawMode) ((draw_mode_picture+1)%3);
+            picture.bounds = (draw_mode_picture == DrawMode.Bounds);
+            picture.changed = true;
+
+            if (hide_reference && draw_mode_picture == DrawMode.None)
                 hide_reference = false;
         }
     }
@@ -619,8 +622,8 @@ void process_tab_key(SDL_Event event)
         if (reference)
         {
             hide_reference = !hide_reference;
-            if (hide_reference && hide_picture)
-                hide_picture = false;
+            if (hide_reference && draw_mode_picture == DrawMode.None)
+                draw_mode_picture = DrawMode.Full;
         }
     }
 }

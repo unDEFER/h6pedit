@@ -80,7 +80,7 @@ SDL_Surface *hexogrid(SDL_Surface *image, uint scale, float scaleupx, int offx, 
 
     // @HyperMaskFile
     ubyte[12] form12;
-    BitArray *hp = hyperpixel(hpw, form12, 0, false, false);
+    BitArray *hp = hyperpixel(hpw, form12, 0);
 
     ubyte[] imgbuf;
 

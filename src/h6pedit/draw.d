@@ -565,7 +565,7 @@ void draw_screen()
         reference.draw_cursor();
     }
 
-    if (!hide_picture)
+    if (draw_mode_picture != DrawMode.None)
         draw_picture();
 
     draw_palette();

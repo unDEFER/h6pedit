@@ -58,6 +58,13 @@ enum Mode
     ColorPicker
 }
 
+enum DrawMode
+{
+    Full = 0,
+    Bounds,
+    None
+}
+
 // @GlobalState
 package
 {
@@ -98,7 +105,8 @@ package
     // @Pictures
     RenderedH6P[] pictures;
     int pict;
-    bool hide_picture;
+
+    DrawMode draw_mode_picture;
     bool hide_reference;
 
     RenderedH6P picture()

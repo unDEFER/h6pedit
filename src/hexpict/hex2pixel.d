@@ -28,7 +28,7 @@ import hexpict.hyperpixel;
 enum DBGX = -1;
 enum DBGY = -1;
 
-SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh, bool hexbound = false)
+SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, int ow, int oh, bool bounds = false, bool hexbound = false)
 {   
     // @Hex2PixelScaleDown
     uint scaledown = 1;
@@ -59,7 +59,7 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
     uint nh = ih*(hph-hh)+hh+1;
 
     ubyte[12] form12;
-    BitArray *hp = hyperpixel(hpw, form12, 0);
+    BitArray *hp = hyperpixel(hpw, form12, 0, bounds);
 
     ubyte[] imgbuf;
 
@@ -158,8 +158,8 @@ SDL_Surface *h6p_render(H6P *image, uint scale, bool inv, int offx, int offy, in
 
                 BitArray *mhp = 
                     subform.form < 19*4 ?
-                    get_simple_hyperpixel(subform.form, hpw, subform.rotation, hpw <= 16 && _debug) :
-                    image.forms[subform.form - 19*4].get_hyperpixel(hpw, subform.rotation, hpw <= 16 && _debug);
+                    get_simple_hyperpixel(subform.form, hpw, subform.rotation, bounds, hpw <= 16 && _debug) :
+                    image.forms[subform.form - 19*4].get_hyperpixel(hpw, subform.rotation, bounds, hpw <= 16 && _debug);
 
                 for (int dy = 0; dy < hph; dy++)
                 {

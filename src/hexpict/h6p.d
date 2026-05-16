@@ -87,18 +87,20 @@ struct Form
     uint used;
     BitArray*[6] hp;
     int last_w;
+    bool last_bounds;
 
-    BitArray* get_hyperpixel(int w, ubyte rotate, bool _debug)
+    BitArray* get_hyperpixel(int w, ubyte rotate, bool bounds, bool _debug)
     {
-        if (last_w != w)
+        if (last_w != w || last_bounds != bounds)
         {
             hp[0..6] = null;
         }
 
         if (hp[rotate] is null)
         {
-            hp[rotate] = hyperpixel(w, dots, rotate, _debug);
+            hp[rotate] = hyperpixel(w, dots, rotate, bounds, _debug);
             last_w = w;
+            last_bounds = bounds;
         }
 
         return hp[rotate];

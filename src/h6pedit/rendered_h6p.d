@@ -29,6 +29,7 @@ class RenderedH6P
     int scale = 4;
     int iw, ih;
     bool autosize;
+    bool bounds;
     bool hex_bound;
     SDL_Rect rect;
 
@@ -86,7 +87,7 @@ class RenderedH6P
         //        rendered_data, rect.w, rect.h, inv, tile_mode);
 
         surface = h6p_render(image, scale, inv,
-                offx, offy, iw, ih, hex_bound);
+                offx, offy, iw, ih, bounds, hex_bound);
         assert(surface !is null);
     }
 
