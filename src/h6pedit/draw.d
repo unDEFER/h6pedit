@@ -251,7 +251,7 @@ void draw_palette()
             rect.w = cast(int) round(size);
             rect.h = cast(int) round(size);
 
-            if (color == i)
+            if (color-palette_offset == i)
             {
                 rect.x -= cast(int) round(size*.25);
                 rect.y -= cast(int) round(size*.25);
