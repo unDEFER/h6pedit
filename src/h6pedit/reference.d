@@ -70,7 +70,11 @@ class Reference
 
         void draw()
         {
-            if (select.x != oldx || select.y != oldy ||
+            bool noselect = (mode == Mode.ExtendedFormEdit);
+            auto selx = noselect ? -1 : select.x;
+            auto sely = noselect ? -1 : select.y;
+
+            if (selx != oldx || sely != oldy ||
                     picture.offx != oldoffx || picture.offy != oldoffy ||
                     scales[.scale] != oldpixwnum)
             {
@@ -86,14 +90,14 @@ class Reference
                 int offy = picture.offy;
                 if (pixw < 4) return;
 
-                SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, select.x, select.y);
+                SDL_Surface *im = hexogrid(image, pixw, scaleup, offx, offy, screen.w, screen.h, selx, sely);
 
                 texture = SDL_CreateTextureFromSurface(renderer, im);
 
                 SDL_FreeSurface(im);
 
-                oldx = select.x;
-                oldy = select.y;
+                oldx = selx;
+                oldy = sely;
                 oldoffx = picture.offx;
                 oldoffy = picture.offy;
                 oldpixwnum = scales[.scale];
