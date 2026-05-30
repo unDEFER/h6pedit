@@ -697,11 +697,25 @@ void process_color_picker_value_keys(SDL_Event event)
 
         color_gray = cast(byte) nc;
 
+        p = color_picker.image.pixel(colors_select.x, colors_select.y);
+
+        // @CurrentColor
+        picture.image.cpalette[0][color] = color_picker.image.cpalette[0][p.color];
+
+        Color *cc = &picture.image.cpalette[0][color];
+        color_convert(cc, picture.image.space, ErrCorrection.ORDINARY);
+        foreach(ic, ch; cc.channels)
+        {
+            ushort ch16 = cast(ushort) round(min(ch * 65535.0f, 65535.0f));
+            ubyte[2] be16_ch = nativeToBigEndian(ch16);
+            picture.image.palette[0][color*8 + ic*2..color*8 + ic*2 + 2] = be16_ch;
+        }
+
         palette_reinit();
 
-        p = color_picker.image.pixel(colors_select.x, colors_select.y);
         mask_hint.changed = true;
         color_picker.changed = true;
+        picture.changed = true;
     }
 }
 
