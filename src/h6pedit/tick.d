@@ -1229,12 +1229,10 @@ void paint(Vertex v)
                 add_bound_points(form_dots[$-1], v);
             }
         }
-        else
-        {
-            dotx = dot_to_coords[v.p][0];
-            doty = dot_to_coords[v.p][1];
-            writefln("D4 dotx = %s, doty = %s", dotx, doty);
-        }
+
+        dotx = dot_to_coords[v.p][0];
+        doty = dot_to_coords[v.p][1];
+        writefln("D4 dotx = %s, doty = %s", dotx, doty);
     }
 
     if (form_dots.length == 0 || form_dots[0] != v.p)
